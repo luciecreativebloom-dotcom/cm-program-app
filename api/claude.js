@@ -55,7 +55,10 @@ module.exports = async (req, res) => {
     res.status(405).json({ error: "Méthode non autorisée" });
     return;
   }
-  const apiKey = String(process.env.ANTHROPIC_API_KEY || "").trim();
+  // On retire tout caractère invalide dans un en-tête HTTP (espaces, retours à la
+  // ligne, caractères invisibles collés par erreur). Une clé Anthropic ne contient
+  // que des caractères ASCII imprimables : on ne garde donc que ceux-là.
+  const apiKey = String(process.env.ANTHROPIC_API_KEY || "").replace(/[^\x21-\x7e]/g, "");
   if (!apiKey) {
     res.status(500).json({ error: "Clé API non configurée sur le serveur" });
     return;
