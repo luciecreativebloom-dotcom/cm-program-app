@@ -23,7 +23,9 @@
 const MODEL = "claude-sonnet-4-6";
 
 // Plafond de tokens en sortie par appel (garde-fou anti-dérapage de coût).
-const MAX_TOKENS_CAP = 1500;
+// 4096 laisse passer l'extraction de fiche client depuis un PDF (JSON plus long)
+// sans être tronquée, tout en gardant un coût maîtrisé.
+const MAX_TOKENS_CAP = 4096;
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {

@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CM Program App — Creative Bloom</title>
+<!-- PWA : installation sur l'écran d'accueil (icône, plein écran) -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#8C1B44">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CM Program">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1001,6 +1017,16 @@ p{margin:0 0 12px;}
       </div>
     </section>
 
+    <!-- ---------- GÉNÉRATEUR D'IDÉES ---------- -->
+    <section class="view" id="v-ideas">
+      <div class="view-head">
+        <p class="eyebrow sun">Mon business</p>
+        <h1>💡 Générateur d'idées</h1>
+        <p class="lede">Réponds à quelques questions (ou applique ton profil business) et repars avec 15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action.</p>
+      </div>
+      <div id="ideas-form"></div>
+    </section>
+
     <!-- ---------- INSTA MANAGER ---------- -->
     <section class="view" id="v-insta">
       <div class="view-head">
@@ -1447,7 +1473,7 @@ async function enterApp(){
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
-  renderDossiers(); renderProspects(); renderCalcForm(); renderInsta(); renderLuna();
+  renderDossiers(); renderProspects(); renderCalcForm(); renderIdeas(); renderInsta(); renderLuna();
   paintQuotas();
 }
 async function doLogin(){
@@ -1474,6 +1500,8 @@ const PROFIL_FIELDS = [
    ph:"À qui tu t'adresses : métier, situation, ce qu'elle vit, ce qu'elle cherche."},
   {k:'offres', l:"Tes offres", area:true,
    ph:"Le nom, le format, le prix et la promesse de chacune de tes offres."},
+  {k:'credibilite', l:"Tes critères de crédibilité", area:true,
+   ph:"Ce qui te rend légitime : années d'expérience, diplômes, certifications, clients ou marques reconnus, résultats notables."},
   {k:'ton', l:"Ton ton de voix", area:true,
    ph:"Comment on doit écrire pour toi : registre, vocabulaire à privilégier ou à éviter, tutoiement/vouvoiement, niveau d'émotion…"},
   {k:'motscles', l:"Tes mots-clés / ton univers", area:true,
@@ -1495,8 +1523,8 @@ function profilBlock(){
   const L = [];
   const add = (lab,k)=>{ if((PROFIL[k]||'').trim()) L.push(`- ${lab} : ${PROFIL[k].trim()}`); };
   add('Marque','marque'); add('Présentation','presentation'); add('Activité','activite');
-  add('Cible','cible'); add('Offres','offres'); add('Ton de voix à respecter','ton');
-  add('Mots-clés / univers','motscles');
+  add('Cible','cible'); add('Offres','offres'); add('Crédibilité / légitimité','credibilite');
+  add('Ton de voix à respecter','ton'); add('Mots-clés / univers','motscles');
   if(Array.isArray(PROFIL.palette) && PROFIL.palette.length)
     L.push(`- Palette de couleurs : ${PROFIL.palette.join(', ')}`);
   const fn = [];
@@ -1707,6 +1735,7 @@ const NAV = [
   { type:'group', name:'Mon business', items:[
     { id:'calc',    ic:'🧮', name:'Ma rentabilité' },
     { id:'mission', ic:'🗂', name:'Mon CRM' },
+    { id:'ideas',   ic:'💡', name:"Générateur d'idées" },
     { id:'insta',   ic:'🎨', name:'Créer un contenu' },
   ]},
   { type:'group', name:'Mes assistants', items:[
@@ -1765,6 +1794,7 @@ const TILES_A = [
 const TILES_O = [
   { id:'calc', ic:'🧮', n:'Ma rentabilité', d:"Le CA à faire et le taux horaire plancher, à partir de la vie que tu veux." },
   { id:'mission', ic:'🗂', n:'Mon CRM', d:"Tes clients et tes prospects : fiches, débriefs stratégiques et suivi." },
+  { id:'ideas', ic:'💡', n:"Générateur d'idées", d:"15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action." },
   { id:'insta', ic:'🎨', n:'Créer un contenu', d:"Compose tes carrousels et tes stories, exporte-les en ZIP prêt à publier." },
 ];
 function renderTiles(){
@@ -3289,7 +3319,7 @@ function drawMisForm(){
 async function misPdfFill(file){
   const st = ()=> $('#mis-pdf-status');
   if(file.type !== 'application/pdf'){ if(st()) st().textContent = "Merci de déposer un fichier PDF."; return; }
-  if(file.size > 15*1024*1024){ if(st()) st().textContent = "PDF trop lourd (15 Mo maximum)."; return; }
+  if(file.size > 3*1024*1024){ if(st()) st().textContent = "PDF trop lourd : 3 Mo maximum. Réduis-le (moins de pages, ou compresse-le) ou remplis les champs à la main."; return; }
   const spin = (txt)=>{ const e = st(); if(e) e.innerHTML = `<span class="spin" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px;"></span>${esc(txt)}`; };
   spin('Lecture du PDF…');
   const b64 = await new Promise((res)=>{
@@ -3314,7 +3344,7 @@ Format exact :
   ]}];
   try{
     spin("L'outil lit le document et remplit la fiche…");
-    const d = extractJson(await ask(null, { system:sys, messages, max_tokens:1500 }));
+    const d = extractJson(await ask(null, { system:sys, messages, max_tokens:4000 }));
     collect();                 // conserve ce qui est déjà saisi
     misApplyExtract(d);        // applique ce que le PDF a livré
     drawMisForm();             // re-rend la fiche pré-remplie
@@ -4981,6 +5011,10 @@ function lcDraw(){
 function lcGo(step){ LC.step = step; lcSave(); lcDraw(); window.scrollTo({top:0, behavior:'smooth'}); }
 
 function lcApplyProfil(){
+  if(!profilRempli()){
+    toast("Remplis d'abord ton profil business (bouton en bas du menu) pour l'appliquer ici.");
+    return;
+  }
   const map = { entreprise: PROFIL.activite || PROFIL.presentation, cible: PROFIL.cible, actu: PROFIL.offres };
   let n = 0;
   Object.entries(map).forEach(([k,v])=>{ if((v||'').trim() && !(LC[k]||'').trim()){ LC[k] = v.trim(); n++; } });
@@ -4995,7 +5029,7 @@ function lcDrawBrief(){
     <div class="card pad-l block">
       <p class="sec-t">Parle-moi de toi</p>
       <p class="sec-d">Plus tu es précise, plus le planning te ressemblera.</p>
-      ${profilRempli()?`<div class="chips" style="margin-bottom:12px;"><button class="chip" id="lc-pro">🌸 Appliquer mon profil business</button></div>`:''}
+      <div style="margin:-2px 0 14px;"><button class="btn ghost sm" id="lc-pro">🌸 Appliquer mon profil business</button></div>
       <div class="field"><label for="lc-entreprise">Ton activité, en quelques lignes</label>
         <textarea id="lc-entreprise" placeholder="Ex : community manager freelance pour les praticiennes du bien-être, 1 an d'activité, 2 clientes en gestion mensuelle.">${esc(LC.entreprise)}</textarea></div>
       <div class="field"><label for="lc-cible">À qui tu t'adresses</label>
@@ -5942,7 +5976,7 @@ async function runCalc(){
     CALC_TMP.ia = await askJson(calcContext(n), CALC_SYS);
   }catch(e){
     CALC_TMP.ia = null;
-    ia.innerHTML = errorBox("La lecture stratégique n'a pas pu être générée. Tes chiffres ci-dessus restent valables.");
+    ia.innerHTML = '';   // silencieux : la mini-analyse « En bref » couvre déjà l'essentiel
     return;
   }
   drawIa(CALC_TMP.ia);
@@ -5974,6 +6008,29 @@ RÉSULTATS CALCULÉS (à commenter tels quels, ne les recalcule pas ; tout est H
 - Heures facturables disponibles par client et par mois : ${Math.round(n.hClientMois)} h
 - Heures facturables sur l'année : ${Math.round(n.hAn)} h sur ${n.semaines} semaines`;
 
+/* Lecture rapide, calculée localement à partir des chiffres (sans IA) :
+   elle s'affiche toujours, juste sous les résultats. */
+function calcMiniAnalyse(n){
+  const part = Math.round(100 / n.clients);
+  const hClient = Math.round(n.hClientMois);
+  const points = [];
+  if(n.clients <= 2){
+    points.push(`<b>Dépendance forte.</b> Avec ${n.clients} client${n.clients>1?'s':''}, chacun pèse environ ${part} % de ton chiffre d'affaires. Si l'un s'en va, ce sont ${euros(n.parClientMois)} HT par mois à retrouver — élargir ta base sécurise tes revenus.`);
+  }else{
+    points.push(`<b>Base répartie.</b> Chacun de tes ${n.clients} clients pèse environ ${part} % de ton chiffre d'affaires : la perte d'un seul reste absorbable.`);
+  }
+  points.push(`<b>Charge par client.</b> Tu comptes ${hClient} h facturable${hClient>1?'s':''} par mois et par client. Le temps réel est plus élevé : échanges, veille et administratif ne se facturent pas mais se travaillent.`);
+  points.push(`<b>Ton plancher.</b> ${euros(n.horaire)} de l'heure, c'est le minimum pour être rentable, pas un objectif. En dessous, tu travailles à perte ; vise au-dessus pour absorber les imprévus.`);
+  const rappel = `Ces chiffres servent la vie que tu veux, pas l'inverse. Si l'objectif de ${euros(n.caMois)} HT par mois te paraît lourd, ajuste d'abord tes charges ou ton nombre de clients avant d'ajouter des heures.`;
+  return `<div class="card pad-l" style="margin-top:14px;">
+    <p class="sec-t">En bref</p>
+    <p class="sec-d">Une lecture rapide de tes chiffres, à confirmer avec ton comptable.</p>
+    <ul style="margin:8px 0 0;padding-left:18px;line-height:1.55;font-size:14px;color:var(--ink);">
+      ${points.map(p=>`<li style="margin-bottom:8px;">${p}</li>`).join('')}
+    </ul>
+    <div class="note" style="margin-top:6px;">${rappel}</div>
+  </div>`;
+}
 function drawCalcResults(n, ia, saved){
   $('#calc-out').innerHTML = `
     <div class="grid3" style="margin-top:16px;">
@@ -6004,6 +6061,7 @@ function drawCalcResults(n, ia, saved){
       <div class="detail"><span>Semaines travaillées</span><b>${n.semaines}</b></div>
       <div class="note">Estimation, pas un calcul comptable. Tous les calculs de rentabilité se font HT : la TVA transite par ton compte mais ne t'appartient jamais, elle ne change donc pas ce que tu gagnes. Le taux de cotisations, le seuil de franchise en base de TVA et le taux applicable à ton activité varient selon ton statut, ton option fiscale et l'année en cours : vérifie-les sur urssaf.fr ou auprès de ton comptable avant de fixer tes tarifs.</div>
     </div>
+    ${calcMiniAnalyse(n)}
     <div id="calc-ia"></div>
     <div class="row-end" id="calc-actions"></div>`;
   if(ia) drawIa(ia);
@@ -6074,6 +6132,161 @@ function calcPdf(n, ia){
   }
   L.push('', 'Estimation, pas un calcul comptable. Vérifie les taux applicables sur urssaf.fr ou auprès de ton comptable avant de fixer tes tarifs.');
   exportPdf('Ma rentabilité', `${USER} · calcul du ${CALC ? CALC.date : new Date().toLocaleDateString('fr-FR')}`, L.join('\n'));
+}
+
+/* ================================================================
+   GÉNÉRATEUR D'IDÉES
+   5 questions (ou profil business) → 15 idées : accroche, brief, CTA.
+   ================================================================ */
+let IDEAS = { metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[] };
+let ideasSaveT = null;
+const IDEAS_MAX_SAVED = 30;
+const IDEAS_FIELDS = [
+  {k:'metier',      l:'Ton métier',                          ph:"Ex : community manager freelance / consultante en communication."},
+  {k:'cible',       l:'Ta cible',                            ph:"Ex : praticiennes du bien-être indépendantes, 30-45 ans, seules."},
+  {k:'expertise',   l:"Tes domaines d'expertise principaux", ph:"Ex : Instagram, stratégie de contenu, ligne éditoriale, carrousels."},
+  {k:'credibilite', l:'Tes critères de crédibilité',         ph:"Ex : 9 ans d'expérience, certifiée X, 30 clientes accompagnées, intervenante à…"},
+  {k:'offre',       l:'Ton offre détaillée',                 ph:"Ex : « Présence Sereine », gestion Instagram mensuelle à 850€/mois, engagement 3 mois."},
+];
+async function renderIdeas(){
+  const saved = await getJSON('cmp:idees', null);
+  if(saved && typeof saved === 'object') IDEAS = Object.assign({ metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[] }, saved);
+  if(!Array.isArray(IDEAS.list)) IDEAS.list = [];
+  if(!Array.isArray(IDEAS.saved)) IDEAS.saved = [];
+  ideasDraw();
+}
+function ideasSave(){ clearTimeout(ideasSaveT); ideasSaveT = setTimeout(ideasSaveNow, 600); }
+function ideasSaveNow(){ try{ setJSON('cmp:idees', IDEAS); }catch(e){} }
+function ideasDraw(){
+  const box = $('#ideas-form'); if(!box) return;
+  box.innerHTML = `<div class="card pad-l">
+      <div style="margin:0 0 14px;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button></div>
+      ${IDEAS_FIELDS.map(f=>`<div class="field"><label for="id-${f.k}">${esc(f.l)}</label>
+        <textarea id="id-${f.k}" placeholder="${esc(f.ph)}">${esc(IDEAS[f.k]||'')}</textarea></div>`).join('')}
+      <button class="btn full" id="ideas-gen">Générer 15 idées</button>
+    </div>
+    <div id="ideas-out"></div>
+    <div id="ideas-list"></div>
+    <div id="ideas-saved"></div>`;
+  IDEAS_FIELDS.forEach(f=> $('#id-'+f.k).addEventListener('input', e=>{ IDEAS[f.k] = e.target.value; ideasSave(); }));
+  $('#ideas-pro').addEventListener('click', ideasApplyProfil);
+  $('#ideas-gen').addEventListener('click', ideasGenerate);
+  ideasDrawList();
+  ideasDrawSaved();
+}
+function ideasApplyProfil(){
+  if(!profilRempli()){ toast("Remplis d'abord ton profil business (bouton en bas du menu) pour l'appliquer ici."); return; }
+  const map = {
+    metier:      PROFIL.activite || PROFIL.presentation,
+    cible:       PROFIL.cible,
+    expertise:   PROFIL.motscles || PROFIL.activite,
+    credibilite: PROFIL.credibilite,
+    offre:       PROFIL.offres,
+  };
+  let n = 0;
+  Object.entries(map).forEach(([k,v])=>{ if((v||'').trim()){ IDEAS[k] = v.trim(); n++; } });
+  ideasSaveNow(); ideasDraw();
+  toast(n ? 'Profil appliqué à tes questions' : 'Ton profil est encore vide sur ces champs');
+}
+const IDEAS_SYS = `${VOIX}
+Tu génères des idées de contenu pour une community manager / consultante en communication, à publier sur les réseaux (Instagram, LinkedIn…).
+Réponds UNIQUEMENT en JSON valide, sans texte autour ni balises markdown :
+{"idees":[{"accroche":"","brief":"","cta":""}]}
+Donne EXACTEMENT 15 idées, variées : alterne les angles (hot take, quick win, storytelling, coulisses, preuve/crédibilité, pédagogie, objection levée, mise en avant d'offre…). Aucune idée ne doit ressembler à une autre.
+accroche = la première phrase qui arrête le défilement : concrète, sans point d'exclamation en rafale ni promesse chiffrée inventée.
+brief = 2 à 3 phrases qui disent ce que raconte le contenu et pourquoi il sert la personne (une consigne de production, pas le texte final).
+cta = l'appel à l'action à placer à la fin.
+Reste dans la voix décrite. N'invente aucun chiffre, résultat ou témoignage : appuie-toi sur les critères de crédibilité fournis.`;
+const ideasContext = ()=> `MÉTIER : ${IDEAS.metier || '(non précisé)'}
+CIBLE : ${IDEAS.cible || '(non précisé)'}
+DOMAINES D'EXPERTISE : ${IDEAS.expertise || '(non précisé)'}
+CRITÈRES DE CRÉDIBILITÉ : ${IDEAS.credibilite || '(non précisé)'}
+OFFRE DÉTAILLÉE : ${IDEAS.offre || '(non précisé)'}`;
+async function ideasGenerate(){
+  if(!IDEAS.metier.trim() || !IDEAS.cible.trim()){ toast('Remplis au moins ton métier et ta cible.'); return; }
+  const out = $('#ideas-out'); if(!out) return;
+  $('#ideas-list').innerHTML = '';
+  out.innerHTML = loadingBox('On te génère 15 idées de contenu…');
+  try{
+    const d = extractJson(await ask(ideasContext(), { system:IDEAS_SYS, max_tokens:3500 }));
+    const list = (Array.isArray(d.idees) ? d.idees : [])
+      .map(x=>({ accroche:String(x.accroche||'').trim(), brief:String(x.brief||'').trim(), cta:String(x.cta||'').trim() }))
+      .filter(x=> x.accroche || x.brief);
+    if(!list.length) throw new Error('vide');
+    IDEAS.list = list.slice(0, 15);
+    ideasSaveNow();
+    out.innerHTML = '';
+    ideasDrawList();
+    toast(`${IDEAS.list.length} idées générées`);
+  }catch(e){
+    out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant, ou vérifie que le service IA est bien configuré.");
+  }
+}
+const ideaSig = (it)=> ((it && it.accroche || '') + '|' + (it && it.brief || '')).trim().toLowerCase();
+const ideaIsSaved = (it)=> IDEAS.saved.some(s=> ideaSig(s) === ideaSig(it));
+function ideaCardHtml(it, num, badge, actionHtml){
+  return `<div class="card pad-l" style="margin-bottom:12px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span style="flex:none;width:28px;height:28px;border-radius:50%;background:${badge};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;">${num}</span>
+        <div style="flex:1;min-width:0;">
+          <p style="font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.4;">${esc(it.accroche)}</p>
+          <p style="font-size:14px;color:var(--ink-2);margin-bottom:9px;line-height:1.55;">${esc(it.brief)}</p>
+          ${it.cta ? `<p style="font-size:13px;color:var(--ink);"><span style="background:var(--bloom);color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;margin-right:6px;">CTA</span>${esc(it.cta)}</p>` : ''}
+        </div>
+        ${actionHtml || ''}
+      </div>
+    </div>`;
+}
+function ideasToggleSave(it){
+  if(!it) return;
+  const i = IDEAS.saved.findIndex(s=> ideaSig(s) === ideaSig(it));
+  if(i >= 0){ IDEAS.saved.splice(i, 1); }
+  else{
+    if(IDEAS.saved.length >= IDEAS_MAX_SAVED){ toast(`Limite atteinte : ${IDEAS_MAX_SAVED} idées enregistrées au maximum. Retires-en pour en ajouter.`); return; }
+    IDEAS.saved.push({ accroche:it.accroche, brief:it.brief, cta:it.cta });
+  }
+  ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
+}
+function ideasSaveAll(){
+  let added = 0;
+  for(const it of IDEAS.list){
+    if(IDEAS.saved.length >= IDEAS_MAX_SAVED) break;
+    if(!ideaIsSaved(it)){ IDEAS.saved.push({ accroche:it.accroche, brief:it.brief, cta:it.cta }); added++; }
+  }
+  ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
+  if(added) toast(`${added} idée${added>1?'s':''} enregistrée${added>1?'s':''}`);
+  else toast(IDEAS.saved.length >= IDEAS_MAX_SAVED ? `Limite de ${IDEAS_MAX_SAVED} atteinte` : 'Ces idées sont déjà enregistrées');
+}
+function ideasDrawList(){
+  const box = $('#ideas-list'); if(!box) return;
+  if(!IDEAS.list.length){ box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="row-end" style="margin:18px 0 6px;">
+      <p class="sec-t" style="margin-right:auto;">Tes 15 idées</p>
+      <button class="btn ghost sm" id="ideas-saveall">Tout enregistrer</button>
+      <button class="btn ghost sm" id="ideas-again">Régénérer</button>
+    </div>`
+    + IDEAS.list.map((it,i)=>{
+        const on = ideaIsSaved(it);
+        const btn = `<button class="btn ghost xs${on?' on':''}" data-idx="${i}" style="flex:none;white-space:nowrap;">${on?'✓ Enregistrée':'Enregistrer'}</button>`;
+        return ideaCardHtml(it, i+1, 'var(--sun)', btn);
+      }).join('');
+  const saveall = $('#ideas-saveall'); if(saveall) saveall.addEventListener('click', ideasSaveAll);
+  const again = $('#ideas-again'); if(again) again.addEventListener('click', ideasGenerate);
+  box.querySelectorAll('[data-idx]').forEach(b=> b.addEventListener('click', ()=> ideasToggleSave(IDEAS.list[+b.dataset.idx])));
+}
+function ideasDrawSaved(){
+  const box = $('#ideas-saved'); if(!box) return;
+  if(!IDEAS.saved.length){ box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="row-end" style="margin:26px 0 6px;">
+      <p class="sec-t" style="margin-right:auto;">Idées enregistrées <span class="small" style="font-weight:400;">(${IDEAS.saved.length}/${IDEAS_MAX_SAVED})</span></p>
+    </div>`
+    + IDEAS.saved.map((it,i)=>{
+        const btn = `<button class="btn ghost xs" data-sdel="${i}" style="flex:none;white-space:nowrap;">Retirer</button>`;
+        return ideaCardHtml(it, i+1, 'var(--bloom)', btn);
+      }).join('');
+  box.querySelectorAll('[data-sdel]').forEach(b=> b.addEventListener('click', ()=>{
+    IDEAS.saved.splice(+b.dataset.sdel, 1); ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
+  }));
 }
 
 /* ================================================================ */
