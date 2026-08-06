@@ -5970,16 +5970,23 @@ async function runCalc(){
   }
   CALC_TMP = { vals, n, ia:null };
   drawCalcResults(n, null, false);
-  const ia = $('#calc-ia');
+  await calcRunIa();
+}
+/* Lecture stratégique (IA). Séparée pour pouvoir la relancer sans tout recalculer.
+   On demande une marge de tokens confortable : sinon le JSON se retrouve tronqué. */
+async function calcRunIa(){
+  const ia = $('#calc-ia'); if(!ia || !CALC_TMP) return;
   ia.innerHTML = loadingBox("On regarde si ces chiffres tiennent debout…");
   try{
-    CALC_TMP.ia = await askJson(calcContext(n), CALC_SYS);
+    CALC_TMP.ia = extractJson(await ask(calcContext(CALC_TMP.n), { system:CALC_SYS, max_tokens:2000 }));
+    drawIa(CALC_TMP.ia);
   }catch(e){
     CALC_TMP.ia = null;
-    ia.innerHTML = '';   // silencieux : la mini-analyse « En bref » couvre déjà l'essentiel
-    return;
+    ia.innerHTML = `<div class="card pad-l" style="margin-top:14px;">
+      <p class="sec-d" style="margin:0 0 10px;">La lecture stratégique n'a pas pu être générée cette fois. Tes chiffres et la partie « En bref » restent valables.</p>
+      <button class="btn ghost sm" id="calc-ia-retry">Réessayer</button></div>`;
+    const b = $('#calc-ia-retry'); if(b) b.addEventListener('click', calcRunIa);
   }
-  drawIa(CALC_TMP.ia);
 }
 const CALC_SYS = `${VOIX}
 Tu conseilles sur la tarification d'une community manager freelance en micro-entreprise.
