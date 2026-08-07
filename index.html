@@ -243,7 +243,7 @@ p{margin:0 0 12px;}
 @media(max-width:620px){.hero{flex-direction:column;text-align:center;gap:18px;padding:24px 20px;}}
 .hero-txt{flex:1;min-width:0;}
 .hero h1{font-size:27px;margin-bottom:8px;}
-#hi{font-family:'Loubag',var(--display);}
+#hi{font-family:'Loubag',var(--display);color:#8C1B44;}
 #hi-sub{font-size:12px;line-height:1.55;}
 .moon-wrap{flex:0 0 auto;position:relative;text-align:center;}
 .moon-pct{
@@ -757,10 +757,17 @@ p{margin:0 0 12px;}
 
     <!-- ---------- PROFIL BUSINESS ---------- -->
     <section class="view" id="v-profil">
-      <div class="view-head">
-        <p class="eyebrow">Ton espace</p>
-        <h1>🌸 Ton profil business</h1>
-        <p class="lede">Remplis-le une fois : tes assistants (Alfie, Luna…) pourront le réutiliser en un clic pour pré-remplir leurs questions et écrire à ton image. Modifiable autant de fois que tu veux — tes assistants tiennent compte de la dernière version.</p>
+      <div class="hero" style="background:linear-gradient(to top, rgba(255,192,117,0.8) 0%, #FFFAF4 100%);">
+        <div class="hero-txt">
+          <div class="eyebrow" id="pf-complete" style="display:flex;align-items:center;gap:8px;">
+            <span aria-hidden="true" style="display:inline-block;width:46px;height:6px;border-radius:99px;background:rgba(140,27,68,0.18);overflow:hidden;flex:none;">
+              <span id="pf-gauge" style="display:block;height:100%;width:0%;background:#8C1B44;border-radius:99px;transition:width .3s ease;"></span>
+            </span>
+            <span id="pf-complete-txt">Complété à 0 %</span>
+          </div>
+          <h1 style="font-family:'Loubag',var(--display);color:#8C1B44;">Ton profil business</h1>
+          <p class="lede" style="font-size:12px;">Remplis-le une fois : tes assistants (Alfie, Luna…) pourront le réutiliser en un clic pour pré-remplir leurs questions et écrire à ton image. Plus ton profil business est complet, mieux c'est !</p>
+        </div>
       </div>
       <div class="card pad-l" id="profil-form"></div>
     </section>
@@ -994,7 +1001,10 @@ p{margin:0 0 12px;}
       <!-- CLIENTS -->
       <div id="crm-clients">
         <div id="mis-list">
-          <p class="sec-d" style="margin:-4px 0 14px;">Tu reportes ici ce que ton client t'a dit pendant l'appel de cadrage. L'outil en fait un débrief stratégique en 8 sphères, prêt à exploiter.</p>
+          <div class="card pad-l" style="margin-bottom:16px;">
+            <p class="sec-t">Mode d'emploi</p>
+            <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Tu viens d'obtenir un nouveau client ? Bravo ! Reportes ici toutes les informations le concernant (fais-lui remplir un questionnaire de démarrage en amont !). Avec toutes les infos, l'outil fait un débrief stratégique en 8 sphères, qui va bien t'aider à comprendre ton client et à pré-mâcher la stratégie.</p>
+          </div>
           <div class="row-end" style="margin-top:0;margin-bottom:14px;justify-content:flex-start;">
             <button class="btn" id="mis-new">Créer une nouvelle fiche client</button>
           </div>
@@ -1007,7 +1017,10 @@ p{margin:0 0 12px;}
       <!-- PROSPECTS -->
       <div id="crm-prospects" style="display:none;">
         <div id="pro-list">
-          <p class="sec-d" style="margin:-4px 0 14px;">Garde une trace de chaque personne avec qui tu es en contact : qui elle est, où en est l'échange, et quand la relancer.</p>
+          <div class="card pad-l" style="margin-bottom:16px;">
+            <p class="sec-t">Mode d'emploi</p>
+            <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Un prospect en vue ? Crée une nouvelle fiche prospect afin de répertorier toutes les informations à son sujet. L'outil te rappelle quand relancer ton prospect avec un message pré-rempli.</p>
+          </div>
           <div class="row-end" style="margin-top:0;margin-bottom:14px;justify-content:flex-start;">
             <button class="btn" id="pro-new">Créer une fiche prospect</button>
           </div>
@@ -1015,6 +1028,21 @@ p{margin:0 0 12px;}
         </div>
         <div id="pro-form" style="display:none;"></div>
       </div>
+    </section>
+
+    <!-- ---------- RÉSULTATS POTENTIELS RÉSEAUX ---------- -->
+    <section class="view" id="v-croissance">
+      <div class="view-head">
+        <p class="eyebrow sun">Mon business</p>
+        <h1>📈 Projection de résultats</h1>
+        <p class="lede">Projette la croissance possible d'un compte selon la fréquence de publication, à 3 et 6 mois.</p>
+      </div>
+      <div class="card pad-l" style="margin-bottom:16px;">
+        <p class="sec-t">Mode d'emploi</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 10px;">Tu peux utiliser cet outil lors d'un appel découverte avec un client, pour l'aider à se projeter en terme de résultats. J'ai voulu ce projecteur réaliste : pas de promesse démesurée ni de chiffres irréalisables.</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:0;">Les pourcentages sont tirés de mes propres expériences auprès d'une dizaine de clients. Mais attention : ce sont des estimations ! La croissance dépend de nombreux facteurs. Ce calculateur donne les résultats potentiels pour aider à se projeter simplement, <strong style="color:var(--ink);">n'oublions pas qu'un Community Manager a une obligation de moyens, pas de résultats</strong>.</p>
+      </div>
+      <div id="croissance-form"></div>
     </section>
 
     <!-- ---------- GÉNÉRATEUR D'IDÉES ---------- -->
@@ -1100,7 +1128,10 @@ p{margin:0 0 12px;}
       <div class="view-head">
         <p class="eyebrow sun">Mon business</p>
         <h1>Ma rentabilité</h1>
-        <p class="lede">Tu pars de la vie que tu veux, pas d'un prix au hasard. L'outil remonte jusqu'au chiffre d'affaires à faire et au taux horaire en dessous duquel tu travailles à perte.</p>
+      </div>
+      <div class="card pad-l" style="margin-bottom:16px;">
+        <p class="sec-t">Mode d'emploi</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Les calculs de prix peuvent être complexes. Grâce à ce calculateur, on part de ce que tu veux gagner net par mois, pour fixer ton objectif de chiffre d'affaires, ton taux horaire et le nombre de clients récurrents dont tu as besoin. Remplis les cases ci-dessous et calcul ta rentabilité dès maintenant. <strong style="color:var(--ink);">N'oublie pas d'enregistrer ton calcul (tout en bas) pour garder en mémoire ces chiffres, ils s'afficheront sur ta page d'accueil.</strong></p>
       </div>
       <div class="card pad-l" id="calc-form"></div>
       <div id="calc-out"></div>
@@ -1473,7 +1504,7 @@ async function enterApp(){
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
-  renderDossiers(); renderProspects(); renderCalcForm(); renderIdeas(); renderInsta(); renderLuna();
+  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna();
   paintQuotas();
 }
 async function doLogin(){
@@ -1492,12 +1523,12 @@ const PROFIL_FIELDS = [
   {k:'marque', l:"Le nom de ta marque", area:false,
    ph:"Ex : Creative Bloom",
    hint:"Si tu es freelance sans nom de marque, mets simplement ton prénom et ton nom."},
-  {k:'presentation', l:"Ta présentation en 2 lignes", area:true,
-   ph:"Ex : community manager pour les praticiennes du bien-être. J'installe une présence Instagram régulière qui amène des rendez-vous."},
-  {k:'activite', l:"Le détail de ton activité", area:true,
-   ph:"Ce que tu fais concrètement : tes prestations, ta façon de travailler, ton expérience."},
+  {k:'presentation', l:"Ton métier et ton histoire", area:true,
+   ph:"Ex : community manager pour les praticiennes du bien-être depuis 3 ans. Ancienne infirmière, j'ai lancé mon activité pour aider celles qui n'ont pas le temps de gérer leurs réseaux."},
   {k:'cible', l:"Ta cible", area:true,
    ph:"À qui tu t'adresses : métier, situation, ce qu'elle vit, ce qu'elle cherche."},
+  {k:'activite', l:"Ta promesse", area:true,
+   ph:"Ce que tu permets à tes clients d'obtenir : le résultat concret, la transformation que tu leur apportes."},
   {k:'offres', l:"Tes offres", area:true,
    ph:"Le nom, le format, le prix et la promesse de chacune de tes offres."},
   {k:'credibilite', l:"Tes critères de crédibilité", area:true,
@@ -1516,6 +1547,40 @@ function profilNormalise(){
   PF_TYPOS.forEach(t=>{ if(!PROFIL.fonts[t.k]) PROFIL.fonts[t.k] = {mode:'free', name:'', data:''}; });
 }
 const profilRempli = ()=> PROFIL_FIELDS.some(f=> (PROFIL[f.k]||'').trim());
+/* Taux de complétion : une case remplie = 100 %, vide = 0 %. Lit les champs en
+   direct s'ils sont affichés, sinon les valeurs enregistrées. */
+function profilCompletion(){
+  let n = 0;
+  PROFIL_FIELDS.forEach(f=>{
+    const el = $('#pf-'+f.k);
+    const v = el ? el.value : (PROFIL[f.k]||'');
+    if((v||'').trim()) n++;
+  });
+  return Math.round(n / PROFIL_FIELDS.length * 100);
+}
+function updateProfilComplete(){
+  const p = profilCompletion();
+  const t = $('#pf-complete-txt'); if(t) t.textContent = 'Complété à ' + p + ' %';
+  const g = $('#pf-gauge'); if(g) g.style.width = p + '%';
+}
+/* Mini jauge réutilisable (accueil…). */
+const gaugeHtml = (pct)=> `<span aria-hidden="true" style="display:inline-block;width:46px;height:6px;border-radius:99px;background:rgba(140,27,68,0.18);overflow:hidden;flex:none;vertical-align:middle;"><span style="display:block;height:100%;width:${Math.max(0,Math.min(100,pct))}%;background:#8C1B44;border-radius:99px;"></span></span>`;
+/* Résumé affiché sur l'accueil : le débrief rédigé par l'IA s'il existe, sinon
+   une synthèse locale COMPLÈTE qui reprend toutes les informations du profil. */
+function profilResume(){
+  if(PROFIL.debrief && PROFIL.debrief.trim()) return PROFIL.debrief.trim();
+  const g = (k)=> String(PROFIL[k]||'').replace(/\s*\n+\s*/g,' ').trim();
+  const dot = (s)=> /[.!?…]$/.test(s) ? s : s + '.';
+  const P = [];
+  if(g('presentation')) P.push(g('presentation'));
+  if(g('cible'))        P.push('Cible : ' + g('cible'));
+  if(g('activite'))     P.push('Sa promesse : ' + g('activite'));
+  if(g('offres'))       P.push('Son offre : ' + g('offres'));
+  if(g('credibilite'))  P.push('Ce qui la rend légitime : ' + g('credibilite'));
+  if(g('ton'))          P.push('Ton de voix : ' + g('ton'));
+  if(g('motscles'))     P.push('Univers : ' + g('motscles'));
+  return P.map(dot).join(' ');
+}
 /* Bloc injecté dans le prompt des assistants quand la personne applique son profil,
    pour que la rédaction respecte notamment son ton de voix et son univers. */
 function profilBlock(){
@@ -1555,6 +1620,8 @@ function renderProfil(){
   renderFonts();
   applyProfilFonts();
   $('#pf-save').addEventListener('click', saveProfil);
+  PROFIL_FIELDS.forEach(f=>{ const el = $('#pf-'+f.k); if(el) el.addEventListener('input', updateProfilComplete); });
+  updateProfilComplete();
 }
 function renderPalette(){
   const box = $('#pf-pal'); if(!box) return;
@@ -1666,17 +1733,19 @@ async function saveProfil(){
 function drawHomeProfil(){
   const box = $('#home-profil'); if(!box) return;
   const short = (s, n=150)=>{ s = String(s||'').replace(/\s*\n+\s*/g,' ').trim(); return s.length > n ? s.slice(0,n).trim()+'…' : s; };
+  const pct = profilCompletion();
   if(!profilRempli()){
     box.innerHTML = `<div class="card pad-l" style="margin-bottom:16px;">
-      <p class="sec-t">Mon profil business</p>
+      <p class="sec-t" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Mon profil business ${gaugeHtml(pct)} <span style="font-weight:600;font-size:12.5px;color:var(--sun-2);">${pct} % complétés</span></p>
       <p class="sec-d" style="margin-bottom:16px;">Renseigne ton profil une fois : ton espace et tes assistants s'adaptent à ta marque, ta cible et ton ton de voix.</p>
       <button class="btn" id="home-profil-go">Remplir mon profil business</button></div>`;
     $('#home-profil-go').addEventListener('click', ()=>go('profil'));
     return;
   }
-  const texte = (PROFIL.debrief && PROFIL.debrief.trim()) ? PROFIL.debrief.trim() : (PROFIL.presentation || PROFIL.activite || '');
+  const texte = profilResume();
+  const btnLabel = pct >= 100 ? 'Modifier →' : 'Compléter mon profil';
   box.innerHTML = `<div class="card pad-l" style="margin-bottom:16px;">
-    <div class="card-head"><p class="sec-t">Mon profil business</p><button class="link" id="home-profil-edit">Modifier →</button></div>
+    <div class="card-head"><p class="sec-t" style="margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Mon profil business ${gaugeHtml(pct)} <span style="font-weight:600;font-size:12.5px;color:${pct>=100?'#237A48':'var(--sun-2)'};">${pct} % complétés</span></p><button class="link" id="home-profil-edit">${esc(btnLabel)}</button></div>
     ${PROFIL.marque ? `<p class="d" style="font-size:16px;color:var(--ink);margin-bottom:7px;">${esc(PROFIL.marque)}</p>` : ''}
     <p class="j-txt">${esc(texte)}</p></div>`;
   const edit = $('#home-profil-edit'); if(edit) edit.addEventListener('click', ()=>go('profil'));
@@ -1685,9 +1754,9 @@ async function genProfilDebrief(){
   if(!profilRempli()) return;
   try{
     const sys = `${VOIX}
-À partir du profil business ci-dessous, rédige un court débrief de présentation en 2 à 3 phrases fluides et cohérentes, à la 3e personne (parle de la marque ou de la personne, ne dis pas "tu"). Dis l'essentiel : qui elle est, à qui elle s'adresse, ce qu'elle propose, et éventuellement sa manière de communiquer. Aucune liste, aucun mot-clé bout à bout, aucun titre. Réponds UNIQUEMENT avec le texte du débrief, sans guillemets.`;
+À partir du profil business ci-dessous, rédige un débrief de présentation en 3 à 5 phrases fluides et cohérentes, à la 3e personne (parle de la marque ou de la personne, ne dis pas "tu"). Prends en compte TOUTES les informations fournies : son métier et son histoire, sa promesse, à qui elle s'adresse, son offre, ce qui la rend légitime (crédibilité), son ton de voix et son univers. Tisse-les en un texte naturel, sans rien inventer et sans ignorer d'élément renseigné. Aucune liste, aucun mot-clé bout à bout, aucun titre. Réponds UNIQUEMENT avec le texte du débrief, sans guillemets.`;
     const ctx = PROFIL_FIELDS.map(f=> `${f.l} : ${(PROFIL[f.k]||'').trim() || '(non précisé)'}`).join('\n');
-    const txt = (await ask(`PROFIL :\n${ctx}`, { system:sys, max_tokens:400 }) || '').trim();
+    const txt = (await ask(`PROFIL :\n${ctx}`, { system:sys, max_tokens:500 }) || '').trim();
     if(txt){ PROFIL.debrief = txt; await setJSON('cmp:profil', PROFIL); drawHomeProfil(); }
   }catch(e){}
 }
@@ -1733,10 +1802,11 @@ const NAV = [
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
   ]},
   { type:'group', name:'Mon business', items:[
-    { id:'calc',    ic:'🧮', name:'Ma rentabilité' },
-    { id:'mission', ic:'🗂', name:'Mon CRM' },
-    { id:'ideas',   ic:'💡', name:"Générateur d'idées" },
-    { id:'insta',   ic:'🎨', name:'Créer un contenu' },
+    { id:'calc',       ic:'🧮', name:'Ma rentabilité' },
+    { id:'mission',    ic:'🗂', name:'Mon CRM' },
+    { id:'croissance', ic:'📈', name:'Projection résultats' },
+    { id:'ideas',      ic:'💡', name:"Générateur d'idées" },
+    { id:'insta',      ic:'🎨', name:'Créer un contenu' },
   ]},
   { type:'group', name:'Mes assistants', items:[
     { id:'alfie', ic:'✍️', name:"Alfie · Copilote d'écriture" },
@@ -1794,6 +1864,7 @@ const TILES_A = [
 const TILES_O = [
   { id:'calc', ic:'🧮', n:'Ma rentabilité', d:"Le CA à faire et le taux horaire plancher, à partir de la vie que tu veux." },
   { id:'mission', ic:'🗂', n:'Mon CRM', d:"Tes clients et tes prospects : fiches, débriefs stratégiques et suivi." },
+  { id:'croissance', ic:'📈', n:'Projection résultats', d:"Projette abonnés, leads, clients et CA d'un compte à 3 et 6 mois selon le rythme." },
   { id:'ideas', ic:'💡', n:"Générateur d'idées", d:"15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action." },
   { id:'insta', ic:'🎨', n:'Créer un contenu', d:"Compose tes carrousels et tes stories, exporte-les en ZIP prêt à publier." },
 ];
@@ -3154,6 +3225,7 @@ function drawProForm(p){
         <div class="chips" id="pp-statut">${PRO_STATUTS.map(s=>`<button class="chip${statut===s?' on':''}" data-st="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>
       <div class="field" style="max-width:220px;"><label for="pp-relance">Prochaine relance <span class="tiny">(facultatif)</span></label>
         <input id="pp-relance" type="date" value="${esc(p.relance)}"></div>
+      <div id="pp-relance-msg"></div>
       <div class="field"><label for="pp-notes">Informations sur le prospect</label>
         <textarea id="pp-notes" style="min-height:120px;" placeholder="Ce que tu sais de lui : son besoin, son budget, le contexte, ce qui a été dit, la prochaine étape…">${esc(p.notes)}</textarea></div>
       <div class="row-end">
@@ -3165,6 +3237,8 @@ function drawProForm(p){
   $$('#pp-statut .chip').forEach(b=> b.addEventListener('click', ()=>{
     statut = b.dataset.st; $$('#pp-statut .chip').forEach(x=>x.classList.toggle('on', x===b));
   }));
+  $('#pp-relance').addEventListener('input', proRelanceMsg);
+  proRelanceMsg();
   const back = ()=>{ proShow('list'); drawProspects(); };
   $('#pp-back').addEventListener('click', back);
   $('#pp-cancel').addEventListener('click', back);
@@ -6294,6 +6368,205 @@ function ideasDrawSaved(){
   box.querySelectorAll('[data-sdel]').forEach(b=> b.addEventListener('click', ()=>{
     IDEAS.saved.splice(+b.dataset.sdel, 1); ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
   }));
+}
+
+/* ================================================================
+   RÉSULTATS POTENTIELS RÉSEAUX SOCIAUX
+   Projection de croissance (locale, sans IA) à 3 et 6 mois, selon la
+   fréquence de publication. Fourchettes indicatives, jamais garanties.
+   ================================================================ */
+const CRO_TIERS = [
+  { f:2, l:'2 / semaine', m3:[2,3],  m6:[4,6] },
+  { f:3, l:'3 / semaine', m3:[3,5],  m6:[6,9] },
+  { f:5, l:'5 / semaine', m3:[5,7],  m6:[10,15] },
+];
+/* Débrief à 6 mois : 3 niveaux de performance (croissance organique). */
+const CRO_SCEN = [
+  { l:'Minimum attendu',  p:4 },
+  { l:'Objectif réaliste', p:8 },
+  { l:'Très bonne perf',   p:15 },
+];
+/* Entonnoir : part du gain d'abonnés en leads qualifiés, puis part des leads en
+   clients. Fourchettes resserrées autour d'une hypothèse médiane (20 % / 10 %). */
+const CRO_LEAD = [0.15, 0.25];
+const CRO_CLIENT = [0.08, 0.12];
+const CRO_CASCADE = [
+  'Croissance de la visibilité (portée, abonnés)',
+  'Génération de leads (inscriptions, demandes, téléchargements)',
+  'Transformation commerciale (clients)',
+  "Impact sur le chiffre d'affaires",
+];
+let CRO = { nom:'', abonnes:'', freq:3, offre:'', cout:'' };
+let croSaveT = null;
+const croFmt = (n)=> Math.round(n).toLocaleString('fr-FR');
+function croParse(s){
+  let t = String(s||'').trim().toLowerCase().replace(/\s/g,'').replace(',', '.');
+  let mult = 1;
+  if(t.endsWith('k')){ mult = 1000; t = t.slice(0,-1); }
+  else if(t.endsWith('m')){ mult = 1e6; t = t.slice(0,-1); }
+  const v = parseFloat(t);
+  return isFinite(v) ? v*mult : NaN;
+}
+function croParseNum(s){
+  const v = parseFloat(String(s||'').replace(/[^\d.,]/g,'').replace(',', '.'));
+  return isFinite(v) ? v : NaN;
+}
+function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(()=>{ try{ setJSON('cmp:croissance', CRO); }catch(e){} }, 500); }
+async function renderCroissance(){
+  const s = await getJSON('cmp:croissance', null);
+  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', cout:'' }, s);
+  if(!CRO_TIERS.some(t=>t.f===CRO.freq)) CRO.freq = 3;
+  croFormDraw();
+}
+function croFormDraw(){
+  const box = $('#croissance-form'); if(!box) return;
+  box.innerHTML = `<div class="card pad-l">
+      <div class="field"><label for="cro-nom">Le nom du client</label>
+        <input id="cro-nom" type="text" placeholder="Ex : Studio Bloom" value="${esc(CRO.nom)}"></div>
+      <div class="field"><label for="cro-ab">Nombre d'abonnés actuel</label>
+        <input id="cro-ab" type="text" inputmode="numeric" placeholder="Ex : 29 300 (ou 29,3k)" value="${esc(CRO.abonnes)}"></div>
+      <div class="field"><label>Fréquence de publication souhaitée</label>
+        <div class="seg" id="cro-freq">${CRO_TIERS.map(t=>`<button data-f="${t.f}"${CRO.freq===t.f?' class="on"':''}>${t.l}</button>`).join('')}</div></div>
+      <div class="field" style="max-width:280px;"><label for="cro-offre">Montant du panier moyen <span class="small" style="font-weight:400;">(€ par client)</span></label>
+        <input id="cro-offre" type="text" inputmode="numeric" placeholder="Ex : 850" value="${esc(CRO.offre)}"></div>
+      <div class="field" style="max-width:280px;"><label for="cro-cout">Coût investi par le client <span class="small" style="font-weight:400;">(€ sur la période)</span></label>
+        <input id="cro-cout" type="text" inputmode="numeric" placeholder="Ex : 3 600" value="${esc(CRO.cout)}">
+        <div class="hint">Ce que le client te paie sur les ~6 mois de la projection.</div></div>
+    </div>
+    <div id="cro-out"></div>`;
+  $('#cro-nom').addEventListener('input', e=>{ CRO.nom = e.target.value; croSave(); croDraw(); });
+  $('#cro-ab').addEventListener('input', e=>{ CRO.abonnes = e.target.value; croSave(); croDraw(); });
+  $('#cro-offre').addEventListener('input', e=>{ CRO.offre = e.target.value; croSave(); croDraw(); });
+  $('#cro-cout').addEventListener('input', e=>{ CRO.cout = e.target.value; croSave(); croDraw(); });
+  $$('#cro-freq button').forEach(b=> b.addEventListener('click', ()=>{
+    CRO.freq = +b.dataset.f;
+    $$('#cro-freq button').forEach(x=> x.classList.toggle('on', x===b));
+    croSave(); croDraw();
+  }));
+  croDraw();
+}
+function croDraw(){
+  const out = $('#cro-out'); if(!out) return;
+  const N = croParse(CRO.abonnes);
+  if(!isFinite(N) || N <= 0){ out.innerHTML = ''; return; }
+  const tier = CRO_TIERS.find(t=>t.f===CRO.freq) || CRO_TIERS[1];
+  const proj = (pct)=> Math.round((N*(1+pct/100))/100)*100;
+  const bloc = (titre, rng)=>{
+    const lo = proj(rng[0]), hi = proj(rng[1]);
+    return `<div class="card pad-l" style="margin-bottom:12px;">
+        <p class="sec-t">${titre}</p>
+        <div class="grid2">
+          <div class="kpi hi"><div class="kv">${croFmt(lo)} – ${croFmt(hi)}</div><div class="kl">abonnés estimés</div></div>
+          <div class="kpi"><div class="kv">+${rng[0]} à +${rng[1]} %</div><div class="kl">soit +${croFmt(lo-N)} à +${croFmt(hi-N)} abonnés</div></div>
+        </div>
+      </div>`;
+  };
+  const th = 'text-align:left;padding:0 0 9px;font-size:12px;color:var(--ink-2);font-weight:600;';
+  const td = 'padding:11px 0;border-top:1px solid var(--line,#ece4dc);';
+  const scenRows = CRO_SCEN.map(s=>`<tr>
+        <td style="${td}">${s.l}</td>
+        <td style="${td}text-align:center;white-space:nowrap;">+${s.p} %</td>
+        <td style="${td}text-align:right;white-space:nowrap;font-weight:700;color:var(--bloom);">${croFmt(proj(s.p))}</td>
+      </tr>`).join('');
+  const scen = `<div class="card pad-l" style="margin-bottom:12px;">
+      <p class="sec-t">Le débrief en 3 scénarios <span class="small" style="font-weight:400;">· à 6 mois</span></p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <thead><tr>
+            <th style="${th}">Niveau de performance</th>
+            <th style="${th}text-align:center;">Croissance</th>
+            <th style="${th}text-align:right;">Abonnés estimés</th>
+          </tr></thead>
+          <tbody>${scenRows}</tbody>
+        </table>
+      </div>
+      <div class="note" style="margin-top:13px;">Ces fourchettes correspondent à une croissance organique solide et durable pour une stratégie de contenu bien exécutée, sans dépendre d'un « coup de chance » viral. Elles constituent de bonnes bases pour fixer des objectifs mesurables dans une prestation de community management.</div>
+    </div>`;
+  // Projection de chiffre d'affaires (entonnoir sur le gain d'abonnés à 6 mois).
+  const offre = croParseNum(CRO.offre);
+  const finRows = CRO_SCEN.map(s=>{
+    const gain = Math.max(0, proj(s.p) - N);
+    const leadLo = Math.round(gain*CRO_LEAD[0]),   leadHi = Math.round(gain*CRO_LEAD[1]);
+    const cliLo  = Math.round(gain*CRO_LEAD[0]*CRO_CLIENT[0]), cliHi = Math.round(gain*CRO_LEAD[1]*CRO_CLIENT[1]);
+    const ca = (offre>0) ? `${euros(cliLo*offre)} – ${euros(cliHi*offre)}` : '—';
+    return `<tr>
+        <td style="${td}">${s.l}</td>
+        <td style="${td}text-align:center;white-space:nowrap;">${leadLo} – ${leadHi}</td>
+        <td style="${td}text-align:center;white-space:nowrap;">${cliLo} – ${cliHi}</td>
+        <td style="${td}text-align:right;white-space:nowrap;font-weight:700;color:var(--bloom);">${ca}</td>
+      </tr>`;
+  }).join('');
+  const fin = `<div class="card pad-l" style="margin-bottom:12px;">
+      <p class="sec-t">Projection de chiffre d'affaires <span class="small" style="font-weight:400;">· à 6 mois</span></p>
+      <p class="sec-d" style="margin:-2px 0 12px;">Sur les abonnés gagnés : 15 à 25 % de leads qualifiés (médiane 20 %), puis 8 à 12 % de clients (médiane 10 %), multiplié par le panier moyen.</p>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <thead><tr>
+            <th style="${th}">Niveau</th>
+            <th style="${th}text-align:center;">Leads qualifiés</th>
+            <th style="${th}text-align:center;">Clients potentiels</th>
+            <th style="${th}text-align:right;">CA estimé</th>
+          </tr></thead>
+          <tbody>${finRows}</tbody>
+        </table>
+      </div>
+      ${offre>0 ? '' : `<div class="hint" style="margin-top:11px;">Renseigne le panier moyen ci-dessus pour estimer le chiffre d'affaires.</div>`}
+    </div>`;
+  // Rentabilité côté client, basée sur l'objectif réaliste (2e scénario).
+  const cout = croParseNum(CRO.cout);
+  const sR = CRO_SCEN[1];
+  const gainR = Math.max(0, proj(sR.p) - N);
+  const cliRLo = Math.round(gainR*CRO_LEAD[0]*CRO_CLIENT[0]);
+  const cliRHi = Math.round(gainR*CRO_LEAD[1]*CRO_CLIENT[1]);
+  let roiBody;
+  if(!(offre>0)){
+    roiBody = `<div class="hint">Renseigne le panier moyen et le coût investi (ci-dessus) pour estimer la rentabilité côté client.</div>`;
+  }else if(!(cout>0)){
+    roiBody = `<div class="hint">Renseigne le coût investi par le client sur la période (ci-dessus) pour estimer sa rentabilité.</div>`;
+  }else{
+    const caLo = cliRLo*offre, caHi = cliRHi*offre;
+    const seuil = Math.ceil(cout/offre);
+    const roiPct = (ca)=>{ const p = Math.round((ca-cout)/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
+    let vbg, vfg, vic, vtxt;
+    if(caLo >= cout){
+      vbg='#EAF5EE'; vfg='#237A48'; vic='✅';
+      vtxt="Rentable : même dans l'hypothèse basse, le chiffre d'affaires généré couvre l'investissement.";
+    }else if(caHi >= cout){
+      vbg='#FBEFD9'; vfg='#9A6206'; vic='≈';
+      vtxt=`Potentiellement rentable : le CA généré dépasse l'investissement si la performance suit. Seuil atteint à partir de ${seuil} client${seuil>1?'s':''} signé${seuil>1?'s':''}.`;
+    }else{
+      vbg='#FBE7EC'; vfg='#9B1B3F'; vic='⚠';
+      vtxt=`Sur cette période, l'investissement dépasse le CA estimé : il faudrait environ ${seuil} clients, un panier moyen plus élevé, ou un horizon plus long pour l'équilibrer.`;
+    }
+    roiBody = `<div class="detail"><span>Ce que le client investit sur la période</span><b>${euros(cout)}</b></div>
+      <div class="detail"><span>CA estimé généré · ${cliRLo}–${cliRHi} clients</span><b>${euros(caLo)} – ${euros(caHi)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong> (CA − investissement)</span><b>${euros(caLo-cout)} – ${euros(caHi-cout)}</b></div>
+      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(caLo)} à ${roiPct(caHi)}</b></div>
+      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:${vbg};color:${vfg};font-weight:600;font-size:13.5px;line-height:1.5;">${vic} ${vtxt}</div>`;
+  }
+  const roi = `<div class="card pad-l" style="margin-bottom:12px;">
+      <p class="sec-t">Rentabilité pour le client <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
+      <p class="sec-d" style="margin:-2px 0 12px;">Le client gagne-t-il à te confier sa communication ? On compare ce qu'il investit et le CA que la stratégie peut générer.</p>
+      ${roiBody}
+    </div>`;
+  const nuance = `<div class="card pad-l" style="margin-bottom:12px;">
+      <p class="sec-t">Nuance importante à retenir</p>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 10px;">Si ta cliente vend une offre haut de gamme (par exemple un accompagnement à 2 000 €), obtenir 15 à 25 nouveaux clients en 6 mois peut déjà représenter un excellent résultat. À l'inverse, si elle vend une formation à 49 €, elle aura souvent besoin d'un volume de clients beaucoup plus important, mais avec des mécanismes de conversion différents.</p>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:0 0 8px;">Pour un community manager qui construit des objectifs avec ses clients, présente plutôt une logique <b>en cascade</b> :</p>
+      <ol style="margin:0 0 10px;padding-left:20px;font-size:14px;color:var(--ink);line-height:1.55;">
+        ${CRO_CASCADE.map(x=>`<li style="margin-bottom:5px;">${esc(x)}</li>`).join('')}
+      </ol>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:0;">C'est une façon beaucoup plus pertinente d'évaluer le succès d'une stratégie social media que de se limiter au nombre d'abonnés.</p>
+    </div>`;
+  const nom = CRO.nom.trim();
+  out.innerHTML = `<p class="sec-t" style="margin:20px 0 10px;">${nom?esc(nom)+' — ':''}projection depuis ${croFmt(N)} abonnés · ${esc(tier.l)}</p>`
+    + bloc('À 3 mois', tier.m3)
+    + bloc('À 6 mois', tier.m6)
+    + scen
+    + fin
+    + roi
+    + nuance
+    + `<div class="note" style="margin-top:2px;">Fourchette indicative, pas une garantie : la croissance réelle dépend de la qualité et de la régularité des contenus, de la niche et de l'engagement. À réévaluer selon les résultats obtenus.</div>`;
 }
 
 /* ================================================================ */
