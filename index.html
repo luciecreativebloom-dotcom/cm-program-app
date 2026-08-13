@@ -6427,7 +6427,7 @@ const CRO_CASCADE = [
   'Transformation commerciale (clients)',
   "Impact sur le chiffre d'affaires",
 ];
-let CRO = { nom:'', abonnes:'', freq:3, offre:'', caActuel:'', cout:'', saved:[] };
+let CRO = { nom:'', abonnes:'', offre:'', caActuel:'', cout:'', rentUnit:'periode', saved:[] };
 let croSaveT = null;
 const CRO_MAX_SAVED = 10;
 const croFmt = (n)=> Math.round(n).toLocaleString('fr-FR');
@@ -6447,7 +6447,7 @@ function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(croSaveNow, 50
 function croSaveNow(){ try{ setJSON('cmp:croissance', CRO); }catch(e){} }
 async function renderCroissance(){
   const s = await getJSON('cmp:croissance', null);
-  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', offre:'', caActuel:'', cout:'', saved:[] }, s);
+  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', offre:'', caActuel:'', cout:'', rentUnit:'periode', saved:[] }, s);
   if(!Array.isArray(CRO.saved)) CRO.saved = [];
   croFormDraw();
 }
@@ -6594,16 +6594,25 @@ function croDraw(){
     roiBody = `<div class="hint">Renseigne le coût investi par le client (ci-dessus) pour estimer sa rentabilité.</div>`;
   }else{
     const caPer = caActuel*6;                       // CA actuel sur 6 mois
-    const totLo = caPer + caRLo, totHi = caPer + caRHi;  // CA total cumulé (actuel + généré)
-    const benLo = totLo - cout,  benHi = totHi - cout;
-    const cmPct = Math.round(cout / caPer * 100);   // part du CA actuel dédiée au CM
-    const roiPct = (ben)=>{ const p = Math.round(ben/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
-    roiBody = `<div class="detail"><span>Part du CA actuel consacrée au CM <span class="tiny">(sur 6 mois)</span></span><b>${cmPct} %</b></div>
-      <div class="detail"><span>Ce que le client investit</span><b>${euros(cout)}</b></div>
-      <div class="detail"><span>CA total projeté <span class="tiny">(actuel + généré)</span></span><b>${euros(totLo)} – ${euros(totHi)}</b></div>
-      <div class="detail"><span><strong>Bénéfice estimé</strong> (CA total − investissement)</span><b>${euros(benLo)} – ${euros(benHi)}</b></div>
-      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(benLo)} à ${roiPct(benHi)}</b></div>
-      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:#EAF5EE;color:#237A48;font-weight:600;font-size:13.5px;line-height:1.5;">Pour ${euros(cout)} investis, le client soutient un chiffre d'affaires de ${euros(totLo)} à ${euros(totHi)} sur la période.</div>`;
+    const cmPct = Math.round(cout / caPer * 100);   // part du CA actuel dédiée au CM (identique au mois ou sur la période)
+    const roiPct = (ben, c)=>{ const p = Math.round(ben/c*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
+    const mois = CRO.rentUnit === 'mois';           // unité d'affichage
+    const d = mois ? 6 : 1, suf = mois ? ' / mois' : ' sur 6 mois';
+    const uCA = mois ? caActuel : caPer;            // CA actuel dans l'unité choisie
+    const uGenLo = caRLo/d,  uGenHi = caRHi/d;
+    const uTotLo = uCA + uGenLo, uTotHi = uCA + uGenHi;
+    const uCout = cout/d;
+    const uBenLo = uTotLo - uCout, uBenHi = uTotHi - uCout;
+    roiBody = `<div class="seg" id="cro-rent-unit" style="margin-bottom:14px;max-width:260px;">
+        <button data-u="mois"${mois?' class="on"':''}>Au mois</button>
+        <button data-u="periode"${!mois?' class="on"':''}>Sur 6 mois</button>
+      </div>
+      <div class="detail"><span>Part du CA actuel consacrée au CM</span><b>${cmPct} %</b></div>
+      <div class="detail"><span>Ce que le client investit${suf}</span><b>${euros(uCout)}</b></div>
+      <div class="detail"><span>CA total projeté${suf} <span class="tiny">(actuel + généré)</span></span><b>${euros(uTotLo)} – ${euros(uTotHi)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong>${suf} (CA total − investissement)</span><b>${euros(uBenLo)} – ${euros(uBenHi)}</b></div>
+      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(uBenLo, uCout)} à ${roiPct(uBenHi, uCout)}</b></div>
+      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:#EAF5EE;color:#237A48;font-weight:600;font-size:13.5px;line-height:1.5;">Pour ${euros(uCout)} investis${suf}, le client soutient un chiffre d'affaires de ${euros(uTotLo)} à ${euros(uTotHi)}${suf}.</div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Rentabilité pour le client <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
@@ -6633,6 +6642,7 @@ function croDraw(){
     + nuance
     + `<div class="note" style="margin-top:2px;">Fourchette indicative, pas une garantie : la croissance réelle dépend de la qualité et de la régularité des contenus, de la niche et de l'engagement. À réévaluer selon les résultats obtenus.</div>`;
   const sb = $('#cro-save-proj'); if(sb) sb.addEventListener('click', croSaveProjection);
+  $$('#cro-rent-unit button').forEach(b=> b.addEventListener('click', ()=>{ CRO.rentUnit = b.dataset.u; croSave(); croDraw(); }));
 }
 function croSaveProjection(){
   const N = croParse(CRO.abonnes);
