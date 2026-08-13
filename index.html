@@ -6594,25 +6594,24 @@ function croDraw(){
     roiBody = `<div class="hint">Renseigne le coût investi par le client (ci-dessus) pour estimer sa rentabilité.</div>`;
   }else{
     const caPer = caActuel*6;                       // CA actuel sur 6 mois
-    const cmPct = Math.round(cout / caPer * 100);   // part du CA actuel dédiée au CM (identique au mois ou sur la période)
     const roiPct = (ben, c)=>{ const p = Math.round(ben/c*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
     const mois = CRO.rentUnit === 'mois';           // unité d'affichage
     const d = mois ? 6 : 1, suf = mois ? ' / mois' : ' sur 6 mois';
-    const uCA = mois ? caActuel : caPer;            // CA actuel dans l'unité choisie
-    const uGenLo = caRLo/d,  uGenHi = caRHi/d;
-    const uTotLo = uCA + uGenLo, uTotHi = uCA + uGenHi;
+    const uGenLo = caRLo/d,  uGenHi = caRHi/d;       // CA estimé généré dans l'unité
     const uCout = cout/d;
-    const uBenLo = uTotLo - uCout, uBenHi = uTotHi - uCout;
+    const uBenLo = uGenLo - uCout, uBenHi = uGenHi - uCout;   // bénéfice = CA généré − investissement
+    // Encart contextuel : CA total (actuel + généré) et poids du CM dans ce total.
+    const caRMid = (caRLo + caRHi)/2, totalPer = caPer + caRMid;
+    const pctTotal = totalPer>0 ? Math.round(cout/totalPer*100) : 0;
     roiBody = `<div class="seg" id="cro-rent-unit" style="margin-bottom:14px;max-width:260px;">
         <button data-u="mois"${mois?' class="on"':''}>Au mois</button>
         <button data-u="periode"${!mois?' class="on"':''}>Sur 6 mois</button>
       </div>
-      <div class="detail"><span>Part du CA actuel consacrée au CM</span><b>${cmPct} %</b></div>
       <div class="detail"><span>Ce que le client investit${suf}</span><b>${euros(uCout)}</b></div>
-      <div class="detail"><span>CA total projeté${suf} <span class="tiny">(actuel + généré)</span></span><b>${euros(uTotLo)} – ${euros(uTotHi)}</b></div>
-      <div class="detail"><span><strong>Bénéfice estimé</strong>${suf} (CA total − investissement)</span><b>${euros(uBenLo)} – ${euros(uBenHi)}</b></div>
+      <div class="detail"><span>CA estimé généré${suf} <span class="tiny">(nouveaux clients)</span></span><b>${euros(uGenLo)} – ${euros(uGenHi)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong>${suf} (CA généré − investissement)</span><b>${euros(uBenLo)} – ${euros(uBenHi)}</b></div>
       <div class="detail"><span>Retour sur investissement</span><b>${roiPct(uBenLo, uCout)} à ${roiPct(uBenHi, uCout)}</b></div>
-      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:#EAF5EE;color:#237A48;font-weight:600;font-size:13.5px;line-height:1.5;">Pour ${euros(uCout)} investis${suf}, le client soutient un chiffre d'affaires de ${euros(uTotLo)} à ${euros(uTotHi)}${suf}.</div>`;
+      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--sun-pale);border:1px solid #F3DEBF;font-size:13.5px;line-height:1.55;color:var(--ink-2);">Le chiffre d'affaires <b>total estimé</b> (actuel + généré) tourne autour de <b>${euros(totalPer)}</b> sur 6 mois. Engager un CM représente environ <b>${pctTotal} %</b> de ce CA total — soit <b>${euros(cout/6)} / mois</b> sur ~${euros(totalPer/6)} de chiffre d'affaires mensuel.</div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Rentabilité pour le client <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
