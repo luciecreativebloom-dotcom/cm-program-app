@@ -562,8 +562,8 @@ p{margin:0 0 12px;}
 .luna-tips button:hover{border-color:var(--bloom);color:var(--bloom);}
 /* ============ LUNA · CONTENT MANAGER ============ */
 .lc-intro{
-  background:linear-gradient(150deg,#fff 0%,var(--paper-2) 100%);
-  border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin-bottom:22px;
+  background:var(--sun-pale);
+  border:1px solid #F3DEBF;border-radius:var(--r);padding:22px 24px;margin-bottom:22px;
   display:flex;gap:18px;align-items:flex-start;box-shadow:var(--shadow-s);
 }
 @media(max-width:620px){.lc-intro{flex-direction:column;gap:12px;}}
@@ -749,8 +749,10 @@ p{margin:0 0 12px;}
 
       <p class="eyebrow" style="margin:26px 0 10px;">Mes trainings</p>
       <div class="grid3" id="tiles-training"></div>
+      <p class="eyebrow sun" style="margin:26px 0 10px;">Mes outils</p>
+      <div class="grid3" id="tiles-outils"></div>
       <p class="eyebrow sun" style="margin:26px 0 10px;">Mon business</p>
-      <div class="grid2" id="tiles-outils"></div>
+      <div class="grid2" id="tiles-business"></div>
       <p class="eyebrow" style="margin:26px 0 10px;">Mes assistants</p>
       <div class="grid3" id="tiles-assist"></div>
     </section>
@@ -949,8 +951,8 @@ p{margin:0 0 12px;}
     <!-- ---------- ALFIE ---------- -->
     <section class="view" id="v-alfie">
       <div class="view-head">
-        <p class="eyebrow">Training</p>
-        <h1>Alfie</h1>
+        <p class="eyebrow">Mes assistants</p>
+        <h1>Alfie, ton copilote d'écriture</h1>
       </div>
       <div class="lc-intro">
         <div>
@@ -974,7 +976,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-luna">
       <div class="view-head">
         <p class="eyebrow">Mes assistants</p>
-        <h1>🌙 Luna · Content Manager</h1>
+        <h1>Luna, ta Content Manager</h1>
       </div>
       <div class="lc-intro">
         <div>
@@ -991,7 +993,6 @@ p{margin:0 0 12px;}
       <div class="view-head">
         <p class="eyebrow sun">Mon business</p>
         <h1>🗂 Mon CRM</h1>
-        <p class="lede">Tes clients et tes prospects, réunis au même endroit.</p>
       </div>
       <div class="sph-nav" id="crm-tabs">
         <button class="sph-tab on" data-crm="clients">Mes clients</button>
@@ -1001,7 +1002,7 @@ p{margin:0 0 12px;}
       <!-- CLIENTS -->
       <div id="crm-clients">
         <div id="mis-list">
-          <div class="card pad-l" style="margin-bottom:16px;">
+          <div class="card pad-l" style="margin-bottom:16px;border-color:#F3DEBF;background:var(--sun-pale);">
             <p class="sec-t">Mode d'emploi</p>
             <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Tu viens d'obtenir un nouveau client ? Bravo ! Reportes ici toutes les informations le concernant (fais-lui remplir un questionnaire de démarrage en amont !). Avec toutes les infos, l'outil fait un débrief stratégique en 8 sphères, qui va bien t'aider à comprendre ton client et à pré-mâcher la stratégie.</p>
           </div>
@@ -1017,7 +1018,7 @@ p{margin:0 0 12px;}
       <!-- PROSPECTS -->
       <div id="crm-prospects" style="display:none;">
         <div id="pro-list">
-          <div class="card pad-l" style="margin-bottom:16px;">
+          <div class="card pad-l" style="margin-bottom:16px;border-color:#F3DEBF;background:var(--sun-pale);">
             <p class="sec-t">Mode d'emploi</p>
             <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Un prospect en vue ? Crée une nouvelle fiche prospect afin de répertorier toutes les informations à son sujet. L'outil te rappelle quand relancer ton prospect avec un message pré-rempli.</p>
           </div>
@@ -1035,9 +1036,8 @@ p{margin:0 0 12px;}
       <div class="view-head">
         <p class="eyebrow sun">Mon business</p>
         <h1>📈 Projection de résultats</h1>
-        <p class="lede">Projette la croissance possible d'un compte selon la fréquence de publication, à 3 et 6 mois.</p>
       </div>
-      <div class="card pad-l" style="margin-bottom:16px;">
+      <div class="card pad-l" style="margin-bottom:16px;border-color:#F3DEBF;background:var(--sun-pale);">
         <p class="sec-t">Mode d'emploi</p>
         <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 10px;">Tu peux utiliser cet outil lors d'un appel découverte avec un client, pour l'aider à se projeter en terme de résultats. J'ai voulu ce projecteur réaliste : pas de promesse démesurée ni de chiffres irréalisables.</p>
         <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:0;">Les pourcentages sont tirés de mes propres expériences auprès d'une dizaine de clients. Mais attention : ce sont des estimations ! La croissance dépend de nombreux facteurs. Ce calculateur donne les résultats potentiels pour aider à se projeter simplement, <strong style="color:var(--ink);">n'oublions pas qu'un Community Manager a une obligation de moyens, pas de résultats</strong>.</p>
@@ -1048,7 +1048,7 @@ p{margin:0 0 12px;}
     <!-- ---------- GÉNÉRATEUR D'IDÉES ---------- -->
     <section class="view" id="v-ideas">
       <div class="view-head">
-        <p class="eyebrow sun">Mon business</p>
+        <p class="eyebrow sun">Mes outils</p>
         <h1>💡 Générateur d'idées</h1>
         <p class="lede">Réponds à quelques questions (ou applique ton profil business) et repars avec 15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action.</p>
       </div>
@@ -1058,8 +1058,8 @@ p{margin:0 0 12px;}
     <!-- ---------- INSTA MANAGER ---------- -->
     <section class="view" id="v-insta">
       <div class="view-head">
-        <p class="eyebrow sun">Mon business</p>
-        <h1>🎨 Créer un contenu</h1>
+        <p class="eyebrow sun">Mes outils</p>
+        <h1>🎨 Studio créatif</h1>
         <p class="lede">Compose tes carrousels et tes stories. Luna t'aide à condenser tes idées et à écrire la légende. Tu repars avec un ZIP prêt à publier.</p>
       </div>
 
@@ -1129,7 +1129,7 @@ p{margin:0 0 12px;}
         <p class="eyebrow sun">Mon business</p>
         <h1>Ma rentabilité</h1>
       </div>
-      <div class="card pad-l" style="margin-bottom:16px;">
+      <div class="card pad-l" style="margin-bottom:16px;border-color:#F3DEBF;background:var(--sun-pale);">
         <p class="sec-t">Mode d'emploi</p>
         <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Les calculs de prix peuvent être complexes. Grâce à ce calculateur, on part de ce que tu veux gagner net par mois, pour fixer ton objectif de chiffre d'affaires, ton taux horaire et le nombre de clients récurrents dont tu as besoin. Remplis les cases ci-dessous et calcul ta rentabilité dès maintenant. <strong style="color:var(--ink);">N'oublie pas d'enregistrer ton calcul (tout en bas) pour garder en mémoire ces chiffres, ils s'afficheront sur ta page d'accueil.</strong></p>
       </div>
@@ -1801,12 +1801,14 @@ const NAV = [
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
   ]},
+  { type:'group', name:'Mes outils', items:[
+    { id:'croissance', ic:'📈', name:'Projection résultats' },
+    { id:'ideas',      ic:'💡', name:"Générateur d'idées" },
+    { id:'insta',      ic:'🎨', name:'Studio créatif' },
+  ]},
   { type:'group', name:'Mon business', items:[
     { id:'calc',       ic:'🧮', name:'Ma rentabilité' },
     { id:'mission',    ic:'🗂', name:'Mon CRM' },
-    { id:'croissance', ic:'📈', name:'Projection résultats' },
-    { id:'ideas',      ic:'💡', name:"Générateur d'idées" },
-    { id:'insta',      ic:'🎨', name:'Créer un contenu' },
   ]},
   { type:'group', name:'Mes assistants', items:[
     { id:'alfie', ic:'✍️', name:"Alfie · Copilote d'écriture" },
@@ -1864,9 +1866,11 @@ const TILES_A = [
 const TILES_O = [
   { id:'calc', ic:'🧮', n:'Ma rentabilité', d:"Le CA à faire et le taux horaire plancher, à partir de la vie que tu veux." },
   { id:'mission', ic:'🗂', n:'Mon CRM', d:"Tes clients et tes prospects : fiches, débriefs stratégiques et suivi." },
+];
+const TILES_OU = [
   { id:'croissance', ic:'📈', n:'Projection résultats', d:"Projette abonnés, leads, clients et CA d'un compte à 3 et 6 mois selon le rythme." },
   { id:'ideas', ic:'💡', n:"Générateur d'idées", d:"15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action." },
-  { id:'insta', ic:'🎨', n:'Créer un contenu', d:"Compose tes carrousels et tes stories, exporte-les en ZIP prêt à publier." },
+  { id:'insta', ic:'🎨', n:'Studio créatif', d:"Compose tes carrousels et tes stories, exporte-les en ZIP prêt à publier." },
 ];
 function renderTiles(){
   const fill = (sel, list)=>{
@@ -1880,7 +1884,8 @@ function renderTiles(){
   };
   fill('#tiles-training', TILES_T);
   fill('#tiles-assist', TILES_A);
-  fill('#tiles-outils', TILES_O);
+  fill('#tiles-business', TILES_O);
+  fill('#tiles-outils', TILES_OU);
 }
 </script>
 <script>
@@ -3198,6 +3203,33 @@ function openProspect(id){
   const p = prospects.find(x=>x.id===id); if(!p) return;
   proEditId = id; drawProForm(Object.assign(emptyProspect(), p));
 }
+/* Message de relance pré-conçu : apparaît dès qu'une date de relance est fixée.
+   Les mots à personnaliser (entre [ ] ou ( )) sont en orange. Éditable + copie. */
+function proRelanceMsg(){
+  const box = $('#pp-relance-msg'); if(!box) return;
+  if(!($('#pp-relance') && $('#pp-relance').value.trim())){ box.innerHTML = ''; return; }
+  const o = 'color:#D8862A;font-weight:600;';
+  const ph = (v, fallback)=> (v||'').trim() ? esc((v||'').trim()) : `<span style="${o}">${fallback}</span>`;
+  const prenom = ph($('#pp-prenom') && $('#pp-prenom').value, '[Prénom]');
+  const moi = ph(typeof USER !== 'undefined' ? USER : '', '[Ton prénom]');
+  box.innerHTML = `<div class="field" style="margin-top:2px;">
+      <label>Message de relance <span class="tiny">(personnalise les mots en orange, puis copie)</span></label>
+      <div id="pp-msg" contenteditable="true" spellcheck="true" style="white-space:pre-wrap;min-height:184px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);font-size:14px;line-height:1.65;outline:none;">Hello ${prenom},
+
+Comment tu vas ? Je me permets de te relancer au sujet de <span style="${o}">(...)</span>
+
+Est-ce que tu as eu le temps de jeter un œil à ma proposition ?
+Si tu as besoin de précisions ou que tu as des questions, je me tiens disponible pour y répondre 😉
+
+À très vite,
+
+${moi}</div>
+      <div class="row-end" style="margin-top:8px;justify-content:flex-start;">
+        <button class="btn ghost sm" id="pp-msg-copy">Copier le message</button>
+      </div>
+    </div>`;
+  const c = $('#pp-msg-copy'); if(c) c.addEventListener('click', ()=> copy($('#pp-msg').innerText));
+}
 function drawProForm(p){
   proShow('form');
   let statut = p.statut || 'À contacter';
@@ -3221,13 +3253,13 @@ function drawProForm(p){
         <div class="field"><label for="pp-site">Site web</label><input id="pp-site" type="text" value="${esc(p.site)}" placeholder="Ex : amelierousseau.fr"></div>
       </div>
       <div class="field" style="max-width:260px;"><label for="pp-date">Date de prise de contact</label><input id="pp-date" type="date" value="${esc(p.dateContact)}"></div>
+      <div class="field"><label for="pp-notes">Informations sur le prospect</label>
+        <textarea id="pp-notes" style="min-height:120px;" placeholder="Ce que tu sais de lui : son besoin, son budget, le contexte, ce qui a été dit, la prochaine étape…">${esc(p.notes)}</textarea></div>
       <div class="field"><label>Où en est l'échange&nbsp;?</label>
         <div class="chips" id="pp-statut">${PRO_STATUTS.map(s=>`<button class="chip${statut===s?' on':''}" data-st="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>
       <div class="field" style="max-width:220px;"><label for="pp-relance">Prochaine relance <span class="tiny">(facultatif)</span></label>
         <input id="pp-relance" type="date" value="${esc(p.relance)}"></div>
       <div id="pp-relance-msg"></div>
-      <div class="field"><label for="pp-notes">Informations sur le prospect</label>
-        <textarea id="pp-notes" style="min-height:120px;" placeholder="Ce que tu sais de lui : son besoin, son budget, le contexte, ce qui a été dit, la prochaine étape…">${esc(p.notes)}</textarea></div>
       <div class="row-end">
         ${proEditId ? `<button class="btn ghost sm" id="pp-convert" style="margin-right:auto;">Convertir en client →</button>` : ''}
         <button class="btn ghost" id="pp-cancel">Annuler</button>
@@ -3238,6 +3270,7 @@ function drawProForm(p){
     statut = b.dataset.st; $$('#pp-statut .chip').forEach(x=>x.classList.toggle('on', x===b));
   }));
   $('#pp-relance').addEventListener('input', proRelanceMsg);
+  $('#pp-prenom').addEventListener('input', proRelanceMsg);
   proRelanceMsg();
   const back = ()=>{ proShow('list'); drawProspects(); };
   $('#pp-back').addEventListener('click', back);
@@ -3290,7 +3323,7 @@ function drawMisForm(){
   box.innerHTML = `
   <div class="view-head">
     <p class="eyebrow sun">Nouvelle mission client</p>
-    <h1>Le brief de ${F.nom ? esc(F.nom) : 'ton client'}</h1>
+    <h1>Le profil de ${F.nom ? esc(F.nom) : 'ton client'}</h1>
     <p class="lede">Reporte les réponses de ton client. Un champ vide n'est pas grave : il sera signalé comme « à confirmer » dans le débrief.</p>
   </div>
 
@@ -3713,7 +3746,7 @@ function drawBrief(brief){
     <div class="card pad-l" id="sph-body"></div>
     <div class="row-end">
       <button class="btn ghost" id="b-back">Retour à mes clients</button>
-      <button class="btn ghost" id="b-edit">Modifier le brief</button>
+      <button class="btn ghost" id="b-edit">Modifier le profil</button>
       <button class="btn ghost" id="b-copy">Copier</button>
       <button class="btn" id="b-pdf">Enregistrer en PDF</button>
     </div>`;
@@ -6396,8 +6429,9 @@ const CRO_CASCADE = [
   'Transformation commerciale (clients)',
   "Impact sur le chiffre d'affaires",
 ];
-let CRO = { nom:'', abonnes:'', freq:3, offre:'', cout:'' };
+let CRO = { nom:'', abonnes:'', freq:3, offre:'', cout:'', saved:[] };
 let croSaveT = null;
+const CRO_MAX_SAVED = 10;
 const croFmt = (n)=> Math.round(n).toLocaleString('fr-FR');
 function croParse(s){
   let t = String(s||'').trim().toLowerCase().replace(/\s/g,'').replace(',', '.');
@@ -6411,11 +6445,13 @@ function croParseNum(s){
   const v = parseFloat(String(s||'').replace(/[^\d.,]/g,'').replace(',', '.'));
   return isFinite(v) ? v : NaN;
 }
-function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(()=>{ try{ setJSON('cmp:croissance', CRO); }catch(e){} }, 500); }
+function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(croSaveNow, 500); }
+function croSaveNow(){ try{ setJSON('cmp:croissance', CRO); }catch(e){} }
 async function renderCroissance(){
   const s = await getJSON('cmp:croissance', null);
-  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', cout:'' }, s);
+  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', cout:'', saved:[] }, s);
   if(!CRO_TIERS.some(t=>t.f===CRO.freq)) CRO.freq = 3;
+  if(!Array.isArray(CRO.saved)) CRO.saved = [];
   croFormDraw();
 }
 function croFormDraw(){
@@ -6433,7 +6469,8 @@ function croFormDraw(){
         <input id="cro-cout" type="text" inputmode="numeric" placeholder="Ex : 3 600" value="${esc(CRO.cout)}">
         <div class="hint">Ce que le client te paie sur les ~6 mois de la projection.</div></div>
     </div>
-    <div id="cro-out"></div>`;
+    <div id="cro-out"></div>
+    <div id="cro-saved"></div>`;
   $('#cro-nom').addEventListener('input', e=>{ CRO.nom = e.target.value; croSave(); croDraw(); });
   $('#cro-ab').addEventListener('input', e=>{ CRO.abonnes = e.target.value; croSave(); croDraw(); });
   $('#cro-offre').addEventListener('input', e=>{ CRO.offre = e.target.value; croSave(); croDraw(); });
@@ -6444,6 +6481,7 @@ function croFormDraw(){
     croSave(); croDraw();
   }));
   croDraw();
+  croDrawSaved();
 }
 function croDraw(){
   const out = $('#cro-out'); if(!out) return;
@@ -6559,7 +6597,10 @@ function croDraw(){
       <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:0;">C'est une façon beaucoup plus pertinente d'évaluer le succès d'une stratégie social media que de se limiter au nombre d'abonnés.</p>
     </div>`;
   const nom = CRO.nom.trim();
-  out.innerHTML = `<p class="sec-t" style="margin:20px 0 10px;">${nom?esc(nom)+' — ':''}projection depuis ${croFmt(N)} abonnés · ${esc(tier.l)}</p>`
+  out.innerHTML = `<div class="row-end" style="margin:20px 0 10px;">
+      <p class="sec-t" style="margin-right:auto;margin-top:0;margin-bottom:0;">${nom?esc(nom)+' — ':''}projection depuis ${croFmt(N)} abonnés · ${esc(tier.l)}</p>
+      <button class="btn ghost sm" id="cro-save-proj">Enregistrer cette projection</button>
+    </div>`
     + bloc('À 3 mois', tier.m3)
     + bloc('À 6 mois', tier.m6)
     + scen
@@ -6567,6 +6608,53 @@ function croDraw(){
     + roi
     + nuance
     + `<div class="note" style="margin-top:2px;">Fourchette indicative, pas une garantie : la croissance réelle dépend de la qualité et de la régularité des contenus, de la niche et de l'engagement. À réévaluer selon les résultats obtenus.</div>`;
+  const sb = $('#cro-save-proj'); if(sb) sb.addEventListener('click', croSaveProjection);
+}
+function croSaveProjection(){
+  const N = croParse(CRO.abonnes);
+  if(!isFinite(N) || N <= 0){ toast("Renseigne d'abord le nombre d'abonnés."); return; }
+  CRO.saved = Array.isArray(CRO.saved) ? CRO.saved : [];
+  const snap = { nom: CRO.nom.trim(), abonnes: CRO.abonnes, freq: CRO.freq, offre: CRO.offre, cout: CRO.cout };
+  const key = snap.nom.toLowerCase();
+  const idx = key ? CRO.saved.findIndex(s=> (s.nom||'').trim().toLowerCase() === key) : -1;
+  if(idx >= 0){ CRO.saved[idx] = snap; toast('Projection mise à jour'); }
+  else{
+    if(CRO.saved.length >= CRO_MAX_SAVED){ toast(`Limite atteinte : ${CRO_MAX_SAVED} projections enregistrées au maximum. Retires-en une pour en ajouter.`); return; }
+    CRO.saved.unshift(snap); toast('Projection enregistrée');
+  }
+  croSaveNow(); croDrawSaved();
+}
+function croOpenSaved(i){
+  const s = CRO.saved[i]; if(!s) return;
+  CRO.nom = s.nom || ''; CRO.abonnes = s.abonnes || ''; CRO.freq = s.freq || 3;
+  CRO.offre = s.offre || ''; CRO.cout = s.cout || '';
+  croSaveNow(); croFormDraw();
+  const v = $('#v-croissance'); if(v) v.scrollIntoView({block:'start'});
+  toast('Projection chargée');
+}
+function croDrawSaved(){
+  const box = $('#cro-saved'); if(!box) return;
+  const list = Array.isArray(CRO.saved) ? CRO.saved : [];
+  if(!list.length){ box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="row-end" style="margin:26px 0 8px;">
+      <p class="sec-t" style="margin-right:auto;">Projections enregistrées <span class="small" style="font-weight:400;">(${list.length}/${CRO_MAX_SAVED})</span></p>
+    </div>`
+    + list.map((s,i)=>{
+        const N = croParse(s.abonnes);
+        const tier = CRO_TIERS.find(t=>t.f===s.freq) || CRO_TIERS[1];
+        const invest = croParseNum(s.cout);
+        const sub = `${isFinite(N) ? croFmt(N) : esc(s.abonnes||'?')} abonnés · ${tier.l}${isFinite(invest) && invest>0 ? ` · investissement ${euros(invest)}` : ''}`;
+        return `<div class="card pad-l" style="margin-bottom:10px;display:flex;gap:12px;align-items:center;">
+            <div style="flex:1;min-width:0;">
+              <p style="font-weight:700;color:var(--ink);margin:0 0 2px;">${esc(s.nom || 'Sans nom')}</p>
+              <p class="small" style="margin:0;">${sub}</p>
+            </div>
+            <button class="btn ghost xs" data-cro-open="${i}" style="flex:none;">Ouvrir</button>
+            <button class="btn ghost xs" data-cro-del="${i}" style="flex:none;">Retirer</button>
+          </div>`;
+      }).join('');
+  box.querySelectorAll('[data-cro-open]').forEach(b=> b.addEventListener('click', ()=> croOpenSaved(+b.dataset.croOpen)));
+  box.querySelectorAll('[data-cro-del]').forEach(b=> b.addEventListener('click', ()=>{ CRO.saved.splice(+b.dataset.croDel, 1); croSaveNow(); croDrawSaved(); }));
 }
 
 /* ================================================================ */
