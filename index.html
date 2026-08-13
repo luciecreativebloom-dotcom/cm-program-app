@@ -6408,17 +6408,15 @@ function ideasDrawSaved(){
    Projection de croissance (locale, sans IA) à 3 et 6 mois, selon la
    fréquence de publication. Fourchettes indicatives, jamais garanties.
    ================================================================ */
-const CRO_TIERS = [
-  { f:2, l:'2 / semaine', m3:[2,3],  m6:[4,6] },
-  { f:3, l:'3 / semaine', m3:[3,5],  m6:[6,9] },
-  { f:5, l:'5 / semaine', m3:[5,7],  m6:[10,15] },
-];
-/* Débrief à 6 mois : 3 niveaux de performance (croissance organique). */
-const CRO_SCEN = [
-  { l:'Minimum attendu',  p:4 },
-  { l:'Objectif réaliste', p:8 },
-  { l:'Très bonne perf',   p:15 },
-];
+/* Croissance d'abonnés selon la taille du compte (plus un compte est petit,
+   plus la croissance en pourcentage est élevée). Base : 3 à 5 publications/semaine.
+   Les 3 scénarios du débrief (min/réaliste/très bonne) sont dérivés de la fourchette
+   à 6 mois de la tranche, dans croDraw. */
+function croBracket(N){
+  if(N < 3000)   return { m3:[8,12], m6:[15,20] };
+  if(N <= 10000) return { m3:[6,8],  m6:[10,15] };
+  return { m3:[3,5], m6:[6,10] };
+}
 /* Entonnoir : part du gain d'abonnés en leads qualifiés, puis part des leads en
    clients. Fourchettes resserrées autour d'une hypothèse médiane (20 % / 10 %). */
 const CRO_LEAD = [0.15, 0.25];
@@ -6449,8 +6447,7 @@ function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(croSaveNow, 50
 function croSaveNow(){ try{ setJSON('cmp:croissance', CRO); }catch(e){} }
 async function renderCroissance(){
   const s = await getJSON('cmp:croissance', null);
-  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', caActuel:'', cout:'', saved:[] }, s);
-  if(!CRO_TIERS.some(t=>t.f===CRO.freq)) CRO.freq = 3;
+  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', offre:'', caActuel:'', cout:'', saved:[] }, s);
   if(!Array.isArray(CRO.saved)) CRO.saved = [];
   croFormDraw();
 }
@@ -6460,17 +6457,18 @@ function croFormDraw(){
       <div class="field"><label for="cro-nom">Le nom du client</label>
         <input id="cro-nom" type="text" placeholder="Ex : Studio Bloom" value="${esc(CRO.nom)}"></div>
       <div class="field"><label for="cro-ab">Nombre d'abonnés actuel</label>
-        <input id="cro-ab" type="text" inputmode="numeric" placeholder="Ex : 29 300 (ou 29,3k)" value="${esc(CRO.abonnes)}"></div>
-      <div class="field"><label>Fréquence de publication souhaitée</label>
-        <div class="seg" id="cro-freq">${CRO_TIERS.map(t=>`<button data-f="${t.f}"${CRO.freq===t.f?' class="on"':''}>${t.l}</button>`).join('')}</div></div>
-      <div class="field" style="max-width:280px;"><label for="cro-offre">Montant du panier moyen <span class="small" style="font-weight:400;">(€ par client)</span></label>
+        <input id="cro-ab" type="text" inputmode="numeric" placeholder="Ex : 29 300 (ou 29,3k)" value="${esc(CRO.abonnes)}">
+        <div class="hint">À partir de 100 abonnés.</div></div>
+      <div class="field" style="max-width:280px;"><label for="cro-offre">Montant du panier moyen par client <span class="small" style="font-weight:400;">(€)</span></label>
         <input id="cro-offre" type="text" inputmode="numeric" placeholder="Ex : 850" value="${esc(CRO.offre)}"></div>
-      <div class="field" style="max-width:280px;"><label for="cro-ca">Chiffre d'affaires mensuel actuel <span class="small" style="font-weight:400;">(€ / mois)</span></label>
-        <input id="cro-ca" type="text" inputmode="numeric" placeholder="Ex : 4 000" value="${esc(CRO.caActuel)}">
-        <div class="hint">Le CA moyen que le client réalise aujourd'hui, chaque mois.</div></div>
-      <div class="field" style="max-width:280px;"><label for="cro-cout">Coût investi par le client <span class="small" style="font-weight:400;">(€ sur la période)</span></label>
-        <input id="cro-cout" type="text" inputmode="numeric" placeholder="Ex : 3 600" value="${esc(CRO.cout)}">
-        <div class="hint">Ce que le client te paie sur les ~6 mois de la projection.</div></div>
+      <div class="grid2">
+        <div class="field"><label for="cro-ca">Chiffre d'affaires moyen actuel <span class="small" style="font-weight:400;">(€/mois)</span></label>
+          <input id="cro-ca" type="text" inputmode="numeric" placeholder="Ex : 4 000" value="${esc(CRO.caActuel)}">
+          <div class="hint">Le CA moyen que le client réalise aujourd'hui, chaque mois.</div></div>
+        <div class="field"><label for="cro-cout">Coût investi par le client <span class="small" style="font-weight:400;">(€ sur 6 mois)</span></label>
+          <input id="cro-cout" type="text" inputmode="numeric" placeholder="Ex : 3 000" value="${esc(CRO.cout)}">
+          <div class="hint">Ce que le client te paie sur les 6 mois.</div></div>
+      </div>
     </div>
     <div id="cro-out"></div>
     <div id="cro-saved"></div>`;
@@ -6479,11 +6477,6 @@ function croFormDraw(){
   $('#cro-offre').addEventListener('input', e=>{ CRO.offre = e.target.value; croSave(); croDraw(); });
   $('#cro-ca').addEventListener('input', e=>{ CRO.caActuel = e.target.value; croSave(); croDraw(); });
   $('#cro-cout').addEventListener('input', e=>{ CRO.cout = e.target.value; croSave(); croDraw(); });
-  $$('#cro-freq button').forEach(b=> b.addEventListener('click', ()=>{
-    CRO.freq = +b.dataset.f;
-    $$('#cro-freq button').forEach(x=> x.classList.toggle('on', x===b));
-    croSave(); croDraw();
-  }));
   croDraw();
   croDrawSaved();
 }
@@ -6491,12 +6484,24 @@ function croDraw(){
   const out = $('#cro-out'); if(!out) return;
   const N = croParse(CRO.abonnes);
   if(!isFinite(N) || N <= 0){ out.innerHTML = ''; return; }
-  const tier = CRO_TIERS.find(t=>t.f===CRO.freq) || CRO_TIERS[1];
-  // Arrondi adaptatif : à la dizaine pour les petits comptes (sinon la fourchette
-  // s'écrase, ex. 2038 → +3 % et +5 % tombaient tous deux sur 2100), à la centaine
-  // pour les gros comptes (chiffres ronds, ex. 31 100 – 31 900).
-  const step = N < 10000 ? 10 : 100;
-  const proj = (pct)=> Math.round((N*(1+pct/100))/step)*step;
+  if(N < 100){
+    out.innerHTML = `<div class="card pad-l" style="margin-top:20px;border-color:#F3DEBF;background:var(--sun-pale);">
+        <p class="sec-t">Il faut au moins 100 abonnés</p>
+        <p class="sec-d" style="margin:0;">En dessous de <b>100 abonnés</b>, les estimations ne sont pas fiables (la croissance en pourcentage porte sur trop peu de comptes). Renseigne un compte d'au moins 100 abonnés pour lancer la projection.</p>
+      </div>`;
+    return;
+  }
+  const bracket = croBracket(N);
+  // Résultat arrondi au supérieur (ex. 124 abonnés → +6 % = 131,44 → 132).
+  // La micro-tolérance évite qu'un résultat entier (ex. 27 500) devienne 27 501
+  // à cause de l'imprécision des nombres à virgule flottante.
+  const proj = (pct)=> Math.ceil(N*(1+pct/100) - 1e-6);
+  // 3 scénarios à 6 mois dérivés de la fourchette de la tranche (réaliste = milieu).
+  const scenPts = [
+    { l:'Minimum attendu',   p: bracket.m6[0] },
+    { l:'Objectif réaliste', p: Math.round((bracket.m6[0] + bracket.m6[1]) / 2) },
+    { l:'Très bonne perf',   p: bracket.m6[1] },
+  ];
   const bloc = (titre, rng)=>{
     const lo = proj(rng[0]), hi = proj(rng[1]);
     return `<div class="card pad-l" style="margin-bottom:12px;">
@@ -6509,7 +6514,7 @@ function croDraw(){
   };
   const th = 'text-align:left;padding:0 0 9px;font-size:12px;color:var(--ink-2);font-weight:600;';
   const td = 'padding:11px 0;border-top:1px solid var(--line,#ece4dc);';
-  const scenRows = CRO_SCEN.map(s=>`<tr>
+  const scenRows = scenPts.map(s=>`<tr>
         <td style="${td}">${s.l}</td>
         <td style="${td}text-align:center;white-space:nowrap;">+${s.p} %</td>
         <td style="${td}text-align:right;white-space:nowrap;font-weight:700;color:var(--bloom);">${croFmt(proj(s.p))}</td>
@@ -6530,7 +6535,7 @@ function croDraw(){
     </div>`;
   // Projection de chiffre d'affaires (entonnoir sur le gain d'abonnés à 6 mois).
   const offre = croParseNum(CRO.offre);
-  const finRows = CRO_SCEN.map(s=>{
+  const finRows = scenPts.map(s=>{
     const gain = Math.max(0, proj(s.p) - N);
     const leadLo = Math.round(gain*CRO_LEAD[0]),   leadHi = Math.round(gain*CRO_LEAD[1]);
     const cliLo  = Math.round(gain*CRO_LEAD[0]*CRO_CLIENT[0]), cliHi = Math.round(gain*CRO_LEAD[1]*CRO_CLIENT[1]);
@@ -6560,7 +6565,7 @@ function croDraw(){
     </div>`;
   // Rentabilité côté client, basée sur l'objectif réaliste (2e scénario).
   const cout = croParseNum(CRO.cout);
-  const sR = CRO_SCEN[1];
+  const sR = scenPts[1];
   const gainR = Math.max(0, proj(sR.p) - N);
   const cliRLo = Math.round(gainR*CRO_LEAD[0]*CRO_CLIENT[0]);
   const cliRHi = Math.round(gainR*CRO_LEAD[1]*CRO_CLIENT[1]);
@@ -6582,29 +6587,23 @@ function croDraw(){
   }
   let roiBody;
   if(!(offre>0)){
-    roiBody = `<div class="hint">Renseigne le panier moyen et le coût investi (ci-dessus) pour estimer la rentabilité côté client.</div>`;
+    roiBody = `<div class="hint">Renseigne le panier moyen, le CA actuel et le coût investi (ci-dessus) pour estimer la rentabilité côté client.</div>`;
+  }else if(!(isFinite(caActuel) && caActuel>0)){
+    roiBody = `<div class="hint">Renseigne le chiffre d'affaires moyen actuel (ci-dessus) pour estimer la rentabilité côté client.</div>`;
   }else if(!(cout>0)){
-    roiBody = `<div class="hint">Renseigne le coût investi par le client sur la période (ci-dessus) pour estimer sa rentabilité.</div>`;
+    roiBody = `<div class="hint">Renseigne le coût investi par le client (ci-dessus) pour estimer sa rentabilité.</div>`;
   }else{
-    const caLo = cliRLo*offre, caHi = cliRHi*offre;
-    const seuil = Math.ceil(cout/offre);
-    const roiPct = (ca)=>{ const p = Math.round((ca-cout)/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
-    let vbg, vfg, vic, vtxt;
-    if(caLo >= cout){
-      vbg='#EAF5EE'; vfg='#237A48'; vic='✅';
-      vtxt="Rentable : même dans l'hypothèse basse, le chiffre d'affaires généré couvre l'investissement.";
-    }else if(caHi >= cout){
-      vbg='#FBEFD9'; vfg='#9A6206'; vic='≈';
-      vtxt=`Potentiellement rentable : le CA généré dépasse l'investissement si la performance suit. Seuil atteint à partir de ${seuil} client${seuil>1?'s':''} signé${seuil>1?'s':''}.`;
-    }else{
-      vbg='#FBE7EC'; vfg='#9B1B3F'; vic='⚠';
-      vtxt=`Sur cette période, l'investissement dépasse le CA estimé : il faudrait environ ${seuil} clients, un panier moyen plus élevé, ou un horizon plus long pour l'équilibrer.`;
-    }
-    roiBody = `<div class="detail"><span>Ce que le client investit sur la période</span><b>${euros(cout)}</b></div>
-      <div class="detail"><span>CA estimé généré · ${cliRLo}–${cliRHi} clients</span><b>${euros(caLo)} – ${euros(caHi)}</b></div>
-      <div class="detail"><span><strong>Bénéfice estimé</strong> (CA − investissement)</span><b>${euros(caLo-cout)} – ${euros(caHi-cout)}</b></div>
-      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(caLo)} à ${roiPct(caHi)}</b></div>
-      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:${vbg};color:${vfg};font-weight:600;font-size:13.5px;line-height:1.5;">${vic} ${vtxt}</div>`;
+    const caPer = caActuel*6;                       // CA actuel sur 6 mois
+    const totLo = caPer + caRLo, totHi = caPer + caRHi;  // CA total cumulé (actuel + généré)
+    const benLo = totLo - cout,  benHi = totHi - cout;
+    const cmPct = Math.round(cout / caPer * 100);   // part du CA actuel dédiée au CM
+    const roiPct = (ben)=>{ const p = Math.round(ben/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
+    roiBody = `<div class="detail"><span>Part du CA actuel consacrée au CM <span class="tiny">(sur 6 mois)</span></span><b>${cmPct} %</b></div>
+      <div class="detail"><span>Ce que le client investit</span><b>${euros(cout)}</b></div>
+      <div class="detail"><span>CA total projeté <span class="tiny">(actuel + généré)</span></span><b>${euros(totLo)} – ${euros(totHi)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong> (CA total − investissement)</span><b>${euros(benLo)} – ${euros(benHi)}</b></div>
+      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(benLo)} à ${roiPct(benHi)}</b></div>
+      <div style="margin:13px 0 0;padding:11px 14px;border-radius:12px;background:#EAF5EE;color:#237A48;font-weight:600;font-size:13.5px;line-height:1.5;">Pour ${euros(cout)} investis, le client soutient un chiffre d'affaires de ${euros(totLo)} à ${euros(totHi)} sur la période.</div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Rentabilité pour le client <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
@@ -6622,11 +6621,11 @@ function croDraw(){
     </div>`;
   const nom = CRO.nom.trim();
   out.innerHTML = `<div class="row-end" style="margin:20px 0 10px;">
-      <p class="sec-t" style="margin-right:auto;margin-top:0;margin-bottom:0;">${nom?esc(nom)+' — ':''}projection depuis ${croFmt(N)} abonnés · ${esc(tier.l)}</p>
+      <p class="sec-t" style="margin-right:auto;margin-top:0;margin-bottom:0;">${nom?esc(nom)+' — ':''}projection depuis ${croFmt(N)} abonnés · en publiant 3 à 5 fois / semaine</p>
       <button class="btn ghost sm" id="cro-save-proj">Enregistrer cette projection</button>
     </div>`
-    + bloc('À 3 mois', tier.m3)
-    + bloc('À 6 mois', tier.m6)
+    + bloc('À 3 mois', bracket.m3)
+    + bloc('À 6 mois', bracket.m6)
     + scen
     + fin
     + evo
@@ -6637,7 +6636,7 @@ function croDraw(){
 }
 function croSaveProjection(){
   const N = croParse(CRO.abonnes);
-  if(!isFinite(N) || N <= 0){ toast("Renseigne d'abord le nombre d'abonnés."); return; }
+  if(!isFinite(N) || N < 100){ toast("Il faut au moins 100 abonnés pour enregistrer une projection."); return; }
   CRO.saved = Array.isArray(CRO.saved) ? CRO.saved : [];
   const snap = { nom: CRO.nom.trim(), abonnes: CRO.abonnes, freq: CRO.freq, offre: CRO.offre, caActuel: CRO.caActuel, cout: CRO.cout };
   const key = snap.nom.toLowerCase();
@@ -6666,9 +6665,8 @@ function croDrawSaved(){
     </div>`
     + list.map((s,i)=>{
         const N = croParse(s.abonnes);
-        const tier = CRO_TIERS.find(t=>t.f===s.freq) || CRO_TIERS[1];
         const invest = croParseNum(s.cout);
-        const sub = `${isFinite(N) ? croFmt(N) : esc(s.abonnes||'?')} abonnés · ${tier.l}${isFinite(invest) && invest>0 ? ` · investissement ${euros(invest)}` : ''}`;
+        const sub = `${isFinite(N) ? croFmt(N) : esc(s.abonnes||'?')} abonnés${isFinite(invest) && invest>0 ? ` · investissement ${euros(invest)}` : ''}`;
         return `<div class="card pad-l" style="margin-bottom:10px;display:flex;gap:12px;align-items:center;">
             <div style="flex:1;min-width:0;">
               <p style="font-weight:700;color:var(--ink);margin:0 0 2px;">${esc(s.nom || 'Sans nom')}</p>
