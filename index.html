@@ -6254,6 +6254,7 @@ function calcPdf(n, ia){
    ================================================================ */
 let IDEAS = { metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[], archived:[] };
 let ideasArchiveOpen = false;
+let ideasTab = 'gen';   // 'gen' | 'saved'
 let ideasSaveT = null;
 const IDEAS_MAX_SAVED = 30;
 const IDEAS_FIELDS = [
@@ -6275,23 +6276,34 @@ function ideasSave(){ clearTimeout(ideasSaveT); ideasSaveT = setTimeout(ideasSav
 function ideasSaveNow(){ try{ setJSON('cmp:idees', IDEAS); }catch(e){} }
 function ideasDraw(){
   const box = $('#ideas-form'); if(!box) return;
-  box.innerHTML = `<div class="card pad-l">
-      <div style="margin:0 0 14px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button><button class="btn ghost sm" id="ideas-goto-saved">📌 Idées enregistrées (${(IDEAS.saved||[]).length})</button></div>
-      ${IDEAS_FIELDS.map(f=>`<div class="field"><label for="id-${f.k}">${esc(f.l)}</label>
-        <textarea id="id-${f.k}" placeholder="${esc(f.ph)}">${esc(IDEAS[f.k]||'')}</textarea></div>`).join('')}
-      <button class="btn full" id="ideas-gen">Générer 15 idées</button>
+  const sc = (IDEAS.saved||[]).length;
+  box.innerHTML = `<div class="sph-nav" id="ideas-tabs">
+      <button class="sph-tab${ideasTab==='gen'?' on':''}" data-itab="gen">Générer des idées</button>
+      <button class="sph-tab${ideasTab==='saved'?' on':''}" data-itab="saved">Idées enregistrées${sc?` (${sc})`:''}</button>
     </div>
-    <div id="ideas-out"></div>
-    <div id="ideas-list"></div>
-    <div id="ideas-saved"></div>`;
+    <div id="ideas-pane-gen"${ideasTab==='gen'?'':' style="display:none;"'}>
+      <div class="card pad-l">
+        <div style="margin:0 0 14px;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button></div>
+        ${IDEAS_FIELDS.map(f=>`<div class="field"><label for="id-${f.k}">${esc(f.l)}</label>
+          <textarea id="id-${f.k}" placeholder="${esc(f.ph)}">${esc(IDEAS[f.k]||'')}</textarea></div>`).join('')}
+        <button class="btn full" id="ideas-gen">Générer 15 idées</button>
+      </div>
+      <div id="ideas-out"></div>
+      <div id="ideas-list"></div>
+    </div>
+    <div id="ideas-pane-saved"${ideasTab==='saved'?'':' style="display:none;"'}>
+      <div id="ideas-saved"></div>
+    </div>`;
   IDEAS_FIELDS.forEach(f=> $('#id-'+f.k).addEventListener('input', e=>{ IDEAS[f.k] = e.target.value; ideasSave(); }));
   $('#ideas-pro').addEventListener('click', ideasApplyProfil);
   $('#ideas-gen').addEventListener('click', ideasGenerate);
-  const gs = $('#ideas-goto-saved'); if(gs) gs.addEventListener('click', ()=>{
-    const t = $('#ideas-saved');
-    if(t && ((IDEAS.saved||[]).length || (IDEAS.archived||[]).length)) t.scrollIntoView({behavior:'smooth', block:'start'});
-    else toast('Aucune idée enregistrée pour le moment.');
-  });
+  $$('#ideas-tabs .sph-tab').forEach(b=> b.addEventListener('click', ()=>{
+    ideasTab = b.dataset.itab;
+    $$('#ideas-tabs .sph-tab').forEach(x=> x.classList.toggle('on', x===b));
+    $('#ideas-pane-gen').style.display  = ideasTab==='gen'   ? '' : 'none';
+    $('#ideas-pane-saved').style.display = ideasTab==='saved' ? '' : 'none';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }));
   ideasDrawList();
   ideasDrawSaved();
 }
@@ -6414,8 +6426,8 @@ function ideasUnarchive(i){
 function ideasDrawSaved(){
   const box = $('#ideas-saved'); if(!box) return;
   const saved = IDEAS.saved || [], arch = IDEAS.archived || [];
-  const gb = $('#ideas-goto-saved'); if(gb) gb.textContent = `📌 Idées enregistrées (${saved.length})`;
-  if(!saved.length && !arch.length){ box.innerHTML = ''; return; }
+  const tab = $('#ideas-tabs [data-itab="saved"]'); if(tab) tab.textContent = `Idées enregistrées${saved.length?` (${saved.length})`:''}`;
+  if(!saved.length && !arch.length){ box.innerHTML = `<div class="card pad-l"><p class="sec-d" style="margin:0;">Tu n'as pas encore enregistré d'idées. Dans l'onglet « Générer des idées », clique « Enregistrer » sous une idée pour la retrouver ici.</p></div>`; return; }
   let html = '';
   if(saved.length){
     html += `<div class="row-end" style="margin:26px 0 6px;">
