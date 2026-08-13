@@ -6488,7 +6488,11 @@ function croDraw(){
   const N = croParse(CRO.abonnes);
   if(!isFinite(N) || N <= 0){ out.innerHTML = ''; return; }
   const tier = CRO_TIERS.find(t=>t.f===CRO.freq) || CRO_TIERS[1];
-  const proj = (pct)=> Math.round((N*(1+pct/100))/100)*100;
+  // Arrondi adaptatif : à la dizaine pour les petits comptes (sinon la fourchette
+  // s'écrase, ex. 2038 → +3 % et +5 % tombaient tous deux sur 2100), à la centaine
+  // pour les gros comptes (chiffres ronds, ex. 31 100 – 31 900).
+  const step = N < 10000 ? 10 : 100;
+  const proj = (pct)=> Math.round((N*(1+pct/100))/step)*step;
   const bloc = (titre, rng)=>{
     const lo = proj(rng[0]), hi = proj(rng[1]);
     return `<div class="card pad-l" style="margin-bottom:12px;">

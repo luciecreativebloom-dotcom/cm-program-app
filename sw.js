@@ -3,7 +3,7 @@
    hors-ligne partiel. On NE met JAMAIS en cache les appels IA (/api/…).
    À chaque mise à jour de l'app, change la version ci-dessous (v1 → v2…)
    pour forcer le rafraîchissement du cache chez les élèves. */
-const CACHE = 'cmp-v1';
+const CACHE = 'cmp-v2';
 const CORE = [
   '/', '/index.html', '/manifest.webmanifest',
   '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png',
