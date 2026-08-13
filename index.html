@@ -6252,7 +6252,8 @@ function calcPdf(n, ia){
    GÉNÉRATEUR D'IDÉES
    5 questions (ou profil business) → 15 idées : accroche, brief, CTA.
    ================================================================ */
-let IDEAS = { metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[] };
+let IDEAS = { metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[], archived:[] };
+let ideasArchiveOpen = false;
 let ideasSaveT = null;
 const IDEAS_MAX_SAVED = 30;
 const IDEAS_FIELDS = [
@@ -6264,9 +6265,10 @@ const IDEAS_FIELDS = [
 ];
 async function renderIdeas(){
   const saved = await getJSON('cmp:idees', null);
-  if(saved && typeof saved === 'object') IDEAS = Object.assign({ metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[] }, saved);
+  if(saved && typeof saved === 'object') IDEAS = Object.assign({ metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[], archived:[] }, saved);
   if(!Array.isArray(IDEAS.list)) IDEAS.list = [];
   if(!Array.isArray(IDEAS.saved)) IDEAS.saved = [];
+  if(!Array.isArray(IDEAS.archived)) IDEAS.archived = [];
   ideasDraw();
 }
 function ideasSave(){ clearTimeout(ideasSaveT); ideasSaveT = setTimeout(ideasSaveNow, 600); }
@@ -6274,7 +6276,7 @@ function ideasSaveNow(){ try{ setJSON('cmp:idees', IDEAS); }catch(e){} }
 function ideasDraw(){
   const box = $('#ideas-form'); if(!box) return;
   box.innerHTML = `<div class="card pad-l">
-      <div style="margin:0 0 14px;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button></div>
+      <div style="margin:0 0 14px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button><button class="btn ghost sm" id="ideas-goto-saved">📌 Idées enregistrées (${(IDEAS.saved||[]).length})</button></div>
       ${IDEAS_FIELDS.map(f=>`<div class="field"><label for="id-${f.k}">${esc(f.l)}</label>
         <textarea id="id-${f.k}" placeholder="${esc(f.ph)}">${esc(IDEAS[f.k]||'')}</textarea></div>`).join('')}
       <button class="btn full" id="ideas-gen">Générer 15 idées</button>
@@ -6285,6 +6287,11 @@ function ideasDraw(){
   IDEAS_FIELDS.forEach(f=> $('#id-'+f.k).addEventListener('input', e=>{ IDEAS[f.k] = e.target.value; ideasSave(); }));
   $('#ideas-pro').addEventListener('click', ideasApplyProfil);
   $('#ideas-gen').addEventListener('click', ideasGenerate);
+  const gs = $('#ideas-goto-saved'); if(gs) gs.addEventListener('click', ()=>{
+    const t = $('#ideas-saved');
+    if(t && ((IDEAS.saved||[]).length || (IDEAS.archived||[]).length)) t.scrollIntoView({behavior:'smooth', block:'start'});
+    else toast('Aucune idée enregistrée pour le moment.');
+  });
   ideasDrawList();
   ideasDrawSaved();
 }
@@ -6388,19 +6395,62 @@ function ideasDrawList(){
   const again = $('#ideas-again'); if(again) again.addEventListener('click', ideasGenerate);
   box.querySelectorAll('[data-idx]').forEach(b=> b.addEventListener('click', ()=> ideasToggleSave(IDEAS.list[+b.dataset.idx])));
 }
+function ideasArchive(i){
+  const it = IDEAS.saved[i]; if(!it) return;
+  IDEAS.saved.splice(i, 1);
+  IDEAS.archived = IDEAS.archived || [];
+  IDEAS.archived.unshift(it);
+  ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
+  toast('Idée archivée');
+}
+function ideasUnarchive(i){
+  const it = IDEAS.archived[i]; if(!it) return;
+  if(IDEAS.saved.length >= IDEAS_MAX_SAVED){ toast(`Limite de ${IDEAS_MAX_SAVED} idées enregistrées atteinte — retires-en une d'abord.`); return; }
+  IDEAS.archived.splice(i, 1);
+  IDEAS.saved.unshift(it);
+  ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
+  toast('Idée remise dans tes enregistrées');
+}
 function ideasDrawSaved(){
   const box = $('#ideas-saved'); if(!box) return;
-  if(!IDEAS.saved.length){ box.innerHTML = ''; return; }
-  box.innerHTML = `<div class="row-end" style="margin:26px 0 6px;">
-      <p class="sec-t" style="margin-right:auto;">Idées enregistrées <span class="small" style="font-weight:400;">(${IDEAS.saved.length}/${IDEAS_MAX_SAVED})</span></p>
-    </div>`
-    + IDEAS.saved.map((it,i)=>{
-        const btn = `<button class="btn ghost xs" data-sdel="${i}" style="flex:none;white-space:nowrap;">Retirer</button>`;
-        return ideaCardHtml(it, i+1, 'var(--bloom)', btn);
-      }).join('');
-  box.querySelectorAll('[data-sdel]').forEach(b=> b.addEventListener('click', ()=>{
-    IDEAS.saved.splice(+b.dataset.sdel, 1); ideasSaveNow(); ideasDrawList(); ideasDrawSaved();
-  }));
+  const saved = IDEAS.saved || [], arch = IDEAS.archived || [];
+  const gb = $('#ideas-goto-saved'); if(gb) gb.textContent = `📌 Idées enregistrées (${saved.length})`;
+  if(!saved.length && !arch.length){ box.innerHTML = ''; return; }
+  let html = '';
+  if(saved.length){
+    html += `<div class="row-end" style="margin:26px 0 6px;">
+        <p class="sec-t" style="margin-right:auto;">Idées enregistrées <span class="small" style="font-weight:400;">(${saved.length}/${IDEAS_MAX_SAVED})</span></p>
+      </div>
+      <p class="sec-d" style="margin:-4px 0 10px;">Coche une idée une fois publiée : elle part dans tes archives.</p>`
+      + saved.map((it,i)=>{
+          const action = `<div style="flex:none;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;white-space:nowrap;"><input type="checkbox" data-sarch="${i}"> Publiée</label>
+              <button class="btn ghost xs" data-sdel="${i}" style="white-space:nowrap;">Retirer</button>
+            </div>`;
+          return ideaCardHtml(it, i+1, 'var(--bloom)', action);
+        }).join('');
+  }
+  if(arch.length){
+    html += `<div class="row-end" style="margin:22px 0 6px;">
+        <p class="sec-t" style="margin-right:auto;">Archives <span class="small" style="font-weight:400;">(${arch.length})</span></p>
+        <button class="btn ghost sm" id="ideas-arch-toggle">${ideasArchiveOpen ? 'Masquer' : 'Afficher'}</button>
+      </div>`;
+    if(ideasArchiveOpen){
+      html += arch.map((it,i)=>{
+          const action = `<div style="flex:none;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+              <button class="btn ghost xs" data-sunarch="${i}" style="white-space:nowrap;">Désarchiver</button>
+              <button class="btn ghost xs" data-sadel="${i}" style="white-space:nowrap;">Supprimer</button>
+            </div>`;
+          return ideaCardHtml(it, i+1, '#9AA0A6', action);
+        }).join('');
+    }
+  }
+  box.innerHTML = html;
+  box.querySelectorAll('[data-sarch]').forEach(cb=> cb.addEventListener('change', ()=> ideasArchive(+cb.dataset.sarch)));
+  box.querySelectorAll('[data-sdel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAS.saved.splice(+b.dataset.sdel, 1); ideasSaveNow(); ideasDrawList(); ideasDrawSaved(); }));
+  const at = $('#ideas-arch-toggle'); if(at) at.addEventListener('click', ()=>{ ideasArchiveOpen = !ideasArchiveOpen; ideasDrawSaved(); });
+  box.querySelectorAll('[data-sunarch]').forEach(b=> b.addEventListener('click', ()=> ideasUnarchive(+b.dataset.sunarch)));
+  box.querySelectorAll('[data-sadel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAS.archived.splice(+b.dataset.sadel, 1); ideasSaveNow(); ideasDrawSaved(); }));
 }
 
 /* ================================================================
