@@ -6419,8 +6419,8 @@ function croBracket(N){
 }
 /* Entonnoir : part du gain d'abonnés en leads qualifiés, puis part des leads en
    clients. Fourchettes resserrées autour d'une hypothèse médiane (20 % / 10 %). */
-const CRO_LEAD = [0.15, 0.25];
-const CRO_CLIENT = [0.08, 0.12];
+const CRO_LEAD = 0.30;    // 30 % du gain d'abonnés = leads qualifiés
+const CRO_CLIENT = 0.15;  // 15 % des leads = clients potentiels
 const CRO_CASCADE = [
   'Croissance de la visibilité (portée, abonnés)',
   'Génération de leads (inscriptions, demandes, téléchargements)',
@@ -6537,19 +6537,19 @@ function croDraw(){
   const offre = croParseNum(CRO.offre);
   const finRows = scenPts.map(s=>{
     const gain = Math.max(0, proj(s.p) - N);
-    const leadLo = Math.round(gain*CRO_LEAD[0]),   leadHi = Math.round(gain*CRO_LEAD[1]);
-    const cliLo  = Math.round(gain*CRO_LEAD[0]*CRO_CLIENT[0]), cliHi = Math.round(gain*CRO_LEAD[1]*CRO_CLIENT[1]);
-    const ca = (offre>0) ? `${euros(cliLo*offre)} – ${euros(cliHi*offre)}` : '—';
+    const leads = Math.round(gain*CRO_LEAD);
+    const clients = Math.round(gain*CRO_LEAD*CRO_CLIENT);
+    const ca = (offre>0) ? euros(clients*offre) : '—';
     return `<tr>
         <td style="${td}">${s.l}</td>
-        <td style="${td}text-align:center;white-space:nowrap;">${leadLo} – ${leadHi}</td>
-        <td style="${td}text-align:center;white-space:nowrap;">${cliLo} – ${cliHi}</td>
+        <td style="${td}text-align:center;white-space:nowrap;">${leads}</td>
+        <td style="${td}text-align:center;white-space:nowrap;">${clients}</td>
         <td style="${td}text-align:right;white-space:nowrap;font-weight:700;color:var(--bloom);">${ca}</td>
       </tr>`;
   }).join('');
   const fin = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Projection de chiffre d'affaires <span class="small" style="font-weight:400;">· à 6 mois</span></p>
-      <p class="sec-d" style="margin:-2px 0 12px;">Sur les abonnés gagnés : 15 à 25 % de leads qualifiés (médiane 20 %), puis 8 à 12 % de clients (médiane 10 %), multiplié par le panier moyen.</p>
+      <p class="sec-d" style="margin:-2px 0 12px;">Sur les abonnés gagnés : 30 % de leads qualifiés, puis 15 % de clients, multiplié par le panier moyen par client.</p>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <thead><tr>
@@ -6567,22 +6567,21 @@ function croDraw(){
   const cout = croParseNum(CRO.cout);
   const sR = scenPts[1];
   const gainR = Math.max(0, proj(sR.p) - N);
-  const cliRLo = Math.round(gainR*CRO_LEAD[0]*CRO_CLIENT[0]);
-  const cliRHi = Math.round(gainR*CRO_LEAD[1]*CRO_CLIENT[1]);
-  const caRLo = cliRLo*offre, caRHi = cliRHi*offre;   // CA généré par la stratégie (réaliste)
+  const cliR = Math.round(gainR*CRO_LEAD*CRO_CLIENT);
+  const caR = cliR*offre;   // CA généré par la stratégie (réaliste), valeur unique
   const caActuel = croParseNum(CRO.caActuel);
   let evo = '';
   if(offre>0 && isFinite(caActuel) && caActuel>0){
-    const caPer = caActuel*6, projLo = caPer+caRLo, projHi = caPer+caRHi;
-    const evoLo = Math.round(caRLo/caPer*100), evoHi = Math.round(caRHi/caPer*100);
+    const caPer = caActuel*6, projete = caPer+caR;
+    const evoP = caPer>0 ? Math.round(caR/caPer*100) : 0;
     evo = `<div class="card pad-l" style="margin-bottom:12px;">
         <p class="sec-t">Évolution du chiffre d'affaires <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
         <p class="sec-d" style="margin:-2px 0 12px;">Ce que la stratégie ajoute au chiffre d'affaires actuel du client, sur les 6 mois.</p>
         <div class="detail"><span>CA mensuel actuel</span><b>${euros(caActuel)}</b></div>
         <div class="detail"><span>CA actuel sur la période (6 mois)</span><b>${euros(caPer)}</b></div>
-        <div class="detail"><span>CA généré par la stratégie · ${cliRLo}–${cliRHi} clients</span><b>${euros(caRLo)} – ${euros(caRHi)}</b></div>
-        <div class="detail"><span><strong>CA projeté sur la période</strong></span><b>${euros(projLo)} – ${euros(projHi)}</b></div>
-        <div class="detail"><span>Évolution du CA</span><b>+${evoLo} % à +${evoHi} %</b></div>
+        <div class="detail"><span>CA généré par la stratégie · ${cliR} client${cliR>1?'s':''}</span><b>${euros(caR)}</b></div>
+        <div class="detail"><span><strong>CA projeté sur la période</strong></span><b>${euros(projete)}</b></div>
+        <div class="detail"><span>Évolution du CA</span><b>+${evoP} %</b></div>
       </div>`;
   }
   let roiBody;
@@ -6594,28 +6593,24 @@ function croDraw(){
     roiBody = `<div class="hint">Renseigne le coût investi par le client (ci-dessus) pour estimer sa rentabilité.</div>`;
   }else{
     const caPer = caActuel*6;                       // CA actuel sur 6 mois
-    const roiPct = (ben)=>{ const p = Math.round(ben/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
-    const benLo = caRLo - cout, benHi = caRHi - cout;   // bénéfice = CA généré − investissement
-    // CA total sur 6 mois = CA moyen actuel (sur la période) + bénéfice estimé (milieu de fourchette).
-    const benMid = (benLo + benHi) / 2, caTotal = caPer + benMid;
-    const pctTotal = caTotal > 0 ? Math.round(cout / caTotal * 100) : 0;
-    const vg = 'color:#14532D';                       // vert sapin pour le gras
-    let bilan;                                        // lecture du ROI probable à 6 mois
-    if(benLo >= 0){
-      bilan = `L'investissement est <b style="${vg}">rentabilisé même dans l'hypothèse basse</b> : le CA généré dépasse le coût, pour un retour de <b style="${vg}">${roiPct(benLo)} à ${roiPct(benHi)}</b>.`;
-    }else if(benHi >= 0){
-      bilan = `Le retour dépend de la performance : de <b style="${vg}">${roiPct(benLo)}</b> (hypothèse basse, léger déficit) à <b style="${vg}">${roiPct(benHi)}</b> (hypothèse haute). L'intérêt d'un CM se joue aussi sur le long terme : notoriété et base d'audience continuent de produire après 6 mois.`;
-    }else{
-      bilan = `Le CA généré ne couvre pas encore l'investissement sur cette période (retour de <b style="${vg}">${roiPct(benLo)} à ${roiPct(benHi)}</b>). C'est fréquent au démarrage : le travail d'un CM porte surtout ses fruits au-delà de 6 mois.`;
-    }
+    const ben = caR - cout;                          // bénéfice = CA généré − investissement (valeur unique)
+    const roiP = Math.round(ben/cout*100), roiTxt = (roiP>=0?'+':'') + roiP.toLocaleString('fr-FR') + ' %';
+    const caTotal = caPer + caR;                     // CA total sur 6 mois (actuel + généré)
+    const pctTotal = caTotal>0 ? Math.round(cout/caTotal*100) : 0;
+    const rentable = caR >= cout;
+    const bg = rentable ? 'rgba(76,175,80,0.15)' : 'rgba(234,138,46,0.15)';
+    const vc = rentable ? '#14532D' : '#8A4B00';     // vert sapin (rentable) / orange foncé (non rentable)
+    const bilan = rentable
+      ? `<b style="color:${vc}">✅ Rentable pour le client</b> : le CA généré (${euros(caR)}) couvre l'investissement (${euros(cout)}), pour un retour de <b style="color:${vc}">${roiTxt}</b>.`
+      : `<b style="color:${vc}">⚠️ Pas rentable sur 6 mois</b> : le CA généré (${euros(caR)}) ne couvre pas l'investissement (${euros(cout)}). Pour rester rentable, le client ne devrait pas investir plus de <b style="color:${vc}">${euros(caR)}</b> sur 6 mois (~${euros(caR/6)} / mois).`;
     roiBody = `<div class="detail"><span>Ce que le client investit sur la période <span class="tiny">(6 mois)</span></span><b>${euros(cout)}</b></div>
-      <div class="detail"><span>CA généré sur la période <span class="tiny">(6 mois)</span></span><b>${euros(caRLo)} – ${euros(caRHi)}</b></div>
-      <div class="detail"><span><strong>Bénéfice estimé</strong> sur la période (CA − investissement)</span><b>${euros(benLo)} – ${euros(benHi)}</b></div>
-      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(benLo)} à ${roiPct(benHi)}</b></div>
-      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:rgba(76,175,80,0.15);font-size:13.5px;line-height:1.55;color:var(--ink);">
-        <p style="margin:0 0 8px;font-weight:700;${vg}">💰 Bilan du retour sur investissement à 6 mois</p>
+      <div class="detail"><span>CA généré sur la période <span class="tiny">(6 mois)</span></span><b>${euros(caR)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong> sur la période (CA − investissement)</span><b>${euros(ben)}</b></div>
+      <div class="detail"><span>Retour sur investissement</span><b>${roiTxt}</b></div>
+      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:${bg};font-size:13.5px;line-height:1.55;color:var(--ink);">
+        <p style="margin:0 0 8px;font-weight:700;color:${vc};">💰 Bilan du retour sur investissement à 6 mois</p>
         <p style="margin:0 0 8px;">${bilan}</p>
-        <p style="margin:0;">L'investissement dans le CM (<b style="${vg}">${euros(cout)}</b>) représente environ <b style="${vg}">${pctTotal} %</b> du chiffre d'affaires total estimé sur 6 mois — CA moyen actuel + bénéfice estimé, soit ~<b style="${vg}">${euros(caTotal)}</b>.</p>
+        <p style="margin:0;">L'investissement dans le CM représente <b style="color:${vc}">${pctTotal} %</b> du chiffre d'affaires total du client sur 6 mois (CA actuel + CA généré, soit ~${euros(caTotal)}).</p>
       </div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
