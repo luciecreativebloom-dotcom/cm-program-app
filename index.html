@@ -6594,24 +6594,26 @@ function croDraw(){
     roiBody = `<div class="hint">Renseigne le coût investi par le client (ci-dessus) pour estimer sa rentabilité.</div>`;
   }else{
     const caPer = caActuel*6;                       // CA actuel sur 6 mois
-    const roiPct = (ben, c)=>{ const p = Math.round(ben/c*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
-    const mois = CRO.rentUnit === 'mois';           // unité d'affichage
-    const d = mois ? 6 : 1, suf = mois ? ' / mois' : ' sur 6 mois';
-    const uGenLo = caRLo/d,  uGenHi = caRHi/d;       // CA estimé généré dans l'unité
-    const uCout = cout/d;
-    const uBenLo = uGenLo - uCout, uBenHi = uGenHi - uCout;   // bénéfice = CA généré − investissement
-    // Encart contextuel : CA total (actuel + généré) et poids du CM dans ce total.
-    const caRMid = (caRLo + caRHi)/2, totalPer = caPer + caRMid;
-    const pctTotal = totalPer>0 ? Math.round(cout/totalPer*100) : 0;
-    roiBody = `<div class="seg" id="cro-rent-unit" style="margin-bottom:14px;max-width:260px;">
-        <button data-u="mois"${mois?' class="on"':''}>Au mois</button>
-        <button data-u="periode"${!mois?' class="on"':''}>Sur 6 mois</button>
-      </div>
-      <div class="detail"><span>Ce que le client investit${suf}</span><b>${euros(uCout)}</b></div>
-      <div class="detail"><span>CA estimé généré${suf} <span class="tiny">(nouveaux clients)</span></span><b>${euros(uGenLo)} – ${euros(uGenHi)}</b></div>
-      <div class="detail"><span><strong>Bénéfice estimé</strong>${suf} (CA généré − investissement)</span><b>${euros(uBenLo)} – ${euros(uBenHi)}</b></div>
-      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(uBenLo, uCout)} à ${roiPct(uBenHi, uCout)}</b></div>
-      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--sun-pale);border:1px solid #F3DEBF;font-size:13.5px;line-height:1.55;color:var(--ink-2);">Le chiffre d'affaires <b>total estimé</b> (actuel + généré) tourne autour de <b>${euros(totalPer)}</b> sur 6 mois. Engager un CM représente environ <b>${pctTotal} %</b> de ce CA total — soit <b>${euros(cout/6)} / mois</b> sur ~${euros(totalPer/6)} de chiffre d'affaires mensuel.</div>`;
+    const roiPct = (ben)=>{ const p = Math.round(ben/cout*100); return (p>=0?'+':'') + p.toLocaleString('fr-FR') + ' %'; };
+    const benLo = caRLo - cout, benHi = caRHi - cout;   // bénéfice = CA généré − investissement
+    const cmPct = caPer>0 ? Math.round(cout/caPer*100) : 0;  // part du CA actuel investie dans le CM
+    let bilan;                                        // lecture du ROI probable à 6 mois
+    if(benLo >= 0){
+      bilan = `L'investissement est <b>rentabilisé même dans l'hypothèse basse</b> : le CA généré dépasse le coût, pour un retour de ${roiPct(benLo)} à ${roiPct(benHi)}.`;
+    }else if(benHi >= 0){
+      bilan = `Le retour dépend de la performance : de <b>${roiPct(benLo)}</b> (hypothèse basse, léger déficit) à <b>${roiPct(benHi)}</b> (hypothèse haute). L'intérêt d'un CM se joue aussi sur le long terme : notoriété et base d'audience continuent de produire après 6 mois.`;
+    }else{
+      bilan = `Le CA généré ne couvre pas encore l'investissement sur cette période (retour de ${roiPct(benLo)} à ${roiPct(benHi)}). C'est fréquent au démarrage : le travail d'un CM porte surtout ses fruits au-delà de 6 mois.`;
+    }
+    roiBody = `<div class="detail"><span>Ce que le client investit sur la période <span class="tiny">(6 mois)</span></span><b>${euros(cout)}</b></div>
+      <div class="detail"><span>CA généré sur la période <span class="tiny">(6 mois)</span></span><b>${euros(caRLo)} – ${euros(caRHi)}</b></div>
+      <div class="detail"><span><strong>Bénéfice estimé</strong> sur la période (CA − investissement)</span><b>${euros(benLo)} – ${euros(benHi)}</b></div>
+      <div class="detail"><span>Retour sur investissement</span><b>${roiPct(benLo)} à ${roiPct(benHi)}</b></div>
+      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--sun-pale);border:1px solid #F3DEBF;font-size:13.5px;line-height:1.55;color:var(--ink-2);">
+        <p style="margin:0 0 8px;font-weight:700;color:var(--ink);">Bilan du retour sur investissement à 6 mois</p>
+        <p style="margin:0 0 8px;">${bilan}</p>
+        <p style="margin:0;">L'investissement dans le CM représente <b>${cmPct} %</b> du chiffre d'affaires actuel du client — soit <b>${euros(cout/6)} / mois</b> sur ${euros(caActuel)} de CA mensuel.</p>
+      </div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Rentabilité pour le client <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
@@ -6641,7 +6643,6 @@ function croDraw(){
     + nuance
     + `<div class="note" style="margin-top:2px;">Fourchette indicative, pas une garantie : la croissance réelle dépend de la qualité et de la régularité des contenus, de la niche et de l'engagement. À réévaluer selon les résultats obtenus.</div>`;
   const sb = $('#cro-save-proj'); if(sb) sb.addEventListener('click', croSaveProjection);
-  $$('#cro-rent-unit button').forEach(b=> b.addEventListener('click', ()=>{ CRO.rentUnit = b.dataset.u; croSave(); croDraw(); }));
 }
 function croSaveProjection(){
   const N = croParse(CRO.abonnes);
