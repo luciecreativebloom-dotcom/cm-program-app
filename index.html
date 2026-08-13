@@ -190,6 +190,9 @@ p{margin:0 0 12px;}
 .nav-item.on{background:var(--bloom-pale);color:var(--bloom);font-weight:600;border-color:#F0D2DC;}
 .nav-item .ic{font-size:14px;width:18px;text-align:center;flex:0 0 auto;}
 .nav-item span:last-child{line-height:1.3;}
+.nav-item.soon{opacity:.5;cursor:default;}
+.nav-item.soon:hover{background:none;color:var(--ink-2);}
+.soon-badge{margin-left:auto;flex:0 0 auto;font-size:9px;font-weight:700;letter-spacing:.05em;background:var(--sun);color:#fff;border-radius:6px;padding:2px 6px;}
 .nav-group{margin-top:10px;}
 .nav-toggle{
   display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;background:none;border:none;
@@ -267,6 +270,13 @@ p{margin:0 0 12px;}
 .tache .ar{color:var(--ink-3);flex:0 0 auto;font-size:14px;}
 .tache.done{cursor:default;}
 .tache.done .tx{text-decoration:line-through;color:var(--ink-3);}
+.tache.mt-row{cursor:default;}
+.tache.mt-row:hover{color:var(--ink);}
+.tache.mt-row.done:hover{color:var(--ink-3);}
+.tache .mt-del{flex:0 0 auto;background:none;border:none;color:var(--ink-3);font-size:12px;cursor:pointer;padding:2px 4px;opacity:.55;}
+.tache .mt-del:hover{opacity:1;color:var(--bloom);}
+.mt-h{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:13px 0 2px;}
+.mt-empty{font-size:12.5px;color:var(--ink-3);padding:4px 2px;}
 #next-rdv,#next-relance,#next-profil,#next-calc{border-top:1px dashed var(--line);}
 .quota{
   display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;
@@ -741,6 +751,8 @@ p{margin:0 0 12px;}
         <div class="tache" id="next-relance" style="display:none;"></div>
         <div class="tache" id="next-profil" style="display:none;"></div>
         <div class="tache" id="next-calc" style="display:none;"></div>
+        <div id="mtasks"></div>
+        <div id="mtask-add"></div>
       </div>
 
       <div id="home-profil"></div>
@@ -1501,7 +1513,8 @@ async function enterApp(){
   await loadQuotas();
   await loadProfil();
   await loadTaches();
-  renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil();
+  await loadMtasks();
+  renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil(); drawMtasks();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
   renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna();
@@ -1792,6 +1805,81 @@ function renderTache(box, key, sig, ic, inner, onClick){
   });
 }
 
+/* ---------------- Tâches ajoutées manuellement (accueil) ---------------- */
+let MTASKS = [];
+let mtaskFormOpen = false, mtaskLaterExpanded = false;
+async function loadMtasks(){
+  MTASKS = await getJSON('cmp:mtasks', []);
+  if(!Array.isArray(MTASKS)) MTASKS = [];
+  const t = todayStr();
+  // Les tâches « aujourd'hui » cochées d'un jour passé sont nettoyées automatiquement.
+  MTASKS = MTASKS.filter(m=> !(m.when === 'today' && m.done && (m.date||'') < t));
+}
+function mtaskSave(){ try{ setJSON('cmp:mtasks', MTASKS); }catch(e){} }
+function mtaskToggle(id){ const m = MTASKS.find(x=>x.id===id); if(m){ m.done = !m.done; mtaskSave(); drawMtasks(); } }
+function mtaskDelete(id){ MTASKS = MTASKS.filter(x=>x.id!==id); mtaskSave(); drawMtasks(); }
+function drawMtasks(){
+  const box = $('#mtasks'); if(!box) return;
+  const t = todayStr();
+  const overdue = MTASKS.filter(m=> m.when === 'today' && !m.done && (m.date||'') < t);
+  const today   = MTASKS.filter(m=> m.when === 'today' && (m.date||'') >= t);
+  const later   = MTASKS.filter(m=> m.when === 'later');
+  const row = (m)=>`<div class="tache mt-row${m.done?' done':''}">
+      <button class="box${m.done?' on':''}" data-mtcheck="${m.id}" aria-label="Marquer comme fait">✓</button>
+      <span class="tx">${esc(m.text)}</span>
+      <button class="mt-del" data-mtdel="${m.id}" aria-label="Supprimer" title="Supprimer">✕</button>
+    </div>`;
+  const heading = (txt, color)=>`<p class="mt-h"${color?` style="color:${color};"`:''}>${txt}</p>`;
+  let html = '';
+  if(overdue.length) html += heading('En retard', '#B4443A') + overdue.map(row).join('');
+  html += heading("Aujourd'hui");
+  html += today.length ? today.map(row).join('') : `<p class="mt-empty">Aucune tâche ajoutée pour aujourd'hui.</p>`;
+  if(later.length){
+    html += heading('Plus tard');
+    html += (mtaskLaterExpanded ? later : later.slice(0,2)).map(row).join('');
+    if(later.length > 2) html += `<button class="link" id="mt-toggle" style="margin-top:3px;">${mtaskLaterExpanded ? 'Voir moins' : `Voir plus (${later.length-2})`}</button>`;
+  }
+  box.innerHTML = html;
+  box.querySelectorAll('[data-mtcheck]').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); mtaskToggle(b.dataset.mtcheck); }));
+  box.querySelectorAll('[data-mtdel]').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); mtaskDelete(b.dataset.mtdel); }));
+  const tg = $('#mt-toggle'); if(tg) tg.addEventListener('click', ()=>{ mtaskLaterExpanded = !mtaskLaterExpanded; drawMtasks(); });
+  drawMtaskAdd();
+}
+function drawMtaskAdd(){
+  const box = $('#mtask-add'); if(!box) return;
+  if(!mtaskFormOpen){
+    box.innerHTML = `<button class="btn ghost sm" id="mt-open" style="margin-top:12px;">+ Ajouter une tâche</button>`;
+    $('#mt-open').addEventListener('click', ()=>{ mtaskFormOpen = true; drawMtaskAdd(); });
+    return;
+  }
+  box.innerHTML = `<div class="card" style="margin-top:12px;padding:12px;background:var(--paper-2);">
+      <input id="mt-text" type="text" placeholder="Ta tâche…" style="width:100%;padding:8px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);font-size:13.5px;margin-bottom:10px;">
+      <div class="chips" style="margin-bottom:12px;">
+        <button class="chip on" data-w="today">Aujourd'hui</button>
+        <button class="chip" data-w="later">Plus tard</button>
+      </div>
+      <div class="row-end" style="margin-top:0;">
+        <button class="btn ghost sm" id="mt-cancel" style="margin-right:auto;">Annuler</button>
+        <button class="btn sm" id="mt-add">Ajouter</button>
+      </div>
+    </div>`;
+  let when = 'today';
+  $$('#mtask-add .chip').forEach(c=> c.addEventListener('click', ()=>{ when = c.dataset.w; $$('#mtask-add .chip').forEach(x=> x.classList.toggle('on', x===c)); }));
+  $('#mt-cancel').addEventListener('click', ()=>{ mtaskFormOpen = false; drawMtaskAdd(); });
+  const submit = ()=>{
+    const text = $('#mt-text').value.trim();
+    if(!text){ toast('Écris ta tâche d’abord.'); return; }
+    MTASKS.push({ id:'m'+Date.now(), text, when, date: todayStr(), done:false });
+    mtaskSave(); mtaskFormOpen = false;
+    if(when === 'later' && MTASKS.filter(m=>m.when==='later').length > 2) mtaskLaterExpanded = true;
+    drawMtasks();
+    toast('Tâche ajoutée');
+  };
+  $('#mt-add').addEventListener('click', submit);
+  $('#mt-text').addEventListener('keydown', e=>{ if(e.key === 'Enter') submit(); });
+  $('#mt-text').focus();
+}
+
 /* ---------------- Menu latéral ---------------- */
 const NAV = [
   { type:'item', id:'home',     ic:'🏠', name:'Accueil' },
@@ -1800,6 +1888,7 @@ const NAV = [
   { type:'group', name:'Mes trainings', items:[
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
+    { id:'exos',  ic:'📝', name:'Exercices corrigés', soon:true },
   ]},
   { type:'group', name:'Mes outils', items:[
     { id:'croissance', ic:'📈', name:'Projection résultats' },
@@ -1816,7 +1905,9 @@ const NAV = [
   ]},
 ];
 function mkItem(it){
-  const b = el('button','nav-item', `<span class="ic">${it.ic}</span><span>${esc(it.name)}</span>`);
+  const inner = `<span class="ic">${it.ic}</span><span>${esc(it.name)}</span>` + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '');
+  const b = el('button', 'nav-item' + (it.soon ? ' soon' : ''), inner);
+  if(it.soon){ b.disabled = true; b.title = 'Bientôt disponible'; return b; }
   b.dataset.go = it.id;
   b.addEventListener('click', ()=>go(it.id));
   return b;
