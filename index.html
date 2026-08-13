@@ -6429,7 +6429,7 @@ const CRO_CASCADE = [
   'Transformation commerciale (clients)',
   "Impact sur le chiffre d'affaires",
 ];
-let CRO = { nom:'', abonnes:'', freq:3, offre:'', cout:'', saved:[] };
+let CRO = { nom:'', abonnes:'', freq:3, offre:'', caActuel:'', cout:'', saved:[] };
 let croSaveT = null;
 const CRO_MAX_SAVED = 10;
 const croFmt = (n)=> Math.round(n).toLocaleString('fr-FR');
@@ -6449,7 +6449,7 @@ function croSave(){ clearTimeout(croSaveT); croSaveT = setTimeout(croSaveNow, 50
 function croSaveNow(){ try{ setJSON('cmp:croissance', CRO); }catch(e){} }
 async function renderCroissance(){
   const s = await getJSON('cmp:croissance', null);
-  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', cout:'', saved:[] }, s);
+  if(s && typeof s === 'object') CRO = Object.assign({ nom:'', abonnes:'', freq:3, offre:'', caActuel:'', cout:'', saved:[] }, s);
   if(!CRO_TIERS.some(t=>t.f===CRO.freq)) CRO.freq = 3;
   if(!Array.isArray(CRO.saved)) CRO.saved = [];
   croFormDraw();
@@ -6465,6 +6465,9 @@ function croFormDraw(){
         <div class="seg" id="cro-freq">${CRO_TIERS.map(t=>`<button data-f="${t.f}"${CRO.freq===t.f?' class="on"':''}>${t.l}</button>`).join('')}</div></div>
       <div class="field" style="max-width:280px;"><label for="cro-offre">Montant du panier moyen <span class="small" style="font-weight:400;">(€ par client)</span></label>
         <input id="cro-offre" type="text" inputmode="numeric" placeholder="Ex : 850" value="${esc(CRO.offre)}"></div>
+      <div class="field" style="max-width:280px;"><label for="cro-ca">Chiffre d'affaires mensuel actuel <span class="small" style="font-weight:400;">(€ / mois)</span></label>
+        <input id="cro-ca" type="text" inputmode="numeric" placeholder="Ex : 4 000" value="${esc(CRO.caActuel)}">
+        <div class="hint">Le CA moyen que le client réalise aujourd'hui, chaque mois.</div></div>
       <div class="field" style="max-width:280px;"><label for="cro-cout">Coût investi par le client <span class="small" style="font-weight:400;">(€ sur la période)</span></label>
         <input id="cro-cout" type="text" inputmode="numeric" placeholder="Ex : 3 600" value="${esc(CRO.cout)}">
         <div class="hint">Ce que le client te paie sur les ~6 mois de la projection.</div></div>
@@ -6474,6 +6477,7 @@ function croFormDraw(){
   $('#cro-nom').addEventListener('input', e=>{ CRO.nom = e.target.value; croSave(); croDraw(); });
   $('#cro-ab').addEventListener('input', e=>{ CRO.abonnes = e.target.value; croSave(); croDraw(); });
   $('#cro-offre').addEventListener('input', e=>{ CRO.offre = e.target.value; croSave(); croDraw(); });
+  $('#cro-ca').addEventListener('input', e=>{ CRO.caActuel = e.target.value; croSave(); croDraw(); });
   $('#cro-cout').addEventListener('input', e=>{ CRO.cout = e.target.value; croSave(); croDraw(); });
   $$('#cro-freq button').forEach(b=> b.addEventListener('click', ()=>{
     CRO.freq = +b.dataset.f;
@@ -6560,6 +6564,22 @@ function croDraw(){
   const gainR = Math.max(0, proj(sR.p) - N);
   const cliRLo = Math.round(gainR*CRO_LEAD[0]*CRO_CLIENT[0]);
   const cliRHi = Math.round(gainR*CRO_LEAD[1]*CRO_CLIENT[1]);
+  const caRLo = cliRLo*offre, caRHi = cliRHi*offre;   // CA généré par la stratégie (réaliste)
+  const caActuel = croParseNum(CRO.caActuel);
+  let evo = '';
+  if(offre>0 && isFinite(caActuel) && caActuel>0){
+    const caPer = caActuel*6, projLo = caPer+caRLo, projHi = caPer+caRHi;
+    const evoLo = Math.round(caRLo/caPer*100), evoHi = Math.round(caRHi/caPer*100);
+    evo = `<div class="card pad-l" style="margin-bottom:12px;">
+        <p class="sec-t">Évolution du chiffre d'affaires <span class="small" style="font-weight:400;">· objectif réaliste (+${sR.p} %)</span></p>
+        <p class="sec-d" style="margin:-2px 0 12px;">Ce que la stratégie ajoute au chiffre d'affaires actuel du client, sur les 6 mois.</p>
+        <div class="detail"><span>CA mensuel actuel</span><b>${euros(caActuel)}</b></div>
+        <div class="detail"><span>CA actuel sur la période (6 mois)</span><b>${euros(caPer)}</b></div>
+        <div class="detail"><span>CA généré par la stratégie · ${cliRLo}–${cliRHi} clients</span><b>${euros(caRLo)} – ${euros(caRHi)}</b></div>
+        <div class="detail"><span><strong>CA projeté sur la période</strong></span><b>${euros(projLo)} – ${euros(projHi)}</b></div>
+        <div class="detail"><span>Évolution du CA</span><b>+${evoLo} % à +${evoHi} %</b></div>
+      </div>`;
+  }
   let roiBody;
   if(!(offre>0)){
     roiBody = `<div class="hint">Renseigne le panier moyen et le coût investi (ci-dessus) pour estimer la rentabilité côté client.</div>`;
@@ -6609,6 +6629,7 @@ function croDraw(){
     + bloc('À 6 mois', tier.m6)
     + scen
     + fin
+    + evo
     + roi
     + nuance
     + `<div class="note" style="margin-top:2px;">Fourchette indicative, pas une garantie : la croissance réelle dépend de la qualité et de la régularité des contenus, de la niche et de l'engagement. À réévaluer selon les résultats obtenus.</div>`;
@@ -6618,7 +6639,7 @@ function croSaveProjection(){
   const N = croParse(CRO.abonnes);
   if(!isFinite(N) || N <= 0){ toast("Renseigne d'abord le nombre d'abonnés."); return; }
   CRO.saved = Array.isArray(CRO.saved) ? CRO.saved : [];
-  const snap = { nom: CRO.nom.trim(), abonnes: CRO.abonnes, freq: CRO.freq, offre: CRO.offre, cout: CRO.cout };
+  const snap = { nom: CRO.nom.trim(), abonnes: CRO.abonnes, freq: CRO.freq, offre: CRO.offre, caActuel: CRO.caActuel, cout: CRO.cout };
   const key = snap.nom.toLowerCase();
   const idx = key ? CRO.saved.findIndex(s=> (s.nom||'').trim().toLowerCase() === key) : -1;
   if(idx >= 0){ CRO.saved[idx] = snap; toast('Projection mise à jour'); }
@@ -6631,7 +6652,7 @@ function croSaveProjection(){
 function croOpenSaved(i){
   const s = CRO.saved[i]; if(!s) return;
   CRO.nom = s.nom || ''; CRO.abonnes = s.abonnes || ''; CRO.freq = s.freq || 3;
-  CRO.offre = s.offre || ''; CRO.cout = s.cout || '';
+  CRO.offre = s.offre || ''; CRO.caActuel = s.caActuel || ''; CRO.cout = s.cout || '';
   croSaveNow(); croFormDraw();
   const v = $('#v-croissance'); if(v) v.scrollIntoView({block:'start'});
   toast('Projection chargée');
