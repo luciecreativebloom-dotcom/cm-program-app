@@ -6599,22 +6599,23 @@ function croDraw(){
     // CA total sur 6 mois = CA moyen actuel (sur la période) + bénéfice estimé (milieu de fourchette).
     const benMid = (benLo + benHi) / 2, caTotal = caPer + benMid;
     const pctTotal = caTotal > 0 ? Math.round(cout / caTotal * 100) : 0;
+    const vg = 'color:#14532D';                       // vert sapin pour le gras
     let bilan;                                        // lecture du ROI probable à 6 mois
     if(benLo >= 0){
-      bilan = `L'investissement est <b>rentabilisé même dans l'hypothèse basse</b> : le CA généré dépasse le coût, pour un retour de ${roiPct(benLo)} à ${roiPct(benHi)}.`;
+      bilan = `L'investissement est <b style="${vg}">rentabilisé même dans l'hypothèse basse</b> : le CA généré dépasse le coût, pour un retour de <b style="${vg}">${roiPct(benLo)} à ${roiPct(benHi)}</b>.`;
     }else if(benHi >= 0){
-      bilan = `Le retour dépend de la performance : de <b>${roiPct(benLo)}</b> (hypothèse basse, léger déficit) à <b>${roiPct(benHi)}</b> (hypothèse haute). L'intérêt d'un CM se joue aussi sur le long terme : notoriété et base d'audience continuent de produire après 6 mois.`;
+      bilan = `Le retour dépend de la performance : de <b style="${vg}">${roiPct(benLo)}</b> (hypothèse basse, léger déficit) à <b style="${vg}">${roiPct(benHi)}</b> (hypothèse haute). L'intérêt d'un CM se joue aussi sur le long terme : notoriété et base d'audience continuent de produire après 6 mois.`;
     }else{
-      bilan = `Le CA généré ne couvre pas encore l'investissement sur cette période (retour de ${roiPct(benLo)} à ${roiPct(benHi)}). C'est fréquent au démarrage : le travail d'un CM porte surtout ses fruits au-delà de 6 mois.`;
+      bilan = `Le CA généré ne couvre pas encore l'investissement sur cette période (retour de <b style="${vg}">${roiPct(benLo)} à ${roiPct(benHi)}</b>). C'est fréquent au démarrage : le travail d'un CM porte surtout ses fruits au-delà de 6 mois.`;
     }
     roiBody = `<div class="detail"><span>Ce que le client investit sur la période <span class="tiny">(6 mois)</span></span><b>${euros(cout)}</b></div>
       <div class="detail"><span>CA généré sur la période <span class="tiny">(6 mois)</span></span><b>${euros(caRLo)} – ${euros(caRHi)}</b></div>
       <div class="detail"><span><strong>Bénéfice estimé</strong> sur la période (CA − investissement)</span><b>${euros(benLo)} – ${euros(benHi)}</b></div>
       <div class="detail"><span>Retour sur investissement</span><b>${roiPct(benLo)} à ${roiPct(benHi)}</b></div>
-      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:rgba(76,175,80,0.4);font-size:13.5px;line-height:1.55;color:var(--ink);">
-        <p style="margin:0 0 8px;font-weight:700;">Bilan du retour sur investissement à 6 mois</p>
+      <div style="margin:14px 0 0;padding:12px 14px;border-radius:12px;background:rgba(76,175,80,0.15);font-size:13.5px;line-height:1.55;color:var(--ink);">
+        <p style="margin:0 0 8px;font-weight:700;${vg}">💰 Bilan du retour sur investissement à 6 mois</p>
         <p style="margin:0 0 8px;">${bilan}</p>
-        <p style="margin:0;">L'investissement dans le CM (${euros(cout)}) représente environ <b>${pctTotal} %</b> du chiffre d'affaires total estimé sur 6 mois — CA moyen actuel + bénéfice estimé, soit ~<b>${euros(caTotal)}</b>.</p>
+        <p style="margin:0;">L'investissement dans le CM (<b style="${vg}">${euros(cout)}</b>) représente environ <b style="${vg}">${pctTotal} %</b> du chiffre d'affaires total estimé sur 6 mois — CA moyen actuel + bénéfice estimé, soit ~<b style="${vg}">${euros(caTotal)}</b>.</p>
       </div>`;
   }
   const roi = `<div class="card pad-l" style="margin-bottom:12px;">
