@@ -6572,8 +6572,8 @@ function croBracket(N){
 }
 /* Entonnoir : part du gain d'abonnés en leads qualifiés, puis part des leads en
    clients. Fourchettes resserrées autour d'une hypothèse médiane (20 % / 10 %). */
-const CRO_LEAD = 0.30;    // 30 % du gain d'abonnés = leads qualifiés
-const CRO_CLIENT = 0.15;  // 15 % des leads = clients potentiels
+const CRO_LEAD = 0.15;    // 15 % du gain d'abonnés = leads qualifiés
+const CRO_CLIENT = 0.05;  // 5 % des leads = clients potentiels
 const CRO_CASCADE = [
   'Croissance de la visibilité (portée, abonnés)',
   'Génération de leads (inscriptions, demandes, téléchargements)',
@@ -6702,7 +6702,7 @@ function croDraw(){
   }).join('');
   const fin = `<div class="card pad-l" style="margin-bottom:12px;">
       <p class="sec-t">Projection de chiffre d'affaires <span class="small" style="font-weight:400;">· à 6 mois</span></p>
-      <p class="sec-d" style="margin:-2px 0 12px;">Sur les abonnés gagnés : 30 % de leads qualifiés, puis 15 % de clients, multiplié par le panier moyen par client.</p>
+      <p class="sec-d" style="margin:-2px 0 12px;">Sur les abonnés gagnés : 15 % de leads qualifiés, puis 5 % de clients, multiplié par le panier moyen par client.</p>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <thead><tr>
@@ -6715,6 +6715,10 @@ function croDraw(){
         </table>
       </div>
       ${offre>0 ? '' : `<div class="hint" style="margin-top:11px;">Renseigne le panier moyen ci-dessus pour estimer le chiffre d'affaires.</div>`}
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:flex-start;background:rgba(237,162,74,0.12);border-radius:10px;padding:10px 12px;">
+        <span style="flex:0 0 auto;font-size:15px;line-height:1.3;">⚠️</span>
+        <span style="font-size:12.5px;line-height:1.45;color:#8A4B00;">Ce sont des <b>estimations</b> basées sur une <b>audience qualifiée</b>. Les résultats réels dépendent de la qualité de l'audience, de l'offre et du marché.</span>
+      </div>
     </div>`;
   // Rentabilité côté client, basée sur l'objectif réaliste (2e scénario).
   const cout = croParseNum(CRO.cout);
