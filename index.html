@@ -388,6 +388,8 @@ p{margin:0 0 12px;}
 .step.done{background:transparent;color:var(--ok);border-color:#D5E2D8;}
 .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
 .opt{border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--card);cursor:pointer;text-align:left;transition:all .15s;}
+.opt.has-photo{overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;}
+.opt.has-photo .persona-photo{display:block;width:calc(100% + 28px);margin:-13px -14px 11px;aspect-ratio:2000/1414;background-repeat:no-repeat;background-color:var(--paper-2);flex:0 0 auto;}
 .opt:hover{border-color:var(--bloom-2);transform:translateY(-1px);}
 .opt.on{border-color:var(--bloom);background:var(--bloom-pale);}
 .opt.off{opacity:.42;pointer-events:none;}
@@ -2529,10 +2531,19 @@ let S = { persona:null, level:null, diff:null, obj:[], mode:'ecrit', thread:[], 
 let simHist = [];
 let lastDebrief = null;
 
+/* Cadrage medium (tête + buste, centré) par prospect — Hélène reste plein cadre. */
+const PERSONA_FRAME = {
+  amelie:  'background-size:150%;background-position:56% 20%;',
+  sabrina: 'background-size:118%;background-position:45% 28%;',
+  helene:  'background-size:cover;background-position:center;',
+  thomas:  'background-size:124%;background-position:50% 32%;'
+};
 function renderSimSetup(){
   const g = $('#sim-personas'); g.innerHTML='';
   PERSONAS.forEach(p=>{
-    const b = el('button','opt', `<div class="on-t" style="color:var(--sun-2);">${esc(p.name)}</div><div class="on-s" style="margin-bottom:6px;font-weight:500;color:var(--ink);">${esc(p.business)}</div><div class="on-s">${esc(p.context)}</div>`);
+    const fr = PERSONA_FRAME[p.id] || 'background-size:cover;background-position:center;';
+    const photo = `<div class="persona-photo" style="background-image:url('simulateur/photo-${p.id}.jpg');${fr}"></div>`;
+    const b = el('button','opt has-photo', `${photo}<div class="on-t" style="color:var(--sun-2);">${esc(p.name)}</div><div class="on-s" style="margin-bottom:6px;font-weight:500;color:var(--ink);">${esc(p.business)}</div><div class="on-s">${esc(p.context)}</div>`);
     b.addEventListener('click', ()=>{
       $$('#sim-personas .opt').forEach(o=>o.classList.remove('on'));
       b.classList.add('on'); $('#sim-custom').style.display='none';
