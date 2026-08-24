@@ -729,6 +729,18 @@ p{margin:0 0 12px;}
 .exo-detail .exo-intro p{font-size:14px;font-weight:600;color:var(--ink);line-height:1.6;margin:0 0 8px;}
 .exo-detail .exo-intro p:last-child{margin-bottom:0;}
 .exo-subj.genre-audit .exo-detail .exo-intro p{font-size:13px;font-weight:400;}
+.tinput{width:100%;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;line-height:1.4;resize:vertical;background:var(--paper);color:var(--ink);box-sizing:border-box;}
+.tinput:focus{outline:none;border-color:var(--bloom);}
+.tscore-box{display:flex;align-items:center;gap:14px;margin-top:16px;padding:13px 15px;border-radius:12px;background:var(--sun-pale);}
+.tscore-badge{flex:0 0 auto;font-family:var(--display);font-size:27px;font-weight:700;color:var(--bloom);line-height:1;}
+.tscore-badge span{font-size:14px;color:var(--ink-3);font-weight:600;}
+.tscore-bilan{font-size:13.5px;line-height:1.5;color:var(--ink);margin:0;}
+.treco{margin:0;padding:0;list-style:none;}
+.treco li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--ink-2);margin-bottom:6px;}
+.treco li::before{content:'';position:absolute;left:2px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--bloom);}
+.tlucie{margin-top:16px;padding:14px 15px;border-radius:12px;background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.35);}
+.tlucie-h{font-weight:700;font-size:13.5px;color:#14532D;margin-bottom:5px;}
+.tlucie p{font-size:14px;line-height:1.5;color:var(--ink);margin:0;font-style:italic;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -1099,6 +1111,7 @@ p{margin:0 0 12px;}
           <p>Attention, Luna est spécialisée pour les Community Managers et consultants en communication : Lucie l'a briefée pour qu'elle soit adaptée à ta réalité de CM.</p>
         </div>
       </div>
+      <div class="quota" data-quota="luna" style="margin:0 0 16px;"></div>
       <div id="lc-steps"></div>
       <div id="lc-body"></div>
     </section>
@@ -1165,7 +1178,7 @@ p{margin:0 0 12px;}
       <div class="view-head">
         <p class="eyebrow sun">Mes outils</p>
         <h1>Générateur d'idées</h1>
-        <p class="lede">Réponds à quelques questions (ou applique ton profil business) et repars avec 15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action.</p>
+        <p class="lede">Réponds à quelques questions (ou applique ton profil business) et repars avec 5 idées de contenu prêtes à écrire : accroche, brief et appel à l'action.</p>
       </div>
       <div id="ideas-form"></div>
     </section>
@@ -1583,13 +1596,15 @@ function md(t){
 }
 
 /* ---------------- Quotas d'entraînement ---------------- */
-const QUOTA = { sim:6, sos:10, alfie:10 };
+const QUOTA = { sim:6, sos:10, alfie:10, ideas:30, luna:5 };
 const QNAME = {
   sim:  {un:"appel d'entraînement", pl:"appels d'entraînement"},
   sos:  {un:"jeton SOS",            pl:"jetons SOS"},
   alfie:{un:"texte avec Alfie",     pl:"textes avec Alfie"},
+  ideas:{un:"génération d'idées",   pl:"générations d'idées"},
+  luna: {un:"projet Luna",          pl:"projets Luna"},
 };
-const USED = { sim:0, sos:0, alfie:0 };
+const USED = { sim:0, sos:0, alfie:0, ideas:0, luna:0 };
 const MAX_TWEAKS = 3;
 
 async function loadQuotas(){
@@ -1623,6 +1638,7 @@ function paintQuotas(){
   const cfg = $('#sim-config'); if(cfg) cfg.style.display = left('sim') ? 'block' : 'none';
   const modes = $('#sos-modes'); if(modes) modes.style.display = left('sos') ? 'grid' : 'none';
   const pick = $('#alfie-kinds'); if(pick) pick.style.display = left('alfie') ? 'grid' : 'none';
+  const ig = $('#ideas-gen'); if(ig) ig.disabled = left('ideas') === 0;
   if(typeof simReady === 'function') simReady();
 }
 
@@ -2108,7 +2124,7 @@ const TILES_O = [
 ];
 const TILES_OU = [
   { id:'croissance', ic:'📈', n:'Projection résultats', d:"Projette abonnés, leads, clients et CA d'un compte à 3 et 6 mois selon le rythme." },
-  { id:'ideas', ic:'💡', n:"Générateur d'idées", d:"15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action." },
+  { id:'ideas', ic:'💡', n:"Générateur d'idées", d:"5 idées de contenu prêtes à écrire : accroche, brief et appel à l'action." },
   { id:'insta', ic:'🎨', n:'Studio créatif', d:"Compose tes carrousels et tes stories, exporte-les en ZIP prêt à publier." },
 ];
 function renderTiles(){
@@ -5249,7 +5265,7 @@ const canalDef = (nom)=> LC_CANAUX.find(c=>c.n === nom) || {n:nom, f:['Post simp
 const nouveauCanal = (nom)=>({ nom, n:2, unite:'semaine', jours:[0,3], formats:canalDef(nom).f.slice(0,2) });
 
 const lcBlank = ()=>({
-  step:0, pro:false,
+  step:0, pro:false, counted:false,
   entreprise:'', cible:'', actu:'', idees:'',
   debut:'', fin:'',
   objectifs:['visibilite'], objDetails:{},
@@ -5614,6 +5630,10 @@ Tu penses stratégie avant esthétique : chaque contenu sert un objectif précis
 Tu tiens compte de sa charge réelle de travail : elle a des clients à gérer en plus de sa propre communication.`;
 
 async function lcAnalyser(){
+  if(!LC.counted){
+    if(left('luna') <= 0){ toast(`Tu as utilisé tes ${QUOTA.luna} projets Luna.`); paintQuotas(); return; }
+    await useOne('luna'); LC.counted = true; lcSave();
+  }
   $('#lc-body').innerHTML = loadingBox('Luna étudie ton brief…');
   LC.step = 2; lcDrawSteps();
   const sys = `${LUNA_VOIX}
@@ -6348,12 +6368,23 @@ const EXOS = [
     ]
   },
   {
-    id:'accroches', ic:'✍️', name:'Trouver des accroches / titres',
+    id:'accroches', ic:'✍️', name:'Trouver des accroches / titres', mode:'titles',
     subjects:[
-      { id:'ac1', ready:false, title:'Exercice 1' },
-      { id:'ac2', ready:false, title:'Exercice 2' },
-      { id:'ac3', ready:false, title:'Exercice 3' },
-      { id:'ac4', ready:false, title:'Exercice 4' }
+      { id:'ac1', ready:true, client:"Une diététicienne", clientLc:"une diététicienne",
+        bof:"Mes conseils pour manger varié et équilibré",
+        lucie:"Aucun de mes clients n'a fait régime ou n'a arrêté le sucre, pourtant aujourd'hui ils ont perdu du poids et ont une relation saine avec la nourriture" },
+      { id:'ac2', ready:true, client:"Une professeure de yoga", clientLc:"une professeure de yoga",
+        bof:"Pourquoi faire du yoga apaise ton esprit",
+        lucie:"Je pensais que le yoga c'était « trop lent »… jusqu'à ce que ça change mes journées" },
+      { id:'ac3', ready:true, client:"Une wedding planner", clientLc:"une wedding planner",
+        bof:"Tout ce que je fais pour les mariés pour un mariage réussi",
+        lucie:"Le jour de leur mariage, tout a failli partir en vrille… Voici comment on a sauvé la journée" },
+      { id:'ac4', ready:true, client:"Un copywriter", clientLc:"un copywriter",
+        bof:"L'importance du copywriting pour ton business",
+        lucie:"Ce simple changement de phrase a doublé ses ventes en 24h" },
+      { id:'ac5', ready:true, client:"Un business coach", clientLc:"un business coach",
+        bof:"Mes process en 5 étapes pour trouver des clients",
+        lucie:"Alice a trouvé ses 3 premiers clients sans site, sans logo et sans audience" }
     ]
   }
 ];
@@ -6362,8 +6393,10 @@ let EXOS_STATE = {};      // { subjectId: {sujet:true} }
 let exosGenreId = null;   // null => grille des genres
 let exosOpenSubj = null;  // id du sujet déplié
 
-async function loadExosState(){ EXOS_STATE = (await getJSON('cmp:exos', {})) || {}; }
+let TITLES_STATE = {};    // { id: {proposal, result} } — genre "Trouver des accroches / titres"
+async function loadExosState(){ EXOS_STATE = (await getJSON('cmp:exos', {})) || {}; TITLES_STATE = (await getJSON('cmp:titles', {})) || {}; }
 function exosSave(){ try{ setJSON('cmp:exos', EXOS_STATE); }catch(e){} }
+function titlesSave(){ try{ setJSON('cmp:titles', TITLES_STATE); }catch(e){} }
 
 function exoTriggerDl(url, name){
   const a = el('a'); a.href = url; if(name) a.setAttribute('download', name);
@@ -6507,6 +6540,7 @@ function renderExos(){
   }
   const g = EXOS.find(x=>x.id===exosGenreId);
   if(!g){ exosGenreId = null; return renderExos(); }
+  if(g.mode === 'titles'){ renderExosTitles(g, box); return; }
   box.innerHTML = exosGenreHTML(g);
   box.querySelector('[data-exo-back]').addEventListener('click', ()=>{ exosGenreId = null; exosOpenSubj = null; renderExos(); window.scrollTo({top:0,behavior:'smooth'}); });
   box.querySelectorAll('[data-subj]').forEach(b=> b.addEventListener('click', ()=>{
@@ -6525,6 +6559,93 @@ function renderExos(){
   box.querySelectorAll('[data-exo-corr]').forEach(b=> b.addEventListener('click', ()=>{
     const s = g.subjects.find(x=>x.id===b.dataset.exoCorr); if(s) exoGetCorr(s);
   }));
+}
+
+/* ---------- Genre interactif : Trouver des accroches / titres ---------- */
+function titlesResultHTML(s, r){
+  const pf = (r.points_forts||[]).filter(Boolean);
+  const am = (r.ameliorations||[]).filter(Boolean);
+  return `<div class="tscore-box">
+      <div class="tscore-badge">${r.note}<span>/10</span></div>
+      <p class="tscore-bilan">${esc(r.bilan||'')}</p>
+    </div>
+    ${pf.length?`<h4>Points forts</h4><ul class="treco">${pf.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+    ${am.length?`<h4>Pistes d'amélioration</h4><ul class="treco">${am.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+    <div class="tlucie"><div class="tlucie-h">✨ La version de Lucie</div><p>« ${esc(s.lucie)} »</p></div>`;
+}
+function titlesDetailHTML(s){
+  const st = TITLES_STATE[s.id] || {};
+  return `<div class="exo-detail">
+      <div class="exo-intro"><p style="margin:0;">Titre à améliorer :<br><b>« ${esc(s.bof)} »</b></p></div>
+      <h4>À toi de jouer</h4>
+      <p style="margin:0 0 9px;">Propose un titre plus accrocheur pour ${esc(s.clientLc||s.client)}.</p>
+      <textarea class="tinput" data-tinput="${s.id}" rows="2" placeholder="Écris ta version ici…">${esc(st.proposal||'')}</textarea>
+      <div class="exo-dl" style="margin-top:10px;"><button class="btn" data-tscore="${s.id}">✍️ Noter ma proposition</button></div>
+      <div class="tresult" data-tres="${s.id}">${st.result?titlesResultHTML(s, st.result):''}</div>
+    </div>`;
+}
+function titlesGenreHTML(g){
+  const items = g.subjects.map((s,i)=>{
+    const open = exosOpenSubj === s.id;
+    const st = TITLES_STATE[s.id] || {};
+    const tag = (st.result!=null) ? `<span class="es-tag done">Noté ${st.result.note}/10</span>` : '';
+    return `<div class="exo-subj genre-accroches ${open?'open':''}">
+        <button class="exo-shead" data-tsubj="${s.id}">
+          <span class="es-num">${i+1}</span>
+          <span class="es-t">${esc(s.client)}</span>
+          ${tag}
+          <span class="es-ar">▼</span>
+        </button>
+        ${open ? titlesDetailHTML(s) : ''}
+      </div>`;
+  }).join('');
+  return `<button class="exo-back" data-exo-back="1">← Tous les exercices</button>
+      <div class="view-head" style="margin-bottom:14px;">
+        <p class="eyebrow sun">Exercice corrigé</p>
+        <h1 style="font-size:22px;">${esc(g.name)}</h1>
+      </div>
+      <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
+        <p class="sec-d" style="margin:0;font-size:13.5px;line-height:1.55;">Pour chaque client, un titre de contenu « bof » t'attend. Écris une version plus accrocheuse, reçois une note sur 10 avec mes recommandations, puis découvre ma proposition.</p>
+      </div>
+      ${items}`;
+}
+function renderExosTitles(g, box){
+  box.innerHTML = titlesGenreHTML(g);
+  box.querySelector('[data-exo-back]').addEventListener('click', ()=>{ exosGenreId=null; exosOpenSubj=null; renderExos(); window.scrollTo({top:0,behavior:'smooth'}); });
+  box.querySelectorAll('[data-tsubj]').forEach(b=> b.addEventListener('click', ()=>{
+    const id=b.dataset.tsubj; exosOpenSubj=(exosOpenSubj===id)?null:id; renderExos();
+  }));
+  box.querySelectorAll('[data-tinput]').forEach(t=> t.addEventListener('input', ()=>{
+    const id=t.dataset.tinput; TITLES_STATE[id]=Object.assign({}, TITLES_STATE[id], {proposal:t.value}); titlesSave();
+  }));
+  box.querySelectorAll('[data-tscore]').forEach(b=> b.addEventListener('click', ()=>{
+    const s=g.subjects.find(x=>x.id===b.dataset.tscore); if(s) exoScoreTitle(s);
+  }));
+}
+async function exoScoreTitle(s){
+  const st = TITLES_STATE[s.id] || {};
+  const prop = (st.proposal||'').trim();
+  if(!prop){ toast('Écris ta version d’abord ✍️'); return; }
+  const res = document.querySelector(`[data-tres="${s.id}"]`);
+  if(res) res.innerHTML = loadingBox('On évalue ton titre…');
+  const system = VOIX + "\nTu es la formatrice qui évalue une accroche/titre proposée par une élève community manager. Tu es bienveillante mais exigeante, jamais flatteuse. Tu tutoies.";
+  const prompt = `Client : ${s.client}
+Titre de départ (à améliorer) : « ${s.bof} »
+Titre proposé par l'élève : « ${prop} »
+
+Évalue le titre proposé par l'élève sur 10, en te basant sur : le pouvoir d'accroche, la tension/curiosité qu'il crée, la clarté, la spécificité (chiffre, histoire, bénéfice concret, angle inattendu) et l'adéquation avec ce client.
+Réponds UNIQUEMENT en JSON strict, sans texte autour :
+{"note": <entier de 0 à 10>, "bilan": "<1 à 2 phrases de synthèse, tutoiement>", "points_forts": ["<point court>"], "ameliorations": ["<piste concrète>"]}
+Maximum 2 points_forts et 3 ameliorations. Si le titre est vide de sens ou hors sujet, mets une note basse et explique pourquoi.`;
+  try{
+    const r = await askJson(prompt, system);
+    r.note = Math.max(0, Math.min(10, parseInt(r.note,10)||0));
+    TITLES_STATE[s.id] = Object.assign({}, TITLES_STATE[s.id], {result:r, proposal:prop});
+    titlesSave();
+    renderExos();
+  }catch(e){
+    if(res) res.innerHTML = errorBox("L'évaluation n'a pas abouti. Réessaie dans un instant.");
+  }
 }
 </script>
 <script>
@@ -6811,7 +6932,7 @@ function calcPdf(n, ia){
 
 /* ================================================================
    GÉNÉRATEUR D'IDÉES
-   5 questions (ou profil business) → 15 idées : accroche, brief, CTA.
+   5 questions (ou profil business) → 5 idées : accroche, brief, CTA.
    ================================================================ */
 let IDEAS = { metier:'', cible:'', expertise:'', credibilite:'', offre:'', list:[], saved:[], archived:[] };
 let ideasArchiveOpen = false;
@@ -6843,11 +6964,12 @@ function ideasDraw(){
       <button class="sph-tab${ideasTab==='saved'?' on':''}" data-itab="saved">Idées enregistrées${sc?` (${sc})`:''}</button>
     </div>
     <div id="ideas-pane-gen"${ideasTab==='gen'?'':' style="display:none;"'}>
+      <div class="quota" data-quota="ideas" style="margin-bottom:14px;"></div>
       <div class="card pad-l">
         <div style="margin:0 0 14px;"><button class="btn ghost sm" id="ideas-pro">🌸 Appliquer mon profil business</button></div>
         ${IDEAS_FIELDS.map(f=>`<div class="field"><label for="id-${f.k}">${esc(f.l)}</label>
           <textarea id="id-${f.k}" placeholder="${esc(f.ph)}">${esc(IDEAS[f.k]||'')}</textarea></div>`).join('')}
-        <button class="btn full" id="ideas-gen">Générer 15 idées</button>
+        <button class="btn full" id="ideas-gen">Générer 5 idées</button>
       </div>
       <div id="ideas-out"></div>
       <div id="ideas-list"></div>
@@ -6867,6 +6989,7 @@ function ideasDraw(){
   }));
   ideasDrawList();
   ideasDrawSaved();
+  if(typeof paintQuotas === 'function') paintQuotas();
 }
 function ideasApplyProfil(){
   if(!profilRempli()){ toast("Remplis d'abord ton profil business (bouton en bas du menu) pour l'appliquer ici."); return; }
@@ -6886,7 +7009,7 @@ const IDEAS_SYS = `${VOIX}
 Tu génères des idées de contenu pour une community manager / consultante en communication, à publier sur les réseaux (Instagram, LinkedIn…).
 Réponds UNIQUEMENT en JSON valide, sans texte autour ni balises markdown :
 {"idees":[{"accroche":"","brief":"","cta":""}]}
-Donne EXACTEMENT 15 idées, variées : alterne les angles (hot take, quick win, storytelling, coulisses, preuve/crédibilité, pédagogie, objection levée, mise en avant d'offre…). Aucune idée ne doit ressembler à une autre.
+Donne EXACTEMENT 5 idées, variées : alterne les angles (hot take, quick win, storytelling, coulisses, preuve/crédibilité, pédagogie, objection levée, mise en avant d'offre…). Aucune idée ne doit ressembler à une autre.
 accroche = la première phrase qui arrête le défilement : concrète, sans point d'exclamation en rafale ni promesse chiffrée inventée.
 brief = 2 à 3 phrases qui disent ce que raconte le contenu et pourquoi il sert la personne (une consigne de production, pas le texte final).
 cta = l'appel à l'action à placer à la fin.
@@ -6897,17 +7020,19 @@ DOMAINES D'EXPERTISE : ${IDEAS.expertise || '(non précisé)'}
 CRITÈRES DE CRÉDIBILITÉ : ${IDEAS.credibilite || '(non précisé)'}
 OFFRE DÉTAILLÉE : ${IDEAS.offre || '(non précisé)'}`;
 async function ideasGenerate(){
+  if(left('ideas') <= 0){ toast(`Tu as utilisé tes ${QUOTA.ideas} générations d'idées.`); paintQuotas(); return; }
   if(!IDEAS.metier.trim() || !IDEAS.cible.trim()){ toast('Remplis au moins ton métier et ta cible.'); return; }
   const out = $('#ideas-out'); if(!out) return;
   $('#ideas-list').innerHTML = '';
-  out.innerHTML = loadingBox('On te génère 15 idées de contenu…');
+  out.innerHTML = loadingBox('On te génère 5 idées de contenu…');
+  await useOne('ideas');
   try{
     const d = extractJson(await ask(ideasContext(), { system:IDEAS_SYS, max_tokens:3500 }));
     const list = (Array.isArray(d.idees) ? d.idees : [])
       .map(x=>({ accroche:String(x.accroche||'').trim(), brief:String(x.brief||'').trim(), cta:String(x.cta||'').trim() }))
       .filter(x=> x.accroche || x.brief);
     if(!list.length) throw new Error('vide');
-    IDEAS.list = list.slice(0, 15);
+    IDEAS.list = list.slice(0, 5);
     ideasSaveNow();
     out.innerHTML = '';
     ideasDrawList();
@@ -6955,7 +7080,7 @@ function ideasDrawList(){
   const box = $('#ideas-list'); if(!box) return;
   if(!IDEAS.list.length){ box.innerHTML = ''; return; }
   box.innerHTML = `<div class="row-end" style="margin:18px 0 6px;">
-      <p class="sec-t" style="margin-right:auto;">Tes 15 idées</p>
+      <p class="sec-t" style="margin-right:auto;">Tes ${IDEAS.list.length} idées</p>
       <button class="btn ghost sm" id="ideas-saveall">Tout enregistrer</button>
       <button class="btn ghost sm" id="ideas-again">Régénérer</button>
     </div>`
