@@ -699,7 +699,7 @@ p{margin:0 0 12px;}
 .exo-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;
   color:var(--bloom);font-size:13.5px;font-weight:600;padding:4px 0;margin-bottom:6px;}
 .exo-back:hover{text-decoration:underline;}
-.exo-subj{border:1px solid var(--line);border-radius:14px;background:var(--paper);margin-bottom:12px;overflow:hidden;}
+.exo-subj{border:1px solid var(--line);border-radius:14px;background:#ffffff;margin-bottom:12px;overflow:hidden;}
 .exo-subj.locked-soon{opacity:.6;}
 .exo-shead{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:15px 16px;background:none;border:none;cursor:pointer;}
 .exo-shead:hover{background:var(--paper-2);}
@@ -715,6 +715,9 @@ p{margin:0 0 12px;}
 .exo-detail{padding:2px 18px 20px;border-top:1px solid var(--line);}
 .exo-detail h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 6px;font-weight:700;}
 .exo-detail p{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0 0 8px;}
+.exo-intro{background:rgba(255,250,244,0.8);border-radius:10px;padding:13px 16px;margin:16px 0 10px;}
+.exo-detail .exo-intro p{font-size:14px;font-weight:600;color:var(--ink);line-height:1.6;margin:0 0 8px;}
+.exo-detail .exo-intro p:last-child{margin-bottom:0;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -722,7 +725,10 @@ p{margin:0 0 12px;}
 .exo-steps li{position:relative;padding-left:22px;font-size:14px;line-height:1.55;color:var(--ink-2);margin-bottom:7px;}
 .exo-steps li::before{content:'';position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--bloom);}
 .exo-dl{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
-.exo-note{background:var(--bloom-pale);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.55;color:var(--bloom);margin-top:14px;}
+.exo-dl .btn.sujet{background:var(--sun);border-color:var(--sun);color:#fff;}
+.exo-dl .btn.ghost.modele{color:var(--sun);border-color:var(--sun);}
+.exo-dl .btn.ghost.modele:hover{background:var(--sun-pale);border-color:var(--sun);}
+.exo-note{background:rgba(255,208,214,0.4);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:14px;}
 .exo-corr{margin-top:16px;padding:14px 15px;border-radius:12px;border:1px dashed var(--line-2);background:var(--paper-2);}
 .exo-corr.on{border-style:solid;border-color:rgba(76,175,80,.5);background:rgba(76,175,80,.07);}
 .exo-corr .ec-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
@@ -6167,18 +6173,17 @@ const EXOS = [
         title:"Pow'her, coach en développement personnel",
         present:[
           "Lise a 37 ans, elle est coach en développement personnel et a fondé Pow'her il y a 5 ans.",
-          "Son parcours est simple et banal : 8 ans dans la même entreprise en tant que RH, mariée à Paul, maman de deux enfants et un quotidien à mille à l'heure qu'elle ne supporte plus… Elle décide il y a 5 ans qu'il n'est pas trop tard pour prendre sa vie en main, s'épanouir dans son job et adapter sa vie professionnelle à sa famille.",
-          "Elle passe un an en formation pour obtenir sa certification de coach et crée alors sa société Pow'her, qui accompagne aujourd'hui les femmes dans leur transformation personnelle et professionnelle."
+          "Elle aimerait travailler davantage son identité visuelle afin de refléter pleinement son entreprise et d'avoir un joli rendu harmonieux sur tous ses supports de communication."
         ],
-        keywords:['DOUCEUR','SIMPLICITÉ','SÉRÉNITÉ','ORGANIQUE','CONTEMPORAIN'],
+        keywords:[],
         steps:[
-          "Lis le sujet ci-dessus.",
+          "Télécharge le sujet ci-dessous.",
           "À partir des informations récoltées, crée l'identité visuelle : moodboard, palette de couleurs, typographies et éléments. Tu peux utiliser le modèle de brandboard fourni ci-dessous.",
           "Une fois ton travail en autonomie terminé, télécharge la correction et compare ta réalisation à la proposition."
         ],
         note:"Le but des exercices corrigés est que tu puisses auto-juger ta réalisation et l'améliorer. Si tu as des questions ou besoin d'avis extérieurs, partage ton travail avec les autres membres et moi-même via la communauté WhatsApp 😊",
         sujetFile:'exos/univers-visuel/sujet-1-powher.pdf',  sujetName:'Sujet 1 - Pow her.pdf',
-        modeleFile:'exos/univers-visuel/modele-brandboard.pdf', modeleName:'Modele brandboard.pdf',
+        modeleUrl:'https://canva.link/9x8wo323mfxqo98',
         corrFile:'exos/univers-visuel/correction-1-powher.pdf', corrName:'Correction 1 - Pow her.pdf'
       },
       { id:'uv2', ready:false, title:'Exercice 2' },
@@ -6238,9 +6243,9 @@ async function exoGetSujet(s){
   renderExos();
   toast('Sujet téléchargé — la correction est débloquée ✨');
 }
-async function exoGetModele(s){
-  if(!(await exoFileExists(s.modeleFile))){ toast('Le modèle arrive très bientôt 💛'); return; }
-  exoTriggerDl(s.modeleFile, s.modeleName);
+function exoGetModele(s){
+  if(!s.modeleUrl){ toast('Le modèle arrive très bientôt 💛'); return; }
+  window.open(s.modeleUrl, '_blank', 'noopener');
 }
 async function exoGetCorr(s){
   if(!(await exoFileExists(s.corrFile))){ toast('La correction arrive très bientôt 💛'); return; }
@@ -6261,10 +6266,10 @@ function exosGridHTML(){
 
 function exosDetailHTML(s){
   const unlocked = !!(EXOS_STATE[s.id] && EXOS_STATE[s.id].sujet);
-  const present = (s.present||[]).map(p=>`<p>${esc(p)}</p>`).join('');
+  const present = (s.present||[]).length ? `<div class="exo-intro">${(s.present||[]).map(p=>`<p>${esc(p)}</p>`).join('')}</div>` : '';
   const kw = (s.keywords&&s.keywords.length) ? `<h4>Mots-clés</h4><div class="exo-kw">${s.keywords.map(k=>`<span>${esc(k)}</span>`).join('')}</div>` : '';
   const steps = (s.steps&&s.steps.length) ? `<h4>Comment faire l'exercice ?</h4><ul class="exo-steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
-  const modeleBtn = s.modeleFile ? `<button class="btn ghost" data-exo-modele="${s.id}">📄 Modèle de brandboard</button>` : '';
+  const modeleBtn = s.modeleUrl ? `<button class="btn ghost modele" data-exo-modele="${s.id}">📄 Modèle de brandboard</button>` : '';
   const corr = unlocked
     ? `<div class="exo-corr on">
          <div class="ec-h">✅ Correction débloquée</div>
@@ -6277,12 +6282,11 @@ function exosDetailHTML(s){
        </div>`;
   const note = s.note ? `<div class="exo-note">${esc(s.note)}</div>` : '';
   return `<div class="exo-detail">
-      <h4>Présentation</h4>
       ${present}
       ${kw}
       ${steps}
       <div class="exo-dl">
-        <button class="btn" data-exo-sujet="${s.id}">⬇️ Télécharger le sujet</button>
+        <button class="btn sujet" data-exo-sujet="${s.id}">⬇️ Télécharger le sujet</button>
         ${modeleBtn}
       </div>
       ${corr}
