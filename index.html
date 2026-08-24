@@ -193,7 +193,8 @@ p{margin:0 0 12px;}
 .nav-item.soon{opacity:.5;cursor:default;}
 .nav-item.soon:hover{background:none;color:var(--ink-2);}
 .soon-badge{margin-left:auto;flex:0 0 auto;font-size:9px;font-weight:700;letter-spacing:.05em;background:var(--sun);color:#fff;border-radius:6px;padding:2px 6px;}
-.nav-group{margin-top:5px;}
+.nav-group{margin-top:16px;}
+.nav-group:first-of-type{margin-top:10px;}
 .nav-toggle{
   display:flex;align-items:center;gap:9px;width:100%;padding:6px 10px 4px;background:none;border:none;
   cursor:pointer;color:var(--ink-3);font-size:10px;font-weight:700;letter-spacing:.1em;
@@ -669,6 +670,63 @@ p{margin:0 0 12px;}
   box-shadow:0 8px 24px rgba(59,14,31,.28);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
 }
 .toast.on{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+/* ---- Indicateur « l'outil travaille » (global, discret) ---- */
+.working{
+  position:fixed;bottom:22px;right:22px;z-index:120;
+  display:flex;align-items:center;gap:10px;
+  background:var(--paper);border:1px solid var(--line);
+  box-shadow:0 8px 26px rgba(59,14,31,.16);
+  padding:10px 16px 10px 13px;border-radius:999px;
+  font-size:13px;font-weight:600;color:var(--ink-2);
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .25s,transform .25s;
+}
+.working.on{opacity:1;transform:translateY(0);}
+.spin-sm{width:16px;height:16px;flex:0 0 auto;border:2px solid var(--line);border-top-color:var(--bloom);border-radius:50%;animation:sp .8s linear infinite;}
+@media(max-width:520px){.working{left:16px;right:16px;bottom:16px;justify-content:center;}}
+
+/* ---- Exercices corrigés ---- */
+.exo-genres{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(max-width:640px){.exo-genres{grid-template-columns:1fr;}}
+.exo-genre{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;
+  padding:18px 18px 16px;border-radius:16px;border:1px solid var(--line);background:var(--paper);cursor:pointer;
+  transition:border-color .15s,box-shadow .15s,transform .15s;}
+.exo-genre:hover{border-color:var(--bloom);box-shadow:0 8px 22px rgba(140,27,68,.08);transform:translateY(-2px);}
+.exo-genre .eg-ic{font-size:26px;line-height:1;}
+.exo-genre .eg-n{font-size:15.5px;font-weight:700;color:var(--ink);}
+.exo-genre .eg-c{font-size:12.5px;color:var(--ink-3);font-weight:600;}
+.exo-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;
+  color:var(--bloom);font-size:13.5px;font-weight:600;padding:4px 0;margin-bottom:6px;}
+.exo-back:hover{text-decoration:underline;}
+.exo-subj{border:1px solid var(--line);border-radius:14px;background:var(--paper);margin-bottom:12px;overflow:hidden;}
+.exo-subj.locked-soon{opacity:.6;}
+.exo-shead{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:15px 16px;background:none;border:none;cursor:pointer;}
+.exo-shead:hover{background:var(--paper-2);}
+.exo-shead .es-num{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--bloom-pale);color:var(--bloom);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.exo-shead .es-t{flex:1;font-size:14.5px;font-weight:700;color:var(--ink);}
+.exo-shead .es-tag{flex:0 0 auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 8px;border-radius:999px;}
+.es-tag.done{background:rgba(76,175,80,.15);color:#14532D;}
+.es-tag.soon{background:var(--paper-2);color:var(--ink-3);}
+.exo-shead .es-ar{flex:0 0 auto;color:var(--ink-3);font-size:12px;transition:transform .15s;}
+.exo-subj.open .es-ar{transform:rotate(180deg);}
+.exo-detail{padding:2px 18px 20px;border-top:1px solid var(--line);}
+.exo-detail h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 6px;font-weight:700;}
+.exo-detail p{font-size:14px;line-height:1.6;color:var(--ink-2);margin:0 0 8px;}
+.exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
+.exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
+  background:var(--sun-pale);color:#8A4B00;}
+.exo-steps{margin:0;padding:0;list-style:none;}
+.exo-steps li{position:relative;padding-left:22px;font-size:14px;line-height:1.55;color:var(--ink-2);margin-bottom:7px;}
+.exo-steps li::before{content:'';position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--bloom);}
+.exo-dl{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+.exo-note{background:var(--bloom-pale);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.55;color:var(--bloom);margin-top:14px;}
+.exo-corr{margin-top:16px;padding:14px 15px;border-radius:12px;border:1px dashed var(--line-2);background:var(--paper-2);}
+.exo-corr.on{border-style:solid;border-color:rgba(76,175,80,.5);background:rgba(76,175,80,.07);}
+.exo-corr .ec-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.exo-corr .ec-d{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin-bottom:0;}
 </style>
 </head>
 <body>
@@ -960,6 +1018,16 @@ p{margin:0 0 12px;}
       <div id="sos-out"></div>
     </section>
 
+    <!-- ---------- EXERCICES CORRIGÉS ---------- -->
+    <section class="view" id="v-exos">
+      <div class="view-head">
+        <p class="eyebrow">Training</p>
+        <h1>📝 Exercices corrigés</h1>
+        <p class="lede">Entraîne-toi sur des cas concrets. Choisis un exercice, télécharge le sujet, réalise-le en autonomie… puis débloque ma correction pour comparer et t'améliorer.</p>
+      </div>
+      <div id="exos-body"></div>
+    </section>
+
     <!-- ---------- ALFIE ---------- -->
     <section class="view" id="v-alfie">
       <div class="view-head">
@@ -1172,6 +1240,7 @@ p{margin:0 0 12px;}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="working" id="working" aria-live="polite"><span class="spin-sm"></span><span id="working-txt">L'outil travaille…</span></div>
 <script>
 /* ================================================================
    PERSISTANCE — window.storage (IndexedDB)
@@ -1403,6 +1472,25 @@ function exportPdf(title, subtitle, text){
 }
 
 /* ---------------- API Claude ---------------- */
+/* Indicateur global « l'outil travaille » — visible pendant tout appel IA.
+   Un compteur gère les appels simultanés : la pastille disparaît quand le
+   dernier appel en cours se termine. */
+let workCount = 0, workTimer = null;
+function workOn(txt){
+  workCount++;
+  const box = $('#working'); if(!box) return;
+  if(txt){ const t = $('#working-txt'); if(t) t.textContent = txt; }
+  clearTimeout(workTimer);
+  box.classList.add('on');
+}
+function workOff(){
+  workCount = Math.max(0, workCount - 1);
+  if(workCount === 0){
+    const box = $('#working'); if(!box) return;
+    box.classList.remove('on');
+    workTimer = setTimeout(()=>{ const t = $('#working-txt'); if(t) t.textContent = "L'outil travaille…"; }, 300);
+  }
+}
 async function ask(prompt, opts){
   const o = opts || {};
   const proxyOk = (/^https:\/\//.test(CMP_API_PROXY) || /^\/[^/]/.test(CMP_API_PROXY))
@@ -1412,12 +1500,17 @@ async function ask(prompt, opts){
   }
   const body = { max_tokens: o.max_tokens || 1000, messages: o.messages || [{role:'user', content:prompt}] };
   if(o.system) body.system = o.system;
-  const res = await fetch(CMP_API_PROXY, {
-    method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
-  });
-  if(!res.ok) throw new Error("Service indisponible (" + res.status + ")");
-  const data = await res.json();
-  return (data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+  workOn(o.working);
+  try{
+    const res = await fetch(CMP_API_PROXY, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error("Service indisponible (" + res.status + ")");
+    const data = await res.json();
+    return (data.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+  } finally {
+    workOff();
+  }
 }
 function extractJson(raw){
   let t = (raw||'').trim().replace(/^```(?:json)?/i,'').replace(/```\s*$/,'').trim();
@@ -1514,10 +1607,11 @@ async function enterApp(){
   await loadProfil();
   await loadTaches();
   await loadMtasks();
+  await loadExosState();
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil(); drawMtasks();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
-  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna();
+  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos();
   paintQuotas();
 }
 async function doLogin(){
@@ -1885,12 +1979,12 @@ const NAV = [
   { type:'item', id:'home',     ic:'🏠', name:'Accueil' },
   { type:'item', id:'progress', ic:'🌙', name:'Ma progression' },
   { type:'item', id:'rdv',      ic:'📅', name:'Mes rendez-vous' },
-  { type:'group', name:'Mes trainings', items:[
+  { type:'group', name:'Mes trainings', open:true, items:[
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
-    { id:'exos',  ic:'📝', name:'Exercices corrigés', soon:true },
+    { id:'exos',  ic:'📝', name:'Exercices corrigés' },
   ]},
-  { type:'group', name:'Mes outils', items:[
+  { type:'group', name:'Mes outils', open:true, items:[
     { id:'croissance', ic:'📈', name:'Projection résultats' },
     { id:'ideas',      ic:'💡', name:"Générateur d'idées" },
     { id:'insta',      ic:'🎨', name:'Studio créatif' },
@@ -1916,7 +2010,7 @@ function buildNav(){
   const nav = $('#nav'); nav.innerHTML = '';
   NAV.forEach(n=>{
     if(n.type === 'item'){ nav.appendChild(mkItem(n)); return; }
-    const g = el('div','nav-group open');
+    const g = el('div','nav-group' + (n.open ? ' open' : ''));
     const t = el('button','nav-toggle', `<span>${esc(n.name)}</span><span class="ar">▼</span>`);
     t.addEventListener('click', ()=>g.classList.toggle('open'));
     const sub = el('div','nav-sub');
@@ -1949,6 +2043,7 @@ buildNav();
 const TILES_T = [
   { id:'sim', ic:'📞', n:"Simulateur d'appel découverte", d:"Un prospect fictif au téléphone, un débrief noté à la fin." },
   { id:'sos', ic:'🆘', n:'Jetons SOS', d:"Objection, refus, annonce de prix, choix de l'offre : les mots justes en 30 secondes." },
+  { id:'exos', ic:'📝', n:'Exercices corrigés', d:"Des cas concrets à réaliser, puis ma correction à télécharger pour te situer." },
 ];
 const TILES_A = [
   { id:'alfie', ic:'✍️', n:"Alfie · Copilote d'écriture", d:"Ta page de vente, ta présentation ou ton offre, écrites pas à pas." },
@@ -6055,6 +6150,201 @@ function lcPdf(){
     });
   }
   exportPdf('Mon planning de contenus', `${USER} · ${lcJours()} jours · préparé avec Luna`, L.join('\n'));
+}
+</script>
+<script>
+/* ================================================================
+   EXERCICES CORRIGÉS
+   4 genres × 4 sujets. L'apprenant télécharge le sujet → ça débloque
+   la correction (fichiers PDF déposés dans /exos/… par Lucie).
+   ================================================================ */
+const EXOS = [
+  {
+    id:'univers', ic:'🎨', name:'Créer un univers visuel',
+    subjects:[
+      {
+        id:'uv1', ready:true,
+        title:"Pow'her, coach en développement personnel",
+        present:[
+          "Lise a 37 ans, elle est coach en développement personnel et a fondé Pow'her il y a 5 ans.",
+          "Son parcours est simple et banal : 8 ans dans la même entreprise en tant que RH, mariée à Paul, maman de deux enfants et un quotidien à mille à l'heure qu'elle ne supporte plus… Elle décide il y a 5 ans qu'il n'est pas trop tard pour prendre sa vie en main, s'épanouir dans son job et adapter sa vie professionnelle à sa famille.",
+          "Elle passe un an en formation pour obtenir sa certification de coach et crée alors sa société Pow'her, qui accompagne aujourd'hui les femmes dans leur transformation personnelle et professionnelle."
+        ],
+        keywords:['DOUCEUR','SIMPLICITÉ','SÉRÉNITÉ','ORGANIQUE','CONTEMPORAIN'],
+        steps:[
+          "Lis le sujet ci-dessus.",
+          "À partir des informations récoltées, crée l'identité visuelle : moodboard, palette de couleurs, typographies et éléments. Tu peux utiliser le modèle de brandboard fourni ci-dessous.",
+          "Une fois ton travail en autonomie terminé, télécharge la correction et compare ta réalisation à la proposition."
+        ],
+        note:"Le but des exercices corrigés est que tu puisses auto-juger ta réalisation et l'améliorer. Si tu as des questions ou besoin d'avis extérieurs, partage ton travail avec les autres membres et moi-même via la communauté WhatsApp 😊",
+        sujetFile:'exos/univers-visuel/sujet-1-powher.pdf',  sujetName:'Sujet 1 - Pow her.pdf',
+        modeleFile:'exos/univers-visuel/modele-brandboard.pdf', modeleName:'Modele brandboard.pdf',
+        corrFile:'exos/univers-visuel/correction-1-powher.pdf', corrName:'Correction 1 - Pow her.pdf'
+      },
+      { id:'uv2', ready:false, title:'Exercice 2' },
+      { id:'uv3', ready:false, title:'Exercice 3' },
+      { id:'uv4', ready:false, title:'Exercice 4' }
+    ]
+  },
+  {
+    id:'audit', ic:'🔍', name:'Auditer un compte',
+    subjects:[
+      { id:'au1', ready:false, title:'Exercice 1' },
+      { id:'au2', ready:false, title:'Exercice 2' },
+      { id:'au3', ready:false, title:'Exercice 3' },
+      { id:'au4', ready:false, title:'Exercice 4' }
+    ]
+  },
+  {
+    id:'strat', ic:'🎯', name:'Mettre en place une stratégie de com',
+    subjects:[
+      { id:'st1', ready:false, title:'Exercice 1' },
+      { id:'st2', ready:false, title:'Exercice 2' },
+      { id:'st3', ready:false, title:'Exercice 3' },
+      { id:'st4', ready:false, title:'Exercice 4' }
+    ]
+  },
+  {
+    id:'accroches', ic:'✍️', name:'Trouver des accroches / titres',
+    subjects:[
+      { id:'ac1', ready:false, title:'Exercice 1' },
+      { id:'ac2', ready:false, title:'Exercice 2' },
+      { id:'ac3', ready:false, title:'Exercice 3' },
+      { id:'ac4', ready:false, title:'Exercice 4' }
+    ]
+  }
+];
+
+let EXOS_STATE = {};      // { subjectId: {sujet:true} }
+let exosGenreId = null;   // null => grille des genres
+let exosOpenSubj = null;  // id du sujet déplié
+
+async function loadExosState(){ EXOS_STATE = (await getJSON('cmp:exos', {})) || {}; }
+function exosSave(){ try{ setJSON('cmp:exos', EXOS_STATE); }catch(e){} }
+
+function exoTriggerDl(url, name){
+  const a = el('a'); a.href = url; if(name) a.setAttribute('download', name);
+  a.rel = 'noopener'; document.body.appendChild(a); try{ a.click(); }catch(e){} a.remove();
+}
+async function exoFileExists(url){
+  try{ const r = await fetch(url, {method:'HEAD'}); return r.ok; }catch(e){ return false; }
+}
+async function exoGetSujet(s){
+  if(!(await exoFileExists(s.sujetFile))){ toast('Le sujet arrive très bientôt 💛'); return; }
+  exoTriggerDl(s.sujetFile, s.sujetName);
+  EXOS_STATE[s.id] = Object.assign({}, EXOS_STATE[s.id], {sujet:true});
+  exosSave();
+  exosOpenSubj = s.id;
+  renderExos();
+  toast('Sujet téléchargé — la correction est débloquée ✨');
+}
+async function exoGetModele(s){
+  if(!(await exoFileExists(s.modeleFile))){ toast('Le modèle arrive très bientôt 💛'); return; }
+  exoTriggerDl(s.modeleFile, s.modeleName);
+}
+async function exoGetCorr(s){
+  if(!(await exoFileExists(s.corrFile))){ toast('La correction arrive très bientôt 💛'); return; }
+  exoTriggerDl(s.corrFile, s.corrName);
+}
+
+function exosGridHTML(){
+  const cards = EXOS.map(g=>{
+    const ready = g.subjects.filter(s=>s.ready).length;
+    const cap = ready>0 ? `${ready} exercice${ready>1?'s':''} disponible${ready>1?'s':''}` : 'Bientôt disponible';
+    return `<button class="exo-genre" data-genre="${g.id}">
+        <span class="eg-n">${esc(g.name)}</span>
+        <span class="eg-c">${cap}</span>
+      </button>`;
+  }).join('');
+  return `<div class="exo-genres">${cards}</div>`;
+}
+
+function exosDetailHTML(s){
+  const unlocked = !!(EXOS_STATE[s.id] && EXOS_STATE[s.id].sujet);
+  const present = (s.present||[]).map(p=>`<p>${esc(p)}</p>`).join('');
+  const kw = (s.keywords&&s.keywords.length) ? `<h4>Mots-clés</h4><div class="exo-kw">${s.keywords.map(k=>`<span>${esc(k)}</span>`).join('')}</div>` : '';
+  const steps = (s.steps&&s.steps.length) ? `<h4>Comment faire l'exercice ?</h4><ul class="exo-steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const modeleBtn = s.modeleFile ? `<button class="btn ghost" data-exo-modele="${s.id}">📄 Modèle de brandboard</button>` : '';
+  const corr = unlocked
+    ? `<div class="exo-corr on">
+         <div class="ec-h">✅ Correction débloquée</div>
+         <p class="ec-d">Compare ta réalisation à ma correction pour repérer tes points forts et tes axes d'amélioration.</p>
+         <div class="exo-dl"><button class="btn" data-exo-corr="${s.id}">⬇️ Télécharger la correction</button></div>
+       </div>`
+    : `<div class="exo-corr">
+         <div class="ec-h">🔒 Correction verrouillée</div>
+         <p class="ec-d">Télécharge le sujet et réalise l'exercice en autonomie&nbsp;: la correction se débloque juste après.</p>
+       </div>`;
+  const note = s.note ? `<div class="exo-note">${esc(s.note)}</div>` : '';
+  return `<div class="exo-detail">
+      <h4>Présentation</h4>
+      ${present}
+      ${kw}
+      ${steps}
+      <div class="exo-dl">
+        <button class="btn" data-exo-sujet="${s.id}">⬇️ Télécharger le sujet</button>
+        ${modeleBtn}
+      </div>
+      ${corr}
+      ${note}
+    </div>`;
+}
+
+function exosGenreHTML(g){
+  const items = g.subjects.map((s,i)=>{
+    const unlocked = !!(EXOS_STATE[s.id] && EXOS_STATE[s.id].sujet);
+    const open = s.ready && exosOpenSubj === s.id;
+    let tag = '';
+    if(!s.ready) tag = `<span class="es-tag soon">À venir</span>`;
+    else if(unlocked) tag = `<span class="es-tag done">Correction dispo</span>`;
+    const title = s.ready ? s.title : (s.title || `Exercice ${i+1}`);
+    const head = `<button class="exo-shead" data-subj="${s.id}" ${s.ready?'':'data-soon="1"'}>
+        <span class="es-num">${i+1}</span>
+        <span class="es-t">${esc(title)}</span>
+        ${tag}
+        ${s.ready?`<span class="es-ar">▼</span>`:''}
+      </button>`;
+    return `<div class="exo-subj ${open?'open':''} ${s.ready?'':'locked-soon'}">
+        ${head}
+        ${open ? exosDetailHTML(s) : ''}
+      </div>`;
+  }).join('');
+  return `<button class="exo-back" data-exo-back="1">← Tous les exercices</button>
+      <div class="view-head" style="margin-bottom:14px;">
+        <p class="eyebrow sun">Exercice corrigé</p>
+        <h1 style="font-size:22px;">${esc(g.name)}</h1>
+      </div>
+      ${items}`;
+}
+
+function renderExos(){
+  const box = $('#exos-body'); if(!box) return;
+  if(!exosGenreId){
+    box.innerHTML = exosGridHTML();
+    box.querySelectorAll('[data-genre]').forEach(b=> b.addEventListener('click', ()=>{
+      exosGenreId = b.dataset.genre; exosOpenSubj = null; renderExos();
+    }));
+    return;
+  }
+  const g = EXOS.find(x=>x.id===exosGenreId);
+  if(!g){ exosGenreId = null; return renderExos(); }
+  box.innerHTML = exosGenreHTML(g);
+  box.querySelector('[data-exo-back]').addEventListener('click', ()=>{ exosGenreId = null; exosOpenSubj = null; renderExos(); window.scrollTo({top:0,behavior:'smooth'}); });
+  box.querySelectorAll('[data-subj]').forEach(b=> b.addEventListener('click', ()=>{
+    if(b.dataset.soon){ toast('Cet exercice arrive bientôt 💛'); return; }
+    const id = b.dataset.subj;
+    exosOpenSubj = (exosOpenSubj === id) ? null : id;
+    renderExos();
+  }));
+  box.querySelectorAll('[data-exo-sujet]').forEach(b=> b.addEventListener('click', ()=>{
+    const s = g.subjects.find(x=>x.id===b.dataset.exoSujet); if(s) exoGetSujet(s);
+  }));
+  box.querySelectorAll('[data-exo-modele]').forEach(b=> b.addEventListener('click', ()=>{
+    const s = g.subjects.find(x=>x.id===b.dataset.exoModele); if(s) exoGetModele(s);
+  }));
+  box.querySelectorAll('[data-exo-corr]').forEach(b=> b.addEventListener('click', ()=>{
+    const s = g.subjects.find(x=>x.id===b.dataset.exoCorr); if(s) exoGetCorr(s);
+  }));
 }
 </script>
 <script>
