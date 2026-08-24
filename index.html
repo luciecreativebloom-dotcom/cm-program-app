@@ -6210,7 +6210,7 @@ const EXOS = [
     subjects:[
       {
         id:'uv1', ready:true,
-        img:'exos/univers-visuel/photo-1-powher.jpg',
+        img:'exos/univers-visuel/photo-1-powher.jpg', imgPos:'50% 15%',
         title:"Pow'her, coach en développement personnel",
         present:[
           "Lise a 37 ans, elle est coach en développement personnel et a fondé Pow'her il y a 5 ans.",
@@ -6228,7 +6228,7 @@ const EXOS = [
       },
       {
         id:'uv2', ready:true,
-        img:'exos/univers-visuel/photo-2-millie-jones.jpg',
+        img:'exos/univers-visuel/photo-2-millie-jones.jpg', imgPos:'50% 22%',
         title:"Millie Jones, concept store maman-bébé",
         present:[
           "Après plusieurs années à travailler dans le retail, Melissa, maman d'un petit bout de 2 ans, décide de lancer Millie Jones, un concept store dédié aux mamans modernes, sensibles à l'esthétique, à la qualité et au bien-être de leur enfant.",
@@ -6244,8 +6244,24 @@ const EXOS = [
         modeleUrl:'https://canva.link/9x8wo323mfxqo98',
         corrFile:'exos/univers-visuel/correction-2-millie-jones.pdf', corrName:'Correction 2 - Millie Jones.pdf'
       },
-      { id:'uv3', ready:false, title:'Exercice 3' },
-      { id:'uv4', ready:false, title:'Exercice 4' }
+      {
+        id:'uv3', ready:true,
+        img:'exos/univers-visuel/photo-3-studio-melon.jpg', imgPos:'50% 20%',
+        title:"Studio Melon, photographe culinaire",
+        present:[
+          "Manuella est photographe culinaire : elle travaille à son compte et ses clients sont les commerces de bouche (restaurants, hôtels, épiceries…).",
+          "Elle gère côté photo mais elle aurait bien besoin d'un œil créatif pour l'aider à définir un univers visuel qui lui plaît et qui définisse bien son activité."
+        ],
+        keywords:[],
+        steps:[
+          "Télécharge le sujet ci-dessous.",
+          "À partir des informations récoltées, crée l'identité visuelle : moodboard, palette de couleurs, typographies et éléments. Tu peux utiliser le modèle de brandboard fourni ci-dessous.",
+          "Une fois ton travail en autonomie terminé, télécharge la correction et compare ta réalisation à la proposition."
+        ],
+        sujetFile:'exos/univers-visuel/sujet-3-studio-melon.pdf',  sujetName:'Sujet 3 - Studio Melon.pdf',
+        modeleUrl:'https://canva.link/9x8wo323mfxqo98',
+        corrFile:'exos/univers-visuel/correction-3-studio-melon.pdf', corrName:'Correction 3 - Studio Melon.pdf'
+      }
     ]
   },
   {
@@ -6387,7 +6403,7 @@ function exosGenreHTML(g){
     else if(unlocked) tag = `<span class="es-tag done">Correction dispo</span>`;
     const title = s.ready ? s.title : (s.title || `Exercice ${i+1}`);
     const thumb = s.img
-      ? `<span class="es-photo"><img src="${s.img}" alt="" loading="lazy"></span>`
+      ? `<span class="es-photo"><img src="${s.img}" alt="" loading="lazy" style="object-position:${s.imgPos||'50% 25%'};"></span>`
       : `<span class="es-num">${i+1}</span>`;
     const head = `<button class="exo-shead" data-subj="${s.id}" ${s.ready?'':'data-soon="1"'}>
         ${thumb}
