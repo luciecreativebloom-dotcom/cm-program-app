@@ -695,7 +695,9 @@ p{margin:0 0 12px;}
   padding:18px 18px 16px;border-radius:16px;border:1px solid var(--line);background:#ffffff;cursor:pointer;
   transition:border-color .15s,box-shadow .15s,transform .15s;}
 .exo-genre:hover{border-color:var(--bloom);box-shadow:0 8px 22px rgba(140,27,68,.08);transform:translateY(-2px);}
-.exo-genre .eg-ic{font-size:26px;line-height:1;}
+.exo-genre .eg-head{display:flex;align-items:center;gap:8px;}
+.exo-genre .eg-ic{color:var(--bloom);display:flex;flex:0 0 auto;}
+.exo-genre .eg-ic svg{width:18px;height:18px;display:block;}
 .exo-genre .eg-n{font-size:15.5px;font-weight:700;color:var(--ink);}
 .exo-genre .eg-c{font-size:12.5px;color:var(--ink-3);font-weight:600;}
 .exo-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;
@@ -722,6 +724,7 @@ p{margin:0 0 12px;}
 .exo-intro{background:rgba(255,250,244,0.8);border-radius:10px;padding:13px 16px;margin:16px 0 10px;}
 .exo-detail .exo-intro p{font-size:14px;font-weight:600;color:var(--ink);line-height:1.6;margin:0 0 8px;}
 .exo-detail .exo-intro p:last-child{margin-bottom:0;}
+.exo-subj.genre-audit .exo-detail .exo-intro p{font-size:13px;font-weight:400;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -6267,10 +6270,51 @@ const EXOS = [
   {
     id:'audit', ic:'🔍', name:'Auditer un compte',
     subjects:[
-      { id:'au1', ready:false, title:'Exercice 1' },
-      { id:'au2', ready:false, title:'Exercice 2' },
-      { id:'au3', ready:false, title:'Exercice 3' },
-      { id:'au4', ready:false, title:'Exercice 4' }
+      {
+        id:'au1', ready:true,
+        img:'exos/audit-compte/photo-1-sunset.png', imgPos:'50% 50%',
+        title:"Le Sunset, bar de plage",
+        present:[
+          "Le Sunset est un bar de plage situé Chemin des Dunes à Malo-les-Bains, offrant un cadre idyllique face à la mer.",
+          "Ambiance chaleureuse, coucher de soleil en toile de fond, cocktails, tapas et musique acoustique sont au cœur de l'expérience.",
+          "C'est l'endroit idéal pour se retrouver entre amis, partager un moment, boire un verre et écouter de la musique. La décoration soignée et l'ambiance décontractée en font un spot incontournable de la côte dunkerquoise.",
+          "Le Sunset, c'est l'esprit plage, version élégante et festive.",
+          "Le compte Instagram du Sunset est déjà lancé, qu'en penses-tu et que changerais-tu ?"
+        ],
+        keywords:[],
+        steps:[
+          "Télécharge le sujet ci-dessous et munis-toi d'un carnet ou d'une vieille feuille blanche.",
+          "À partir de ce que tu vois, identifie les changements que tu apporterais au compte (audit de niveau 1).",
+          "Optionnel — tu peux télécharger le modèle ci-dessous pour faire ta version du compte.",
+          "Une fois ton travail en autonomie terminé, télécharge la correction et compare ton travail à la proposition."
+        ],
+        sujetFile:'exos/audit-compte/sujet-1-sunset.png',  sujetName:'Sujet 1 - Le Sunset.png',
+        modeleUrl:'https://canva.link/jezj3p74d3u8do2', modeleLabel:'Modèle du compte',
+        corrFile:'exos/audit-compte/correction-1-sunset.png', corrName:'Correction 1 - Le Sunset.png'
+      },
+      {
+        id:'au2', ready:true,
+        img:'exos/audit-compte/photo-2-azul.png', imgPos:'50% 25%',
+        title:"Azul Décoration, décoration d'intérieur",
+        present:[
+          "Lisa est décoratrice d'intérieur spécialisée dans l'aménagement des petits espaces. Après plusieurs années à vivre dans des appartements urbains, elle s'est confrontée elle-même aux contraintes de surface : manque de rangement, sensation d'étouffement, difficulté à allier esthétique et praticité.",
+          "Elle décide alors de créer Azul Decoration, une agence qui accompagne les personnes vivant dans des studios, petits appartements ou espaces réduits à transformer leur intérieur en un lieu à la fois fonctionnel, harmonieux et agréable à vivre.",
+          "Lisa ne cherche pas simplement à « décorer », mais à optimiser chaque mètre carré intelligemment, sans sacrifier le style. Elle propose des solutions concrètes, accessibles et adaptées au quotidien de ses clients.",
+          "Sa cible : des actifs urbains entre 25 et 45 ans, souvent locataires ou primo-accédants, qui veulent se sentir bien chez eux malgré un espace limité.",
+          "Le compte Instagram d'Azul Decoration est déjà lancé, qu'en penses-tu et que changerais-tu ?"
+        ],
+        keywords:[],
+        steps:[
+          "Télécharge le sujet ci-dessous et munis-toi d'un carnet ou d'une vieille feuille blanche.",
+          "À partir de ce que tu vois, identifie les changements que tu apporterais au compte (audit de niveau 1).",
+          "Optionnel — tu peux télécharger le modèle ci-dessous pour faire ta version du compte.",
+          "Une fois ton travail en autonomie terminé, télécharge la correction et compare ton travail à la proposition."
+        ],
+        sujetFile:'exos/audit-compte/sujet-2-azul.png',  sujetName:'Sujet 2 - Azul Decoration.png',
+        modeleUrl:'https://canva.link/jezj3p74d3u8do2', modeleLabel:'Modèle du compte',
+        corrFile:'exos/audit-compte/correction-2-azul.png', corrName:'Correction 2 - Azul Decoration.png'
+      },
+      { id:'au3', ready:false, title:'Exercice 3' }
     ]
   },
   {
@@ -6348,12 +6392,19 @@ function exoCorrWarn(onProceed){
   scrim.addEventListener('click', e=>{ if(e.target === scrim) cancel(); });
 }
 
+/* Icônes minimalistes devant chaque genre d'exercice. */
+const GENRE_ICONS = {
+  univers:   SVG('<path d="M12 3a9 9 0 1 0 0 18c.9 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.45-1.1-.25-.3-.4-.65-.4-1.05 0-.9.75-1.6 1.65-1.6H16a5 5 0 0 0 5-5c0-4.4-4-7.1-9-7.1z"/><circle cx="8" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/>'),
+  audit:     SVG('<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>'),
+  strat:     SVG('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>'),
+  accroches: SVG('<circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="21"/><path d="M5 13a7 7 0 0 0 14 0"/><line x1="4" y1="13" x2="6.5" y2="13"/><line x1="17.5" y1="13" x2="20" y2="13"/><line x1="8.5" y1="11" x2="15.5" y2="11"/>')
+};
 function exosGridHTML(){
   const cards = EXOS.map(g=>{
     const ready = g.subjects.filter(s=>s.ready).length;
     const cap = ready>0 ? `${ready} exercice${ready>1?'s':''} disponible${ready>1?'s':''}` : 'Bientôt disponible';
     return `<button class="exo-genre" data-genre="${g.id}">
-        <span class="eg-n">${esc(g.name)}</span>
+        <span class="eg-head"><span class="eg-ic">${GENRE_ICONS[g.id]||''}</span><span class="eg-n">${esc(g.name)}</span></span>
         <span class="eg-c">${cap}</span>
       </button>`;
   }).join('');
@@ -6368,7 +6419,7 @@ function exosDetailHTML(s){
         <button class="exo-steps-toggle" type="button"><span class="ess-ar">▸</span><span>Comment faire l'exercice ?</span></button>
         <ul class="exo-steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
       </div>` : '';
-  const modeleBtn = s.modeleUrl ? `<button class="btn ghost modele" data-exo-modele="${s.id}">📄 Modèle de brandboard</button>` : '';
+  const modeleBtn = s.modeleUrl ? `<button class="btn ghost modele" data-exo-modele="${s.id}">📄 ${esc(s.modeleLabel||'Modèle de brandboard')}</button>` : '';
   const corr = unlocked
     ? `<div class="exo-corr on">
          <div class="ec-h">✅ Correction débloquée</div>
@@ -6411,7 +6462,7 @@ function exosGenreHTML(g){
         ${tag}
         ${s.ready?`<span class="es-ar">▼</span>`:''}
       </button>`;
-    return `<div class="exo-subj ${open?'open':''} ${s.ready?'':'locked-soon'}">
+    return `<div class="exo-subj genre-${g.id} ${open?'open':''} ${s.ready?'':'locked-soon'}">
         ${head}
         ${open ? exosDetailHTML(s) : ''}
       </div>`;
