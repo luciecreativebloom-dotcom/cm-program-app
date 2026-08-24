@@ -152,8 +152,8 @@ p{margin:0 0 12px;}
 .side-logo{display:flex;align-items:center;gap:9px;padding:0 8px 20px;margin-bottom:4px;border-bottom:1px solid var(--line);}
 .side-logo-img{width:30px;height:30px;border-radius:50%;overflow:hidden;flex:0 0 auto;display:block;}
 .side-logo-img img{width:100%;height:100%;object-fit:cover;transform:scale(1.18);display:block;}
-.side-logo .t{font-family:var(--display);font-weight:700;font-size:15.5px;color:var(--bloom);letter-spacing:-.02em;line-height:1.2;}
-.side-logo .t em{display:block;font-style:normal;font-weight:400;font-family:var(--body);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:2px;}
+.side-logo .t{font-family:var(--display);font-weight:700;font-size:15.5px;color:var(--sun);letter-spacing:-.02em;line-height:1.2;}
+.side-logo .t em{display:block;font-style:normal;font-weight:400;font-family:var(--body);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sun);margin-top:2px;}
 .side-nav{flex:1;overflow-y:auto;padding-top:8px;margin:0 -6px;padding-left:6px;padding-right:6px;}
 .side-foot{padding-top:12px;display:flex;align-items:center;gap:9px;}
 .side-profil-wrap{border-top:1px solid var(--line);margin:6px -6px 0;padding:8px 6px 0;}
@@ -183,12 +183,13 @@ p{margin:0 0 12px;}
 .nav-item{
   display:flex;align-items:center;gap:9px;width:100%;text-align:left;
   padding:6px 10px;border-radius:9px;border:1px solid transparent;background:none;
-  color:var(--ink-2);font-size:13.5px;font-weight:500;cursor:pointer;margin-bottom:1px;
+  color:var(--ink-2);font-size:13.5px;font-weight:500;cursor:pointer;margin-bottom:5px;
   transition:background .14s,color .14s;
 }
 .nav-item:hover{background:var(--paper-2);color:var(--ink);}
 .nav-item.on{background:rgba(140,27,68,0.05);color:var(--bloom);font-weight:600;border-color:transparent;}
-.nav-item .ic{font-size:14px;width:18px;text-align:center;flex:0 0 auto;}
+.nav-item .ic{font-size:14px;width:18px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+.nav-item .ic svg{width:17px;height:17px;display:block;}
 .nav-item span:last-child{line-height:1.3;}
 .nav-item.soon{opacity:.5;cursor:default;}
 .nav-item.soon:hover{background:none;color:var(--ink-2);}
@@ -314,7 +315,8 @@ p{margin:0 0 12px;}
   width:100%;display:block;box-shadow:var(--shadow-s);
 }
 .tile:hover{transform:translateY(-2px);border-color:var(--bloom-2);box-shadow:var(--shadow);}
-.tile .ti{font-size:19px;display:block;margin-bottom:9px;}
+.tile .ti{font-size:19px;display:block;margin-bottom:9px;color:var(--bloom);}
+.tile .ti svg{width:23px;height:23px;display:block;}
 .tile .tn{font-family:var(--display);font-weight:700;font-size:15px;margin-bottom:3px;color:var(--ink);letter-spacing:-.02em;display:block;}
 .tile .td{font-size:12.5px;color:var(--ink-2);line-height:1.45;display:block;}
 
@@ -690,7 +692,7 @@ p{margin:0 0 12px;}
 .exo-genres{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 @media(max-width:640px){.exo-genres{grid-template-columns:1fr;}}
 .exo-genre{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;
-  padding:18px 18px 16px;border-radius:16px;border:1px solid var(--line);background:var(--paper);cursor:pointer;
+  padding:18px 18px 16px;border-radius:16px;border:1px solid var(--line);background:#ffffff;cursor:pointer;
   transition:border-color .15s,box-shadow .15s,transform .15s;}
 .exo-genre:hover{border-color:var(--bloom);box-shadow:0 8px 22px rgba(140,27,68,.08);transform:translateY(-2px);}
 .exo-genre .eg-ic{font-size:26px;line-height:1;}
@@ -705,6 +707,8 @@ p{margin:0 0 12px;}
 .exo-shead:hover{background:var(--paper-2);}
 .exo-shead .es-num{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--bloom-pale);color:var(--bloom);
   display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.exo-shead .es-photo{flex:0 0 auto;width:44px;height:44px;border-radius:11px;overflow:hidden;background:var(--paper-2);display:block;}
+.exo-shead .es-photo img{width:100%;height:100%;object-fit:cover;display:block;}
 .exo-shead .es-t{flex:1;font-size:14.5px;font-weight:700;color:var(--ink);}
 .exo-shead .es-tag{flex:0 0 auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   padding:3px 8px;border-radius:999px;}
@@ -721,11 +725,22 @@ p{margin:0 0 12px;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
-.exo-steps{margin:0;padding:0;list-style:none;}
+.exo-steps-wrap{margin:16px 0 0;}
+.exo-steps-toggle{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0;
+  font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700;}
+.exo-steps-toggle:hover{color:var(--bloom);}
+.exo-steps-toggle .ess-ar{font-size:11px;transition:transform .18s;display:inline-block;flex:0 0 auto;}
+.exo-steps-wrap.open .exo-steps-toggle .ess-ar{transform:rotate(90deg);}
+.exo-steps-wrap.open .exo-steps-toggle{color:var(--bloom);}
+.exo-steps{margin:0;padding:0;list-style:none;display:none;}
+.exo-steps-wrap.open .exo-steps{display:block;margin-top:10px;}
 .exo-steps li{position:relative;padding-left:22px;font-size:14px;line-height:1.55;color:var(--ink-2);margin-bottom:7px;}
 .exo-steps li::before{content:'';position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--bloom);}
 .exo-dl{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
 .exo-dl .btn.sujet{background:var(--sun);border-color:var(--sun);color:#fff;}
+.exo-corr .btn.corr-dl{background:#14532D;border-color:#14532D;color:#fff;}
+.exo-corr .btn.corr-dl.locked{background:var(--paper-2);border-color:var(--line-2);color:var(--ink-3);cursor:not-allowed;}
+.exo-corr .btn.corr-dl.locked:hover{opacity:1;}
 .exo-dl .btn.ghost.modele{color:var(--sun);border-color:var(--sun);}
 .exo-dl .btn.ghost.modele:hover{background:var(--sun-pale);border-color:var(--sun);}
 .exo-note{background:rgba(255,208,214,0.4);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:14px;}
@@ -733,6 +748,13 @@ p{margin:0 0 12px;}
 .exo-corr.on{border-style:solid;border-color:rgba(76,175,80,.5);background:rgba(76,175,80,.07);}
 .exo-corr .ec-h{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
 .exo-corr .ec-d{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin-bottom:0;}
+.exo-warn-scrim{position:fixed;inset:0;z-index:200;background:rgba(59,14,31,.45);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .2s;}
+.exo-warn-scrim.on{opacity:1;}
+.exo-warn{background:var(--paper);border-radius:18px;max-width:420px;width:100%;padding:26px 24px;text-align:center;box-shadow:0 20px 60px rgba(59,14,31,.3);}
+.exo-warn .ew-ic{font-size:34px;line-height:1;margin-bottom:10px;}
+.exo-warn .ew-t{font-size:15px;line-height:1.55;color:var(--ink);font-weight:600;margin-bottom:16px;}
+.exo-warn .ew-count{font-size:13px;color:var(--ink-3);margin-bottom:16px;}
+.exo-warn .ew-count b{color:var(--bloom);font-size:15px;}
 </style>
 </head>
 <body>
@@ -1028,7 +1050,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-exos">
       <div class="view-head">
         <p class="eyebrow">Training</p>
-        <h1>📝 Exercices corrigés</h1>
+        <h1>Exercices corrigés</h1>
         <p class="lede">Entraîne-toi sur des cas concrets. Choisis un exercice, télécharge le sujet, réalise-le en autonomie… puis débloque ma correction pour comparer et t'améliorer.</p>
       </div>
       <div id="exos-body"></div>
@@ -1078,7 +1100,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-mission">
       <div class="view-head">
         <p class="eyebrow sun">Mon business</p>
-        <h1>🗂 Mon CRM</h1>
+        <h1>Mon CRM</h1>
       </div>
       <div class="sph-nav" id="crm-tabs">
         <button class="sph-tab on" data-crm="clients">Mes clients</button>
@@ -1121,7 +1143,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-croissance">
       <div class="view-head">
         <p class="eyebrow sun">Mon business</p>
-        <h1>📈 Projection de résultats</h1>
+        <h1>Projection de résultats</h1>
       </div>
       <div class="card pad-l" style="margin-bottom:16px;border-color:#F3DEBF;background:var(--sun-pale);">
         <p class="sec-t">Mode d'emploi</p>
@@ -1135,7 +1157,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-ideas">
       <div class="view-head">
         <p class="eyebrow sun">Mes outils</p>
-        <h1>💡 Générateur d'idées</h1>
+        <h1>Générateur d'idées</h1>
         <p class="lede">Réponds à quelques questions (ou applique ton profil business) et repars avec 15 idées de contenu prêtes à écrire : accroche, brief et appel à l'action.</p>
       </div>
       <div id="ideas-form"></div>
@@ -1145,7 +1167,7 @@ p{margin:0 0 12px;}
     <section class="view" id="v-insta">
       <div class="view-head">
         <p class="eyebrow sun">Mes outils</p>
-        <h1>🎨 Studio créatif</h1>
+        <h1>Studio créatif</h1>
         <p class="lede">Compose tes carrousels et tes stories. Luna t'aide à condenser tes idées et à écrire la légende. Tu repars avec un ZIP prêt à publier.</p>
       </div>
 
@@ -2004,8 +2026,26 @@ const NAV = [
     { id:'luna',  ic:'🌙', name:'Luna · Content Manager' },
   ]},
 ];
+/* Icônes minimalistes (trait fin, monochrome, héritent de la couleur du menu). */
+const SVG = (p)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const NAV_ICONS = {
+  home:      SVG('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/>'),
+  progress:  SVG('<line x1="5" y1="21" x2="5" y2="13"/><line x1="12" y1="21" x2="12" y2="4"/><line x1="19" y1="21" x2="19" y2="9"/>'),
+  rdv:       SVG('<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18"/><path d="M8 3v3"/><path d="M16 3v3"/>'),
+  sim:       SVG('<path d="M5 4h3l1.6 4-2.2 1.4a10.5 10.5 0 0 0 5.2 5.2L14 12.4 18 14v3a2 2 0 0 1-2 2A14 14 0 0 1 3 6a2 2 0 0 1 2-2z"/>'),
+  sos:       SVG('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M5.6 5.6 8 8"/><path d="M16 16l2.4 2.4"/><path d="M18.4 5.6 16 8"/><path d="M8 16l-2.4 2.4"/>'),
+  exos:      SVG('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 13l2 2 4-4"/>'),
+  croissance:SVG('<path d="M4 15l5-5 4 3 7-8"/><path d="M17 5h4v4"/>'),
+  ideas:     SVG('<path d="M9.5 18h5"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.6c.6.5.8 1 .8 1.9h6c0-.9.2-1.4.8-1.9A6 6 0 0 0 12 3z"/>'),
+  insta:     SVG('<path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18 15l.6 1.6 1.7.6-1.7.6L18 19.4l-.6-1.6-1.7-.6 1.7-.6z"/>'),
+  calc:      SVG('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>'),
+  mission:   SVG('<circle cx="9" cy="9" r="3"/><path d="M4 20c0-3 2.3-5 5-5s5 2 5 5"/><path d="M16 6.4a3 3 0 0 1 0 5.6"/><path d="M15.5 15.2c2.3.3 3.9 2.1 3.9 4.8"/>'),
+  alfie:     SVG('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>'),
+  luna:      SVG('<path d="M21 12.8A8 8 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/>')
+};
 function mkItem(it){
-  const inner = `<span class="ic">${it.ic}</span><span>${esc(it.name)}</span>` + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '');
+  const icon = NAV_ICONS[it.id] || esc(it.ic || '');
+  const inner = `<span class="ic">${icon}</span><span>${esc(it.name)}</span>` + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '');
   const b = el('button', 'nav-item' + (it.soon ? ' soon' : ''), inner);
   if(it.soon){ b.disabled = true; b.title = 'Bientôt disponible'; return b; }
   b.dataset.go = it.id;
@@ -2069,7 +2109,7 @@ function renderTiles(){
     const c = $(sel); c.innerHTML = '';
     c.className = list.length >= 3 ? 'grid3' : 'grid2';
     list.forEach(t=>{
-      const b = el('button','tile', `<span class="ti">${t.ic}</span><span class="tn">${esc(t.n)}</span><span class="td">${esc(t.d)}</span>`);
+      const b = el('button','tile', `<span class="ti">${NAV_ICONS[t.id] || esc(t.ic)}</span><span class="tn">${esc(t.n)}</span><span class="td">${esc(t.d)}</span>`);
       b.addEventListener('click', ()=>go(t.id));
       c.appendChild(b);
     });
@@ -6170,6 +6210,7 @@ const EXOS = [
     subjects:[
       {
         id:'uv1', ready:true,
+        img:'exos/univers-visuel/photo-1-powher.jpg',
         title:"Pow'her, coach en développement personnel",
         present:[
           "Lise a 37 ans, elle est coach en développement personnel et a fondé Pow'her il y a 5 ans.",
@@ -6181,7 +6222,6 @@ const EXOS = [
           "À partir des informations récoltées, crée l'identité visuelle : moodboard, palette de couleurs, typographies et éléments. Tu peux utiliser le modèle de brandboard fourni ci-dessous.",
           "Une fois ton travail en autonomie terminé, télécharge la correction et compare ta réalisation à la proposition."
         ],
-        note:"Le but des exercices corrigés est que tu puisses auto-juger ta réalisation et l'améliorer. Si tu as des questions ou besoin d'avis extérieurs, partage ton travail avec les autres membres et moi-même via la communauté WhatsApp 😊",
         sujetFile:'exos/univers-visuel/sujet-1-powher.pdf',  sujetName:'Sujet 1 - Pow her.pdf',
         modeleUrl:'https://canva.link/9x8wo323mfxqo98',
         corrFile:'exos/univers-visuel/correction-1-powher.pdf', corrName:'Correction 1 - Pow her.pdf'
@@ -6249,7 +6289,30 @@ function exoGetModele(s){
 }
 async function exoGetCorr(s){
   if(!(await exoFileExists(s.corrFile))){ toast('La correction arrive très bientôt 💛'); return; }
-  exoTriggerDl(s.corrFile, s.corrName);
+  exoCorrWarn(()=> exoTriggerDl(s.corrFile, s.corrName));
+}
+/* Avertissement 8 s avant de lancer le téléchargement de la correction. */
+function exoCorrWarn(onProceed){
+  let n = 15, done = false;
+  const scrim = el('div','exo-warn-scrim');
+  scrim.innerHTML = `<div class="exo-warn" role="alertdialog" aria-live="assertive">
+      <div class="ew-ic">⚠️</div>
+      <div class="ew-t">Attention, tu t'apprêtes à regarder la correction d'un exercice. Assure-toi d'avoir fait l'exercice avant de regarder la correction.</div>
+      <div class="ew-count">Téléchargement dans <b class="ew-n">${n}</b>&nbsp;s…</div>
+      <button class="btn ghost sm ew-cancel" type="button">Annuler</button>
+    </div>`;
+  document.body.appendChild(scrim);
+  setTimeout(()=> scrim.classList.add('on'), 10);
+  const nEl = scrim.querySelector('.ew-n');
+  const close = ()=>{ clearInterval(iv); scrim.classList.remove('on'); setTimeout(()=>scrim.remove(), 200); };
+  const cancel = ()=>{ if(done) return; done = true; close(); };
+  const iv = setInterval(()=>{
+    n--;
+    if(nEl) nEl.textContent = n;
+    if(n <= 0){ if(done) return; done = true; close(); onProceed(); }
+  }, 1000);
+  scrim.querySelector('.ew-cancel').addEventListener('click', cancel);
+  scrim.addEventListener('click', e=>{ if(e.target === scrim) cancel(); });
 }
 
 function exosGridHTML(){
@@ -6268,17 +6331,21 @@ function exosDetailHTML(s){
   const unlocked = !!(EXOS_STATE[s.id] && EXOS_STATE[s.id].sujet);
   const present = (s.present||[]).length ? `<div class="exo-intro">${(s.present||[]).map(p=>`<p>${esc(p)}</p>`).join('')}</div>` : '';
   const kw = (s.keywords&&s.keywords.length) ? `<h4>Mots-clés</h4><div class="exo-kw">${s.keywords.map(k=>`<span>${esc(k)}</span>`).join('')}</div>` : '';
-  const steps = (s.steps&&s.steps.length) ? `<h4>Comment faire l'exercice ?</h4><ul class="exo-steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  const steps = (s.steps&&s.steps.length) ? `<div class="exo-steps-wrap">
+        <button class="exo-steps-toggle" type="button"><span class="ess-ar">▸</span><span>Comment faire l'exercice ?</span></button>
+        <ul class="exo-steps">${s.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+      </div>` : '';
   const modeleBtn = s.modeleUrl ? `<button class="btn ghost modele" data-exo-modele="${s.id}">📄 Modèle de brandboard</button>` : '';
   const corr = unlocked
     ? `<div class="exo-corr on">
          <div class="ec-h">✅ Correction débloquée</div>
          <p class="ec-d">Compare ta réalisation à ma correction pour repérer tes points forts et tes axes d'amélioration.</p>
-         <div class="exo-dl"><button class="btn" data-exo-corr="${s.id}">⬇️ Télécharger la correction</button></div>
+         <div class="exo-dl" style="margin-top:12px;"><button class="btn sm corr-dl" data-exo-corr="${s.id}">⬇️ Télécharger la correction</button></div>
        </div>`
     : `<div class="exo-corr">
          <div class="ec-h">🔒 Correction verrouillée</div>
          <p class="ec-d">Télécharge le sujet et réalise l'exercice en autonomie&nbsp;: la correction se débloque juste après.</p>
+         <div class="exo-dl" style="margin-top:12px;"><button class="btn sm corr-dl locked" disabled>🔒 Correction verrouillée</button></div>
        </div>`;
   const note = s.note ? `<div class="exo-note">${esc(s.note)}</div>` : '';
   return `<div class="exo-detail">
@@ -6302,8 +6369,11 @@ function exosGenreHTML(g){
     if(!s.ready) tag = `<span class="es-tag soon">À venir</span>`;
     else if(unlocked) tag = `<span class="es-tag done">Correction dispo</span>`;
     const title = s.ready ? s.title : (s.title || `Exercice ${i+1}`);
+    const thumb = s.img
+      ? `<span class="es-photo"><img src="${s.img}" alt="" loading="lazy"></span>`
+      : `<span class="es-num">${i+1}</span>`;
     const head = `<button class="exo-shead" data-subj="${s.id}" ${s.ready?'':'data-soon="1"'}>
-        <span class="es-num">${i+1}</span>
+        ${thumb}
         <span class="es-t">${esc(title)}</span>
         ${tag}
         ${s.ready?`<span class="es-ar">▼</span>`:''}
@@ -6340,6 +6410,7 @@ function renderExos(){
     exosOpenSubj = (exosOpenSubj === id) ? null : id;
     renderExos();
   }));
+  box.querySelectorAll('.exo-steps-toggle').forEach(b=> b.addEventListener('click', ()=> b.closest('.exo-steps-wrap').classList.toggle('open')));
   box.querySelectorAll('[data-exo-sujet]').forEach(b=> b.addEventListener('click', ()=>{
     const s = g.subjects.find(x=>x.id===b.dataset.exoSujet); if(s) exoGetSujet(s);
   }));
