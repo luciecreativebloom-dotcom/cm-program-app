@@ -194,6 +194,7 @@ p{margin:0 0 12px;}
 .nav-item.soon{opacity:.5;cursor:default;}
 .nav-item.soon:hover{background:none;color:var(--ink-2);}
 .soon-badge{margin-left:auto;flex:0 0 auto;font-size:9px;font-weight:700;letter-spacing:.05em;background:var(--sun);color:#fff;border-radius:6px;padding:2px 6px;}
+.new-badge{margin-left:auto;flex:0 0 auto;font-size:9px;font-weight:800;letter-spacing:.06em;background:var(--bloom);color:#fff;border-radius:6px;padding:2px 6px;}
 .nav-group{margin-top:16px;}
 .nav-group:first-of-type{margin-top:10px;}
 .nav-toggle{
@@ -692,6 +693,13 @@ p{margin:0 0 12px;}
 .spin-sm{width:16px;height:16px;flex:0 0 auto;border:2px solid var(--line);border-top-color:var(--bloom);border-radius:50%;animation:sp .8s linear infinite;}
 @media(max-width:520px){.working{left:16px;right:16px;bottom:16px;justify-content:center;}}
 
+/* Lien « Où sont mes données ? » — sous Déconnexion, dans la sidebar */
+.side-data{display:flex;align-items:center;gap:7px;width:100%;text-align:left;margin-top:10px;padding:7px 2px 0;
+  background:none;border:none;border-top:1px solid var(--line);cursor:pointer;
+  font-size:11.5px;font-weight:600;color:var(--ink-3);transition:color .15s;}
+.side-data:hover{color:var(--bloom);}
+.side-data svg{width:14px;height:14px;flex:0 0 auto;color:var(--sun);}
+
 /* ---- Exercices corrigés ---- */
 .exo-genres{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 @media(max-width:640px){.exo-genres{grid-template-columns:1fr;}}
@@ -818,6 +826,10 @@ p{margin:0 0 12px;}
       <span class="nm" id="ui-name"></span>
       <button class="link" id="btn-logout" title="Se déconnecter">Déconnexion</button>
     </div>
+    <button class="side-data" id="data-btn" aria-label="Où sont enregistrées mes données ?">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 2.5V11c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V5.5z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>Où sont mes données&nbsp;?</span>
+    </button>
   </aside>
 
   <main class="main" id="main">
@@ -1289,6 +1301,21 @@ p{margin:0 0 12px;}
 </div>
 <div class="toast" id="toast"></div>
 <div class="working" id="working" aria-live="polite"><span class="spin-sm"></span><span id="working-txt">L'outil travaille…</span></div>
+<div class="modal" id="datamodal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="max-width:450px;text-align:left;">
+    <p class="sec-t" style="color:var(--bloom);margin-bottom:9px;">Où sont enregistrées tes données&nbsp;?</p>
+    <p style="margin:0 0 13px;">Tout ce que tu saisis (profil, projets Luna, idées, résultats…) est enregistré <b>uniquement dans ce navigateur, sur cet appareil</b>. Rien ne part sur un serveur, et rien n'est perdu quand tu fermes l'app ou éteins ton ordinateur.</p>
+    <p style="font-weight:700;margin:0 0 7px;">Tu peux perdre tes données si&nbsp;:</p>
+    <ul class="treco" style="margin:0 0 14px;">
+      <li>tu vides l'historique ou les données de navigation de ton navigateur&nbsp;;</li>
+      <li>tu utilises la navigation privée (rien n'est gardé en sortant)&nbsp;;</li>
+      <li>tu changes de navigateur ou d'appareil (tes données ne te suivent pas)&nbsp;;</li>
+      <li>sur iPhone (Safari), si tu n'ouvres pas l'app pendant ~7 jours&nbsp;— sauf si tu l'ajoutes à ton écran d'accueil.</li>
+    </ul>
+    <p style="margin:0 0 18px;">💡 Le réflexe malin&nbsp;: <b>télécharge tes documents importants</b> (planning Luna en PDF, idées, projections) au fur et à mesure, et sur iPhone, <b>ajoute l'app à ton écran d'accueil</b>.</p>
+    <div class="modal-actions"><button class="btn" id="datamodal-ok">J'ai compris</button></div>
+  </div>
+</div>
 <script>
 /* ================================================================
    PERSISTANCE — window.storage (IndexedDB)
@@ -2033,7 +2060,7 @@ const NAV = [
   { type:'group', name:'Mes trainings', open:true, items:[
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
-    { id:'exos',  ic:'📝', name:'Exercices corrigés' },
+    { id:'exos',  ic:'📝', name:'Exercices corrigés', nouveau:true },
   ]},
   { type:'group', name:'Mes outils', open:true, items:[
     { id:'croissance', ic:'📈', name:'Projection résultats' },
@@ -2068,7 +2095,9 @@ const NAV_ICONS = {
 };
 function mkItem(it){
   const icon = NAV_ICONS[it.id] || esc(it.ic || '');
-  const inner = `<span class="ic">${icon}</span><span>${esc(it.name)}</span>` + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '');
+  const inner = `<span class="ic">${icon}</span><span>${esc(it.name)}</span>`
+    + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '')
+    + (it.nouveau ? `<span class="new-badge">NEW</span>` : '');
   const b = el('button', 'nav-item' + (it.soon ? ' soon' : ''), inner);
   if(it.soon){ b.disabled = true; b.title = 'Bientôt disponible'; return b; }
   b.dataset.go = it.id;
@@ -2105,6 +2134,9 @@ const openSide  = ()=>{ $('#side').classList.add('open'); $('#scrim').classList.
 const closeSide = ()=>{ $('#side').classList.remove('open'); $('#scrim').classList.remove('on'); };
 $('#burger').addEventListener('click', openSide);
 $('#scrim').addEventListener('click', closeSide);
+$('#data-btn').addEventListener('click', ()=> $('#datamodal').classList.add('on'));
+$('#datamodal-ok').addEventListener('click', ()=> $('#datamodal').classList.remove('on'));
+$('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $('#datamodal').classList.remove('on'); });
 $('#btn-profil').addEventListener('click', ()=>go('profil'));
 buildNav();
 
