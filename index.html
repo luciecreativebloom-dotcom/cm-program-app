@@ -727,6 +727,9 @@ p{margin:0 0 12px;}
 .exo-shead .es-tag{flex:0 0 auto;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   padding:3px 8px;border-radius:999px;}
 .es-tag.done{background:rgba(76,175,80,.15);color:#14532D;}
+.es-tag.sc-red{background:rgba(211,47,47,0.14);color:#B3261E;}
+.es-tag.sc-orange{background:rgba(234,138,46,0.16);color:#8A4B00;}
+.es-tag.sc-green{background:rgba(76,175,80,.15);color:#14532D;}
 .es-tag.soon{background:var(--paper-2);color:var(--ink-3);}
 .exo-shead .es-ar{flex:0 0 auto;color:var(--ink-3);font-size:12px;transition:transform .15s;}
 .exo-subj.open .es-ar{transform:rotate(180deg);}
@@ -742,6 +745,12 @@ p{margin:0 0 12px;}
 .tscore-box{display:flex;align-items:center;gap:14px;margin-top:16px;padding:13px 15px;border-radius:12px;background:var(--sun-pale);}
 .tscore-badge{flex:0 0 auto;font-family:var(--display);font-size:27px;font-weight:700;color:var(--bloom);line-height:1;}
 .tscore-badge span{font-size:14px;color:var(--ink-3);font-weight:600;}
+.tscore-box.sc-red{background:rgba(211,47,47,0.10);}
+.tscore-box.sc-red .tscore-badge{color:#B3261E;}
+.tscore-box.sc-orange{background:rgba(234,138,46,0.13);}
+.tscore-box.sc-orange .tscore-badge{color:#8A4B00;}
+.tscore-box.sc-green{background:rgba(76,175,80,0.12);}
+.tscore-box.sc-green .tscore-badge{color:#14532D;}
 .tscore-bilan{font-size:13.5px;line-height:1.5;color:var(--ink);margin:0;}
 .treco{margin:0;padding:0;list-style:none;}
 .treco li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--ink-2);margin-bottom:6px;}
@@ -6419,7 +6428,7 @@ const EXOS = [
         lucie:"Le jour de leur mariage, tout a failli partir en vrille… Voici comment on a sauvé la journée" },
       { id:'ac4', ready:true, client:"Un copywriter", clientLc:"un copywriter",
         bof:"L'importance du copywriting pour ton business",
-        lucie:"Ce simple changement de phrase a doublé ses ventes en 24h" },
+        lucie:"Même offre, même prix : pourquoi tes concurrents vendent et pas toi (alors que tu travailles autant qu'eux)" },
       { id:'ac5', ready:true, client:"Un business coach", clientLc:"un business coach",
         bof:"Mes process en 5 étapes pour trouver des clients",
         lucie:"Alice a trouvé ses 3 premiers clients sans site, sans logo et sans audience" }
@@ -6546,7 +6555,7 @@ function exosGenreHTML(g){
     else if(unlocked) tag = `<span class="es-tag done">Correction dispo</span>`;
     const title = s.ready ? s.title : (s.title || `Exercice ${i+1}`);
     const thumb = s.img
-      ? `<span class="es-photo"><img src="${s.img}" alt="" loading="lazy" style="object-position:${s.imgPos||'50% 25%'};"></span>`
+      ? `<span class="es-photo"><img src="${s.img}?v=2" alt="" loading="lazy" style="object-position:${s.imgPos||'50% 25%'};"></span>`
       : `<span class="es-num">${i+1}</span>`;
     const head = `<button class="exo-shead" data-subj="${s.id}" ${s.ready?'':'data-soon="1"'}>
         ${thumb}
@@ -6603,7 +6612,8 @@ function renderExos(){
 function titlesResultHTML(s, r){
   const pf = (r.points_forts||[]).filter(Boolean);
   const am = (r.ameliorations||[]).filter(Boolean);
-  return `<div class="tscore-box">
+  const cls = r.note <= 3 ? 'sc-red' : (r.note <= 6 ? 'sc-orange' : 'sc-green');
+  return `<div class="tscore-box ${cls}">
       <div class="tscore-badge">${r.note}<span>/10</span></div>
       <p class="tscore-bilan">${esc(r.bilan||'')}</p>
     </div>
@@ -6626,7 +6636,8 @@ function titlesGenreHTML(g){
   const items = g.subjects.map((s,i)=>{
     const open = exosOpenSubj === s.id;
     const st = TITLES_STATE[s.id] || {};
-    const tag = (st.result!=null) ? `<span class="es-tag done">Noté ${st.result.note}/10</span>` : '';
+    const tcls = (st.result==null) ? '' : (st.result.note <= 3 ? 'sc-red' : (st.result.note <= 6 ? 'sc-orange' : 'sc-green'));
+    const tag = (st.result!=null) ? `<span class="es-tag ${tcls}">Noté ${st.result.note}/10</span>` : '';
     return `<div class="exo-subj genre-accroches ${open?'open':''}">
         <button class="exo-shead" data-tsubj="${s.id}">
           <span class="es-num">${i+1}</span>
