@@ -776,7 +776,17 @@ p{margin:0 0 12px;}
 .isect .is-h{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
 .isect .is-n{font-family:var(--display);font-weight:700;font-size:17px;color:var(--bloom);}
 .isect .is-num{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--bloom-pale);color:var(--bloom);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
-.isect .is-why{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-bottom:10px;}
+.isect .is-why{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-bottom:12px;}
+.is-pl{margin:0 0 11px;}
+.is-pl-h{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px;}
+.is-pl.ok .is-pl-h{color:#14532D;}
+.is-pl.warn .is-pl-h{color:#8A4B00;}
+.is-pl ul{list-style:none;margin:0;padding:0;}
+.is-pl li{position:relative;padding-left:16px;font-size:13px;line-height:1.5;color:var(--ink-2);margin-bottom:4px;}
+.is-pl li::before{content:'';position:absolute;left:3px;top:7px;width:5px;height:5px;border-radius:50%;}
+.is-pl.ok li::before{background:#4CAF50;}
+.is-pl.warn li::before{background:var(--sun);}
+.isect .is-cl-lab{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:2px 0 7px;}
 .isect .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
 .isect .is-cl span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
 .icible{display:inline-flex;align-items:center;gap:7px;background:var(--bloom-pale);color:var(--bloom);border-radius:999px;padding:6px 8px 6px 13px;font-size:13px;font-weight:600;margin:0 6px 6px 0;}
@@ -6800,9 +6810,13 @@ function idealWizardHTML(){
 }
 function idealResultHTML(){
   if(!IDEAL.result || !Array.isArray(IDEAL.result.secteurs)) return '';
+  const plist=(cls,h,arr)=> (arr&&arr.length)?`<div class="is-pl ${cls}"><div class="is-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
   const cards = IDEAL.result.secteurs.map((sec,i)=>`<div class="isect">
       <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span></div>
       <p class="is-why">${esc(sec.pourquoi||'')}</p>
+      ${plist('ok','✓ Avantages pour toi', sec.avantages)}
+      ${plist('warn','⚠ Points de vigilance', sec.inconvenients)}
+      <div class="is-cl-lab">Clients à aller chercher</div>
       <div class="is-cl">${(sec.clients||[]).map(c=>`<span>${esc(c)}</span>`).join('')}</div>
     </div>`).join('');
   return `<div style="display:flex;align-items:center;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">Tes 3 secteurs & leurs clients</p>
@@ -6898,23 +6912,33 @@ function drawIdeal(){
 async function idealAnalyze(){
   const a = IDEAL.screen;
   if(!(a.univers && a.univers.length)){ toast("Choisis au moins un univers qui t'attire."); return; }
-  const res=$('#ideal-result'); if(res) res.innerHTML = loadingBox('On cherche les secteurs qui te correspondent…');
+  const res=$('#ideal-result'); if(res) res.innerHTML = loadingBox('Merci ! Laisse-moi réfléchir quelques minutes pour analyser tout ça…');
   const sys = VOIX + "\nTu aides une community manager freelance à identifier les SECTEURS de clients qui lui correspondent le mieux, selon ses goûts et ses contraintes. Tu es concrète et ancrée dans la réalité du terrain.";
   const j=v=>Array.isArray(v)?(v.join(', ')||'non précisé'):(v||'non précisé');
-  const prompt = `Préférences de l'élève :
+  const prompt = `Tu t'adresses DIRECTEMENT à une community manager qui vient de répondre à un questionnaire. Voici SES réponses :
 - Lieu de travail : ${j(a.lieu)}
 - Créer du contenu photo/vidéo : ${j(a.contenu)}
 - Public : ${j(a.public)}
-- Univers qui l'attirent : ${j(a.univers)}
-- Ce qui compte pour elle : ${j(a.valeurs)}
-- Secteurs / clients dont elle rêve : ${(Array.isArray(a.reve)&&a.reve.length)?a.reve.join(' ; '):'—'}
+- Univers qui t'attirent : ${j(a.univers)}
+- Ce qui compte pour toi : ${j(a.valeurs)}
+- Secteurs / clients dont tu rêves : ${(Array.isArray(a.reve)&&a.reve.length)?a.reve.join(' ; '):'—'}
 
-Propose EXACTEMENT 3 grands secteurs d'activité clients qui lui correspondraient le mieux, en tenant compte à la fois de ses goûts ET de ses contraintes (lieu, aisance avec le contenu, public).
-Pour chaque secteur : "pourquoi" = 2 phrases expliquant en quoi il colle à SES réponses ; "clients" = 5 à 7 types de clients concrets et précis de ce secteur (des métiers / activités, jamais des noms de marque).
+Propose EXACTEMENT 3 grands secteurs d'activité clients qui TE correspondraient le mieux.
+Ne te limite PAS aux petites entreprises locales basiques : pense large et varie les échelles — TPE/PME, mais aussi grands groupes, marques nationales, collectivités et institutions publiques, associations, écoles/universités, e-commerce, startups… tout secteur qui a un besoin de communication et qui peut faire appel à un Community Manager (en interne comme en externe).
+Prends tes CONTRAINTES au sérieux, comme de vrais filtres — un secteur qui les heurte n'est pas idéal :
+- si tu ne veux PAS travailler en local, écarte (ou signale comme frein) les secteurs très ancrés localement, notamment ceux qui vendent beaucoup de produits physiques (commerces, artisanat à vendre sur place…) ;
+- si tu ne veux PAS faire de photo/vidéo, les secteurs très visuels (food, mode, déco, beauté…) deviennent un frein important à signaler ;
+- respecte aussi ton public (B2B / B2C) et le budget des clients.
+Adresse-toi DIRECTEMENT à toi en TUTOYANT partout (« tu », « ton », « tu recherches ») — JAMAIS de 3e personne (jamais « elle », « son », « ses »).
+Pour chaque secteur :
+- "pourquoi" = 2 phrases qui expliquent en quoi ce secteur te correspond ;
+- "avantages" = 2 ou 3 points concrets, à ton avantage selon TES réponses ;
+- "inconvenients" = 1 à 3 points de vigilance / freins RÉELS et concrets pour un CM freelance, adaptés au secteur. Sois honnête, ne minimise pas. Pense notamment, quand ça s'y prête, à la réalité du marché : certains secteurs (grands groupes, collectivités…) ont déjà un service communication et préfèrent recruter un CM en interne (salarié) plutôt qu'un freelance ; les structures à petit budget préfèrent souvent un stagiaire ou un alternant ; certains secteurs précaires ou en début d'activité (ex : artisans qui démarrent) ont peu de budget, gardent leur chiffre d'affaires pour eux et ont peur de déléguer / de perdre de l'argent ; ajoute aussi les freins liés à TES réponses (contenu visuel, local…) ;
+- "clients" = 5 à 7 types de clients concrets et précis (des métiers / activités, jamais des noms de marque).
 Réponds UNIQUEMENT en JSON strict, sans texte autour :
-{"secteurs":[{"nom":"","pourquoi":"","clients":["",""]}]}`;
+{"secteurs":[{"nom":"","pourquoi":"","avantages":["",""],"inconvenients":["",""],"clients":["",""]}]}`;
   try{
-    const d = extractJson(await ask(prompt, {system:sys, max_tokens:2200}));
+    const d = extractJson(await ask(prompt, {system:sys, max_tokens:3200}));
     if(!d || !Array.isArray(d.secteurs) || !d.secteurs.length) throw new Error('vide');
     IDEAL.result = d; idealSave(); drawIdeal();
     const r=$('#ideal-result'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
