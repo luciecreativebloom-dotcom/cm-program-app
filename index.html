@@ -7032,11 +7032,11 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
 async function idealGen(){
   if(!IDEAL.selSectors.length){ toast('Choisis au moins un secteur.'); return; }
   const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(IDEAL.selSectors.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
-  const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer aux professionnels d'un secteur pour comprendre leurs problèmes réels, leurs mots exacts, leurs habitudes et leurs budgets.";
+  const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer aux professionnels d'un secteur pour comprendre leurs problèmes réels, leurs mots exacts, leurs habitudes et leurs budgets. IMPORTANT : le questionnaire s'adresse à des professionnels qu'on ne connaît pas — rédige-le entièrement en VOUVOIEMENT (« vous »), sur un ton professionnel et poli.";
   const mk = (secteur)=>`Secteur ciblé : ${secteur}
 Crée UN questionnaire de besoins de 10 questions maximum, adapté aux professionnels / entreprises de ce secteur.
 Mélange environ 6 questions FERMÉES (chacune avec 3 à 5 options de réponse, pour des données chiffrées : budget, fréquence, canaux, priorités…) et environ 4 questions OUVERTES (sans options, pour recueillir le verbatim : problèmes, frustrations, mots exacts, envies).
-Formule des questions simples et directes, adressées à la cible. "cible" = le nom du secteur. "intro" = une phrase d'introduction chaleureuse.
+Rédige toutes les questions ET l'intro en VOUVOIEMENT (« vous »), sur un ton professionnel et poli — jamais de tutoiement. "cible" = le nom du secteur. "intro" = une phrase d'introduction professionnelle et courtoise.
 Réponds UNIQUEMENT en JSON strict, sans texte autour :
 {"cible":"","intro":"","questions":[{"type":"fermee","texte":"","options":["",""]},{"type":"ouverte","texte":""}]}`;
   try{
