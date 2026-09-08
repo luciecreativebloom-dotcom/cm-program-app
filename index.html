@@ -6907,6 +6907,14 @@ function idealSelSectorsHTML(){
     return `<button class="ichip${on?' on':''}" data-selsec="${esc(sname)}">${esc(sname)}</button>`;
   }).join('')+`</div>`;
 }
+function idealCarnetHTML(){
+  if(!IDEAL.savedSectors.length) return '';
+  return `<div class="card pad-l" style="margin-top:16px;">
+      <p class="sec-t" style="margin:0 0 4px;">🗂 Mon carnet de secteurs</p>
+      <p class="hint" style="margin:0 0 12px;">Les secteurs que tu enregistres s'accumulent ici, même après une nouvelle recherche — tu peux viser plusieurs univers différents. Tu les retrouveras dans l'exercice 2.</p>
+      <div>${IDEAL.savedSectors.map((sname,i)=>`<span class="icible">${esc(sname)}<button data-carnetdel="${i}" aria-label="Retirer">×</button></span>`).join('')}</div>
+    </div>`;
+}
 
 function drawIdeal(){
   const box = $('#ideal-body'); if(!box) return;
@@ -6921,6 +6929,7 @@ function drawIdeal(){
       </div>
       ${IDEAL.result ? '' : idealWizardHTML()}
       <div id="ideal-result">${idealResultHTML()}</div>
+      <div id="ideal-carnet">${idealCarnetHTML()}</div>
     </div>
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
       <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
@@ -6958,7 +6967,14 @@ function drawIdeal(){
   box.querySelectorAll('[data-savesec]').forEach(b=> b.addEventListener('click', ()=>{
     const nom=b.dataset.savesec; const i=IDEAL.savedSectors.indexOf(nom);
     if(i>=0){ IDEAL.savedSectors.splice(i,1); const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1); }
-    else { IDEAL.savedSectors.push(nom); toast('Secteur enregistré'); }
+    else { IDEAL.savedSectors.push(nom); toast('Secteur ajouté à ton carnet'); }
+    idealSave(); drawIdeal();
+  }));
+  // retirer un secteur du carnet
+  box.querySelectorAll('[data-carnetdel]').forEach(b=> b.addEventListener('click', ()=>{
+    const nom=IDEAL.savedSectors[+b.dataset.carnetdel];
+    IDEAL.savedSectors.splice(+b.dataset.carnetdel,1);
+    const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1);
     idealSave(); drawIdeal();
   }));
   // sélection des secteurs (onglet 2, max 2)
