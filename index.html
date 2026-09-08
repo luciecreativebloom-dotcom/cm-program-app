@@ -790,6 +790,33 @@ p{margin:0 0 12px;}
 .isect .is-save.on{background:rgba(76,175,80,.12);border-color:rgba(76,175,80,.5);color:#14532D;}
 .isect .is-cl-lab{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:2px 0 7px;}
 .isect .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
+/* banderole nouvelle fonctionnalité */
+.promo-banner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:130;width:calc(100% - 32px);max-width:520px;
+  display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,var(--bloom),#a8335a);color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 16px 38px rgba(59,14,31,.34);animation:pbUp .38s cubic-bezier(.2,.7,.2,1);}
+@keyframes pbUp{from{opacity:0;transform:translateX(-50%) translateY(18px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.promo-banner .pb-ic{flex:0 0 auto;line-height:1;display:flex;}
+.promo-banner .pb-ic svg{width:19px;height:19px;display:block;}
+.promo-banner .pb-txt{flex:1;min-width:0;font-size:14px;line-height:1.35;}
+.promo-banner .pb-txt b{font-weight:800;}
+.promo-banner .pb-cta{flex:0 0 auto;background:#fff;color:var(--bloom);border:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s;}
+.promo-banner .pb-cta:hover{opacity:.88;}
+.promo-banner .pb-close{flex:0 0 auto;background:rgba(255,255,255,.2);border:none;color:#fff;width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;cursor:pointer;}
+.promo-banner .pb-close:hover{background:rgba(255,255,255,.35);}
+@media(max-width:560px){.promo-banner{flex-wrap:wrap;}.promo-banner .pb-txt{flex:1 1 100%;}.promo-banner .pb-cta{margin-left:auto;}}
+/* carnet de secteurs (accordéon) */
+.cn-item{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:var(--paper);}
+.cn-item:last-child{margin-bottom:0;}
+.cn-head{display:flex;align-items:center;}
+.cn-toggle{flex:1;min-width:0;display:flex;align-items:center;gap:9px;background:none;border:none;cursor:pointer;text-align:left;padding:12px 6px 12px 14px;font-family:var(--display);font-weight:700;font-size:14.5px;color:var(--bloom);}
+.cn-toggle .cn-ar{flex:0 0 auto;font-size:11px;color:var(--ink-3);transition:transform .18s;}
+.cn-item.open .cn-toggle .cn-ar{transform:rotate(90deg);}
+.cn-del{flex:0 0 auto;border:none;background:none;color:var(--ink-3);font-size:19px;line-height:1;cursor:pointer;padding:0 14px;}
+.cn-del:hover{color:var(--bloom);}
+.cn-body{padding:2px 15px 15px;}
+.cn-body .is-why{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-bottom:11px;}
+.cn-body .is-cl-lab{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:2px 0 7px;}
+.cn-body .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
+.cn-body .is-cl span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
 .isect .is-cl span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
 .icible{display:inline-flex;align-items:center;gap:7px;background:var(--bloom-pale);color:var(--bloom);border-radius:999px;padding:6px 8px 6px 13px;font-size:13px;font-weight:600;margin:0 6px 6px 0;}
 .icible button{border:none;background:rgba(140,27,68,.14);color:var(--bloom);width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;}
@@ -1366,6 +1393,12 @@ p{margin:0 0 12px;}
 </div>
 <div class="toast" id="toast"></div>
 <div class="working" id="working" aria-live="polite"><span class="spin-sm"></span><span id="working-txt">L'outil travaille…</span></div>
+<div class="promo-banner" id="promo-banner" hidden>
+  <span class="pb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
+  <span class="pb-txt"><b>Nouvelle fonctionnalité :</b> Client idéal</span>
+  <button class="pb-cta" id="promo-cta">Découvrir</button>
+  <button class="pb-close" id="promo-close" aria-label="Fermer">×</button>
+</div>
 <div class="modal" id="datamodal" role="dialog" aria-modal="true">
   <div class="modal-card" style="max-width:450px;text-align:left;">
     <p class="sec-t" style="color:var(--bloom);margin-bottom:9px;">Où sont enregistrées tes données&nbsp;?</p>
@@ -1770,10 +1803,13 @@ async function enterApp(){
   await loadTaches();
   await loadMtasks();
   await loadExosState();
+  try{ SEEN_NEW = (await getJSON('cmp:seen-new', [])) || []; if(!Array.isArray(SEEN_NEW)) SEEN_NEW = []; }catch(e){ SEEN_NEW = []; }
+  buildNav();
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil(); drawMtasks();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
   renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal();
+  try{ const seenPromo = await sget('cmp:seen-ideal-banner'); const pb=$('#promo-banner'); if(pb && !seenPromo) pb.hidden=false; }catch(e){}
   paintQuotas();
 }
 async function doLogin(){
@@ -2149,7 +2185,7 @@ const NAV = [
   { type:'group', name:'Mes trainings', open:true, items:[
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
-    { id:'exos',  ic:'📝', name:'Exercices corrigés', nouveau:true },
+    { id:'exos',  ic:'📝', name:'Exercices corrigés' },
   ]},
   { type:'group', name:'Mes outils', open:true, items:[
     { id:'croissance', ic:'📈', name:'Projection résultats' },
@@ -2179,11 +2215,13 @@ const NAV_ICONS = {
   alfie:     SVG('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>'),
   luna:      SVG('<path d="M21 12.8A8 8 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/>')
 };
+let SEEN_NEW = [];  // ids des items dont le badge NEW a déjà été vu (cliqué)
 function mkItem(it){
   const icon = NAV_ICONS[it.id] || esc(it.ic || '');
+  const showNew = it.nouveau && SEEN_NEW.indexOf(it.id) < 0;
   const inner = `<span class="ic">${icon}</span><span>${esc(it.name)}</span>`
     + (it.soon ? `<span class="soon-badge">BIENTÔT</span>` : '')
-    + (it.nouveau ? `<span class="new-badge">NEW</span>` : '');
+    + (showNew ? `<span class="new-badge">NEW</span>` : '');
   const b = el('button', 'nav-item' + (it.soon ? ' soon' : ''), inner);
   if(it.soon){ b.disabled = true; b.title = 'Bientôt disponible'; return b; }
   b.dataset.go = it.id;
@@ -2202,10 +2240,17 @@ function buildNav(){
     g.appendChild(t); g.appendChild(sub); nav.appendChild(g);
   });
 }
+function navItemById(id){
+  for(const n of NAV){ if(n.type==='item' && n.id===id) return n; if(n.items){ const f=n.items.find(x=>x.id===id); if(f) return f; } }
+  return null;
+}
 function go(id){
   $$('.view').forEach(v=>v.classList.toggle('on', v.id === 'v-'+id));
   $('#main').classList.toggle('wide', id === 'insta');
   if(id === 'insta' && typeof imDraw === 'function') imDraw();
+  // badge NEW : disparaît définitivement une fois l'item ouvert
+  const _it = navItemById(id);
+  if(_it && _it.nouveau && SEEN_NEW.indexOf(id) < 0){ SEEN_NEW.push(id); try{ setJSON('cmp:seen-new', SEEN_NEW); }catch(e){} buildNav(); }
   $$('.nav-item').forEach(b=>b.classList.toggle('on', b.dataset.go === id));
   const owner = NAV.find(n=>n.type==='group' && n.items.some(i=>i.id===id));
   if(owner){
@@ -2223,6 +2268,10 @@ $('#scrim').addEventListener('click', closeSide);
 $('#data-btn').addEventListener('click', ()=> $('#datamodal').classList.add('on'));
 $('#datamodal-ok').addEventListener('click', ()=> $('#datamodal').classList.remove('on'));
 $('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $('#datamodal').classList.remove('on'); });
+/* --- Banderole « Nouvelle fonctionnalité : Client idéal » (une seule fois) --- */
+function dismissPromo(){ const pb=$('#promo-banner'); if(pb) pb.hidden=true; sset('cmp:seen-ideal-banner','1'); }
+const pcta=$('#promo-cta'); if(pcta) pcta.addEventListener('click', ()=>{ dismissPromo(); go('ideal'); window.scrollTo({top:0,behavior:'smooth'}); });
+const pcl=$('#promo-close'); if(pcl) pcl.addEventListener('click', dismissPromo);
 /* --- Sauvegarde / restauration de toutes les données --- */
 async function dataExport(){
   let data = {};
@@ -6817,7 +6866,7 @@ const IDEAL_Q = [
   {k:'valeurs', t:"Ce qui compte pour toi chez un client", multi:true, opts:["Valeurs écolo / durables","Créativité & esthétique","Chaleur & lien humain","Univers premium","Impact social","Innovation","Peu importe"]},
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
-const IDEAL_MAX_SEARCH = 3;
+const IDEAL_MAX_SEARCH = 2;
 let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, _loaded:false };
 function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests}); }catch(e){} }
 
@@ -6826,6 +6875,7 @@ async function renderIdeal(){
     const sv = await getJSON('cmp:ideal', null);
     if(sv && typeof sv==='object') IDEAL = Object.assign(IDEAL, sv);
     if(!Array.isArray(IDEAL.savedSectors)) IDEAL.savedSectors = [];
+    IDEAL.savedSectors = IDEAL.savedSectors.map(s=> typeof s==='string' ? {nom:s} : s).filter(s=> s && s.nom);
     if(!Array.isArray(IDEAL.selSectors)) IDEAL.selSectors = [];
     if(typeof IDEAL.searchCount !== 'number') IDEAL.searchCount = 0;
     IDEAL._loaded = true;
@@ -6867,7 +6917,7 @@ function idealResultHTML(){
   if(!IDEAL.result || !Array.isArray(IDEAL.result.secteurs)) return '';
   const plist=(cls,h,arr)=> (arr&&arr.length)?`<div class="is-pl ${cls}"><div class="is-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
   const cards = IDEAL.result.secteurs.map((sec,i)=>{
-    const saved = IDEAL.savedSectors.includes(sec.nom);
+    const saved = IDEAL.savedSectors.some(s=> s.nom===sec.nom);
     return `<div class="isect">
       <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span>
         <button class="btn ghost xs is-save${saved?' on':''}" data-savesec="${esc(sec.nom||'')}" style="margin-left:auto;flex:none;">${saved?'✓ Enregistré':'Enregistrer'}</button></div>
@@ -6902,17 +6952,33 @@ function idealQuestHTML(){
 }
 function idealSelSectorsHTML(){
   if(!IDEAL.savedSectors.length) return `<div class="hint">Va d'abord dans l'onglet « Trouver mon secteur », lance une recherche, puis clique sur <b>Enregistrer</b> sous les secteurs qui t'intéressent — ils apparaîtront ici.</div>`;
-  return `<div class="ichips">`+IDEAL.savedSectors.map(sname=>{
-    const on = IDEAL.selSectors.includes(sname);
-    return `<button class="ichip${on?' on':''}" data-selsec="${esc(sname)}">${esc(sname)}</button>`;
+  return `<div class="ichips">`+IDEAL.savedSectors.map(sec=>{
+    const on = IDEAL.selSectors.includes(sec.nom);
+    return `<button class="ichip${on?' on':''}" data-selsec="${esc(sec.nom)}">${esc(sec.nom)}</button>`;
   }).join('')+`</div>`;
 }
 function idealCarnetHTML(){
   if(!IDEAL.savedSectors.length) return '';
-  return `<div class="card pad-l" style="margin-top:16px;">
+  const plist=(cls,h,arr)=> (arr&&arr.length)?`<div class="is-pl ${cls}"><div class="is-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+  const items = IDEAL.savedSectors.map((sec,i)=>{
+    const open = IDEAL.carnetOpen === sec.nom;
+    const details = open ? `<div class="cn-body">
+        ${sec.pourquoi?`<p class="is-why" style="margin-bottom:11px;">${esc(sec.pourquoi)}</p>`:''}
+        ${plist('ok','✓ Avantages pour toi', sec.avantages)}
+        ${plist('warn','⚠ Points de vigilance', sec.inconvenients)}
+        ${(sec.clients&&sec.clients.length)?`<div class="is-cl-lab">Clients à aller chercher</div><div class="is-cl">${sec.clients.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`:''}
+      </div>` : '';
+    return `<div class="cn-item${open?' open':''}">
+        <div class="cn-head">
+          <button class="cn-toggle" data-cnopen="${esc(sec.nom)}"><span class="cn-ar">▸</span><span>${esc(sec.nom)}</span></button>
+          <button class="cn-del" data-carnetdel="${i}" aria-label="Retirer">×</button>
+        </div>${details}
+      </div>`;
+  }).join('');
+  return `<div class="card pad-l" style="margin-bottom:16px;">
       <p class="sec-t" style="margin:0 0 4px;">🗂 Mon carnet de secteurs</p>
-      <p class="hint" style="margin:0 0 12px;">Les secteurs que tu enregistres s'accumulent ici, même après une nouvelle recherche — tu peux viser plusieurs univers différents. Tu les retrouveras dans l'exercice 2.</p>
-      <div>${IDEAL.savedSectors.map((sname,i)=>`<span class="icible">${esc(sname)}<button data-carnetdel="${i}" aria-label="Retirer">×</button></span>`).join('')}</div>
+      <p class="hint" style="margin:0 0 12px;">Tes secteurs enregistrés s'accumulent ici (avec leurs avantages, points de vigilance et clients à cibler), même après une nouvelle recherche. Clique sur un secteur pour revoir tout le détail.</p>
+      ${items}
     </div>`;
 }
 
@@ -6923,13 +6989,13 @@ function drawIdeal(){
       <button class="sph-tab${IDEAL.tab==='quest'?' on':''}" data-itab="quest">2 · Créer mon questionnaire</button>
     </div>
     <div id="ideal-pane-secteur"${IDEAL.tab==='secteur'?'':' style="display:none;"'}>
+      <div id="ideal-carnet">${idealCarnetHTML()}</div>
       <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
         <p class="sec-t">Comment ça marche</p>
         <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Le client idéal, c'est avec qui tu vas travailler, et ça ne se décide pas à l'aveuglette. On va réaliser une vraie <strong style="color:var(--ink);">étude des besoins</strong> pour comprendre avec qui tu peux envisager de travailler, et ce que tu peux lui proposer. Réponds à ces quelques questions, et je te propose <strong style="color:var(--ink);">3 grands secteurs</strong> qui te correspondent, avec tous les types de clients à aller y chercher.</p>
       </div>
       ${IDEAL.result ? '' : idealWizardHTML()}
       <div id="ideal-result">${idealResultHTML()}</div>
-      <div id="ideal-carnet">${idealCarnetHTML()}</div>
     </div>
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
       <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
@@ -6965,14 +7031,19 @@ function drawIdeal(){
   const nw=$('#ideal-new'); if(nw) nw.addEventListener('click', ()=>{ IDEAL.result=null; IDEAL.qstep=0; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
   // enregistrer un secteur
   box.querySelectorAll('[data-savesec]').forEach(b=> b.addEventListener('click', ()=>{
-    const nom=b.dataset.savesec; const i=IDEAL.savedSectors.indexOf(nom);
-    if(i>=0){ IDEAL.savedSectors.splice(i,1); const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1); }
-    else { IDEAL.savedSectors.push(nom); toast('Secteur ajouté à ton carnet'); }
+    const nom=b.dataset.savesec; const idx=IDEAL.savedSectors.findIndex(s=> s.nom===nom);
+    if(idx>=0){ IDEAL.savedSectors.splice(idx,1); const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1); }
+    else { const sec=((IDEAL.result&&IDEAL.result.secteurs)||[]).find(s=> s.nom===nom);
+      if(sec){ IDEAL.savedSectors.push({nom:sec.nom, pourquoi:sec.pourquoi||'', avantages:sec.avantages||[], inconvenients:sec.inconvenients||[], clients:sec.clients||[]}); toast('Secteur ajouté à ton carnet'); } }
     idealSave(); drawIdeal();
+  }));
+  // ouvrir / fermer le détail d'un secteur du carnet
+  box.querySelectorAll('[data-cnopen]').forEach(b=> b.addEventListener('click', ()=>{
+    const nom=b.dataset.cnopen; IDEAL.carnetOpen = (IDEAL.carnetOpen===nom)?null:nom; drawIdeal();
   }));
   // retirer un secteur du carnet
   box.querySelectorAll('[data-carnetdel]').forEach(b=> b.addEventListener('click', ()=>{
-    const nom=IDEAL.savedSectors[+b.dataset.carnetdel];
+    const removed=IDEAL.savedSectors[+b.dataset.carnetdel]; const nom=removed&&removed.nom;
     IDEAL.savedSectors.splice(+b.dataset.carnetdel,1);
     const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1);
     idealSave(); drawIdeal();
