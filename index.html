@@ -758,6 +758,41 @@ p{margin:0 0 12px;}
 .tlucie{margin-top:16px;padding:14px 15px;border-radius:12px;background:rgba(76,175,80,0.10);border:1px solid rgba(76,175,80,0.35);}
 .tlucie-h{font-weight:700;font-size:13.5px;color:#14532D;margin-bottom:5px;}
 .tlucie p{font-size:14px;line-height:1.5;color:var(--ink);margin:0;font-style:italic;}
+
+/* ---- Client idéal ---- */
+.iq{margin-bottom:16px;}
+.iwiz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px 18px;box-shadow:var(--shadow-s);}
+.iwiz-top{display:flex;align-items:center;gap:12px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;}
+.iwiz-top .iwiz-bar{flex:1;height:5px;border-radius:999px;background:var(--paper-2);overflow:hidden;}
+.iwiz-top .iwiz-bar i{display:block;height:100%;background:var(--bloom);border-radius:999px;transition:width .3s;}
+.iwiz-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;}
+.iq-l{font-weight:600;font-size:14px;color:var(--ink);margin-bottom:8px;}
+.iq-l .opt-hint{font-weight:400;font-size:12px;color:var(--ink-3);margin-left:4px;}
+.ichips{display:flex;flex-wrap:wrap;gap:7px;}
+.ichip{padding:7px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);font-size:12.5px;cursor:pointer;color:var(--ink-2);transition:all .12s;}
+.ichip:hover{border-color:var(--bloom-2);}
+.ichip.on{background:var(--bloom);border-color:var(--bloom);color:#fff;font-weight:600;}
+.isect{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 17px;margin-bottom:12px;}
+.isect .is-h{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.isect .is-n{font-family:var(--display);font-weight:700;font-size:17px;color:var(--bloom);}
+.isect .is-num{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--bloom-pale);color:var(--bloom);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.isect .is-why{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-bottom:10px;}
+.isect .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
+.isect .is-cl span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
+.icible{display:inline-flex;align-items:center;gap:7px;background:var(--bloom-pale);color:var(--bloom);border-radius:999px;padding:6px 8px 6px 13px;font-size:13px;font-weight:600;margin:0 6px 6px 0;}
+.icible button{border:none;background:rgba(140,27,68,.14);color:var(--bloom);width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.iquest{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 17px;margin-bottom:14px;}
+.iquest .iq-cible{font-family:var(--display);font-weight:700;font-size:16px;color:var(--bloom);margin-bottom:3px;}
+.iquest .iq-intro{font-size:12.5px;color:var(--ink-3);line-height:1.5;margin-bottom:12px;}
+.iqline{padding:9px 0;border-top:1px dashed var(--line);}
+.iqline:first-of-type{border-top:none;}
+.iqline .iqt{font-size:13.5px;line-height:1.5;color:var(--ink);}
+.iqline .iqt b{color:var(--bloom);margin-right:5px;}
+.iqbadge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:2px 7px;margin-top:5px;}
+.iqbadge.f{background:rgba(76,175,80,.15);color:#14532D;}
+.iqbadge.o{background:var(--sun-pale);color:#8A4B00;}
+.iqopts{margin:6px 0 0;padding-left:16px;}
+.iqopts li{font-size:12px;color:var(--ink-2);line-height:1.5;list-style:disc;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -1286,6 +1321,15 @@ p{margin:0 0 12px;}
       <div id="calc-out"></div>
     </section>
 
+    <!-- ---------- CLIENT IDÉAL ---------- -->
+    <section class="view" id="v-ideal">
+      <div class="view-head">
+        <p class="eyebrow sun">Mon business</p>
+        <h1>Client idéal</h1>
+      </div>
+      <div id="ideal-body"></div>
+    </section>
+
   </main>
 </div>
 <div class="modal" id="dlmodal" role="dialog" aria-modal="true">
@@ -1698,7 +1742,7 @@ async function enterApp(){
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil(); drawMtasks();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
-  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos();
+  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal();
   paintQuotas();
 }
 async function doLogin(){
@@ -2066,6 +2110,11 @@ const NAV = [
   { type:'item', id:'home',     ic:'🏠', name:'Accueil' },
   { type:'item', id:'progress', ic:'🌙', name:'Ma progression' },
   { type:'item', id:'rdv',      ic:'📅', name:'Mes rendez-vous' },
+  { type:'group', name:'Mon business', open:true, items:[
+    { id:'ideal',      ic:'🎯', name:'Client idéal', nouveau:true },
+    { id:'calc',       ic:'🧮', name:'Ma rentabilité' },
+    { id:'mission',    ic:'🗂', name:'Mon CRM' },
+  ]},
   { type:'group', name:'Mes trainings', open:true, items:[
     { id:'sim',   ic:'📞', name:"Simulateur d'appel" },
     { id:'sos',   ic:'🆘', name:'Jetons SOS' },
@@ -2075,10 +2124,6 @@ const NAV = [
     { id:'croissance', ic:'📈', name:'Projection résultats' },
     { id:'ideas',      ic:'💡', name:"Générateur d'idées" },
     { id:'insta',      ic:'🎨', name:'Studio créatif' },
-  ]},
-  { type:'group', name:'Mon business', items:[
-    { id:'calc',       ic:'🧮', name:'Ma rentabilité' },
-    { id:'mission',    ic:'🗂', name:'Mon CRM' },
   ]},
   { type:'group', name:'Mes assistants', items:[
     { id:'alfie', ic:'✍️', name:"Alfie · Copilote d'écriture" },
@@ -2099,6 +2144,7 @@ const NAV_ICONS = {
   insta:     SVG('<path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18 15l.6 1.6 1.7.6-1.7.6L18 19.4l-.6-1.6-1.7-.6 1.7-.6z"/>'),
   calc:      SVG('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>'),
   mission:   SVG('<circle cx="9" cy="9" r="3"/><path d="M4 20c0-3 2.3-5 5-5s5 2 5 5"/><path d="M16 6.4a3 3 0 0 1 0 5.6"/><path d="M15.5 15.2c2.3.3 3.9 2.1 3.9 4.8"/>'),
+  ideal:     SVG('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>'),
   alfie:     SVG('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>'),
   luna:      SVG('<path d="M21 12.8A8 8 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/>')
 };
@@ -2160,6 +2206,7 @@ const TILES_A = [
   { id:'luna', ic:'🌙', n:'Luna · Content Manager', d:"Ta stratégie de contenus, ton planning, tes scripts et tes carrousels." },
 ];
 const TILES_O = [
+  { id:'ideal', ic:'🎯', n:'Client idéal', d:"Trouve les secteurs qui te correspondent, puis crée ton questionnaire de besoins." },
   { id:'calc', ic:'🧮', n:'Ma rentabilité', d:"Le CA à faire et le taux horaire plancher, à partir de la vie que tu veux." },
   { id:'mission', ic:'🗂', n:'Mon CRM', d:"Tes clients et tes prospects : fiches, débriefs stratégiques et suivi." },
 ];
@@ -6695,6 +6742,204 @@ Maximum 2 points_forts et 3 ameliorations. Si le titre est vide de sens ou hors 
   }catch(e){
     if(res) res.innerHTML = errorBox("L'évaluation n'a pas abouti. Réessaie dans un instant.");
   }
+}
+</script>
+<script>
+/* ================================================================
+   CLIENT IDÉAL — 2 exercices : trouver les secteurs, créer le questionnaire
+   ================================================================ */
+const IDEAL_Q = [
+  {k:'lieu',    t:"Où préfères-tu travailler ?", multi:true, opts:["En local, près de chez moi","À distance / partout","Peu importe"]},
+  {k:'contenu', t:"Créer du contenu photo / vidéo toi-même ?", multi:false, opts:["J'adore ça","Ponctuellement, ça va","Je préfère éviter"]},
+  {k:'public',  t:"Tu es plus à l'aise avec…", multi:true, opts:["Les entreprises (B2B)","Les particuliers (B2C)"]},
+  {k:'univers', t:"Les univers qui t'attirent le plus", multi:true, opts:["Bien-être & santé","Beauté & mode","Food & restauration","Artisanat & déco","Coaching & business","Sport & fitness","Éducation & formation","Art & culture","Événementiel","Enfance & famille","Tourisme & voyage","Immobilier","Tech & digital","Luxe"]},
+  {k:'valeurs', t:"Ce qui compte pour toi chez un client", multi:true, opts:["Valeurs écolo / durables","Créativité & esthétique","Chaleur & lien humain","Univers premium","Impact social","Innovation","Peu importe"]},
+  {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
+];
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, cibles:[], quests:null, _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, cibles:IDEAL.cibles, quests:IDEAL.quests}); }catch(e){} }
+
+async function renderIdeal(){
+  if(!IDEAL._loaded){
+    const sv = await getJSON('cmp:ideal', null);
+    if(sv && typeof sv==='object') IDEAL = Object.assign(IDEAL, sv);
+    IDEAL._loaded = true;
+  }
+  drawIdeal();
+}
+
+function idealWizardHTML(){
+  const n = IDEAL_Q.length;
+  let i = IDEAL.qstep||0; if(i<0) i=0; if(i>n-1) i=n-1; IDEAL.qstep=i;
+  const q = IDEAL_Q[i];
+  let field;
+  if(q.list){
+    const arr = Array.isArray(IDEAL.screen[q.k]) ? IDEAL.screen[q.k] : [];
+    field = `<div style="display:flex;gap:8px;align-items:stretch;">
+        <input id="ideal-reve-in" type="text" placeholder="${esc(q.ph)}" style="flex:1;">
+        <button class="btn sm" id="ideal-reve-add" style="flex:none;">Ajouter</button>
+      </div>
+      <div id="ideal-reve-list" style="margin-top:11px;">${arr.length ? arr.map((c,ix)=>`<span class="icible">${esc(c)}<button data-revedel="${ix}" aria-label="Retirer">×</button></span>`).join('') : '<span class="hint">Facultatif — tu peux en ajouter plusieurs, ou passer.</span>'}</div>`;
+  }else{
+    field = `<div class="ichips">`+q.opts.map(o=>{
+      const on = q.multi ? (Array.isArray(IDEAL.screen[q.k])&&IDEAL.screen[q.k].includes(o)) : IDEAL.screen[q.k]===o;
+      return `<button class="ichip${on?' on':''}" data-iq="${q.k}" data-v="${esc(o)}">${esc(o)}</button>`;
+    }).join('')+`</div>`;
+  }
+  const pct = Math.round(((i+1)/n)*100);
+  const last = i===n-1;
+  return `<div class="iwiz">
+      <div class="iwiz-top"><span>Question ${i+1} / ${n}</span><div class="iwiz-bar"><i style="width:${pct}%"></i></div></div>
+      <div class="iq-l" style="font-size:16px;margin:4px 0 13px;">${esc(q.t)}${q.multi?'<span class="opt-hint">— plusieurs choix</span>':''}</div>
+      ${field}
+      <div class="iwiz-nav">
+        ${i>0 ? `<button class="btn ghost sm" id="ideal-prev">← Précédent</button>` : '<span></span>'}
+        ${last ? `<button class="btn" id="ideal-analyze">Trouver mes secteurs</button>` : `<button class="btn" id="ideal-next">Suivant →</button>`}
+      </div>
+    </div>`;
+}
+function idealResultHTML(){
+  if(!IDEAL.result || !Array.isArray(IDEAL.result.secteurs)) return '';
+  const cards = IDEAL.result.secteurs.map((sec,i)=>`<div class="isect">
+      <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span></div>
+      <p class="is-why">${esc(sec.pourquoi||'')}</p>
+      <div class="is-cl">${(sec.clients||[]).map(c=>`<span>${esc(c)}</span>`).join('')}</div>
+    </div>`).join('');
+  return `<div style="display:flex;align-items:center;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">Tes 3 secteurs & leurs clients</p>
+      <button class="btn ghost sm" id="ideal-new" style="margin-left:auto;">Nouvelle recherche</button></div>${cards}`;
+}
+function idealQuestHTML(){
+  if(!IDEAL.quests || !Array.isArray(IDEAL.quests.questionnaires)) return '';
+  const blocks = IDEAL.quests.questionnaires.map((q,qi)=>{
+    const lines = (q.questions||[]).map((qq,i)=>{
+      const opts = (qq.options&&qq.options.length) ? `<ul class="iqopts">${qq.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>` : '';
+      const ferm = (qq.type||'').toLowerCase().startsWith('ferm');
+      return `<div class="iqline"><div class="iqt"><b>${i+1}.</b>${esc(qq.texte||'')}</div>
+        <span class="iqbadge ${ferm?'f':'o'}">${ferm?'Fermée':'Ouverte'}</span>${opts}</div>`;
+    }).join('');
+    return `<div class="iquest"><div class="iq-cible">${esc(q.cible||'')}</div>
+      ${q.intro?`<div class="iq-intro">${esc(q.intro)}</div>`:''}${lines}
+      <button class="btn ghost sm" data-iqcopy="${qi}" style="margin-top:11px;">Copier ce questionnaire</button></div>`;
+  }).join('');
+  return `<p class="sec-t" style="margin:20px 0 10px;">Tes questionnaires de besoins</p>${blocks}
+    <div class="hint" style="margin-top:6px;">💡 Recrée chaque questionnaire sur un outil gratuit comme <b>Tally</b>, puis envoie-le à ta cible. Analyse ensuite les réponses&nbsp;: les mots qui reviennent, les problématiques communes, les budgets.</div>`;
+}
+function idealCiblesHTML(){
+  if(!IDEAL.cibles.length) return `<span class="hint">Aucune cible pour l'instant.</span>`;
+  return IDEAL.cibles.map((c,i)=>`<span class="icible">${esc(c)}<button data-icibledel="${i}" aria-label="Retirer">×</button></span>`).join('');
+}
+
+function drawIdeal(){
+  const box = $('#ideal-body'); if(!box) return;
+  box.innerHTML = `<div class="sph-nav" id="ideal-tabs">
+      <button class="sph-tab${IDEAL.tab==='secteur'?' on':''}" data-itab="secteur">1 · Trouver mon secteur</button>
+      <button class="sph-tab${IDEAL.tab==='quest'?' on':''}" data-itab="quest">2 · Créer mon questionnaire</button>
+    </div>
+    <div id="ideal-pane-secteur"${IDEAL.tab==='secteur'?'':' style="display:none;"'}>
+      <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
+        <p class="sec-t">Comment ça marche</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Le client idéal, c'est avec qui tu vas travailler, et ça ne se décide pas à l'aveuglette. On va réaliser une vraie <strong style="color:var(--ink);">étude des besoins</strong> pour comprendre avec qui tu peux envisager de travailler, et ce que tu peux lui proposer. Réponds à ces quelques questions, et je te propose <strong style="color:var(--ink);">3 grands secteurs</strong> qui te correspondent, avec tous les types de clients à aller y chercher.</p>
+      </div>
+      ${IDEAL.result ? '' : idealWizardHTML()}
+      <div id="ideal-result">${idealResultHTML()}</div>
+    </div>
+    <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
+      <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
+        <p class="sec-t">Comment ça marche</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Indique qui tu veux cibler (une ou plusieurs cibles). Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par cible</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.</p>
+      </div>
+      <div class="card pad-l">
+        <div class="field"><label for="ideal-cible-in">Qui veux-tu cibler&nbsp;?</label>
+          <div style="display:flex;gap:8px;align-items:stretch;">
+            <input id="ideal-cible-in" type="text" placeholder="Ex : naturopathes, coachs sportifs…" style="flex:1;">
+            <button class="btn sm" id="ideal-cible-add" style="flex:none;">Ajouter</button>
+          </div>
+        </div>
+        <div id="ideal-cibles" style="margin:12px 0 6px;">${idealCiblesHTML()}</div>
+        <button class="btn full" id="ideal-gen"${IDEAL.cibles.length?'':' disabled'}>Générer les questionnaires</button>
+      </div>
+      <div id="ideal-quests">${idealQuestHTML()}</div>
+    </div>`;
+
+  // tabs
+  $$('#ideal-tabs .sph-tab').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.tab=b.dataset.itab; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); }));
+  // screening chips
+  box.querySelectorAll('[data-iq]').forEach(b=> b.addEventListener('click', ()=>{
+    const k=b.dataset.iq, v=b.dataset.v, q=IDEAL_Q.find(x=>x.k===k);
+    if(q.multi){ let arr=Array.isArray(IDEAL.screen[k])?IDEAL.screen[k].slice():[]; const i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); IDEAL.screen[k]=arr; }
+    else IDEAL.screen[k] = (IDEAL.screen[k]===v)?null:v;
+    idealSave(); drawIdeal();
+  }));
+  // wizard navigation
+  const pv=$('#ideal-prev'); if(pv) pv.addEventListener('click', ()=>{ IDEAL.qstep=Math.max(0,(IDEAL.qstep||0)-1); idealSave(); drawIdeal(); });
+  const nx=$('#ideal-next'); if(nx) nx.addEventListener('click', ()=>{ IDEAL.qstep=Math.min(IDEAL_Q.length-1,(IDEAL.qstep||0)+1); idealSave(); drawIdeal(); });
+  // rêves (liste)
+  const raddF=()=>{ const inp=$('#ideal-reve-in'); if(!inp) return; const v=inp.value.trim(); if(!v) return; const arr=Array.isArray(IDEAL.screen.reve)?IDEAL.screen.reve:[]; if(!arr.includes(v)) arr.push(v); IDEAL.screen.reve=arr; inp.value=''; idealSave(); drawIdeal(); const n=$('#ideal-reve-in'); if(n) n.focus(); };
+  const radd=$('#ideal-reve-add'); if(radd) radd.addEventListener('click', raddF);
+  const rin=$('#ideal-reve-in'); if(rin) rin.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); raddF(); } });
+  box.querySelectorAll('[data-revedel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.screen.reve.splice(+b.dataset.revedel,1); idealSave(); drawIdeal(); }));
+  const an=$('#ideal-analyze'); if(an) an.addEventListener('click', idealAnalyze);
+  const nw=$('#ideal-new'); if(nw) nw.addEventListener('click', ()=>{ IDEAL.result=null; IDEAL.qstep=0; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
+  // cibles
+  const add=()=>{ const inp=$('#ideal-cible-in'); if(!inp) return; const v=inp.value.trim(); if(!v) return;
+    if(!IDEAL.cibles.includes(v)) IDEAL.cibles.push(v); inp.value=''; idealSave(); drawIdeal(); const n=$('#ideal-cible-in'); if(n) n.focus(); };
+  const ab=$('#ideal-cible-add'); if(ab) ab.addEventListener('click', add);
+  const ci=$('#ideal-cible-in'); if(ci) ci.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+  box.querySelectorAll('[data-icibledel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.cibles.splice(+b.dataset.icibledel,1); idealSave(); drawIdeal(); }));
+  const gn=$('#ideal-gen'); if(gn) gn.addEventListener('click', idealGen);
+  box.querySelectorAll('[data-iqcopy]').forEach(b=> b.addEventListener('click', ()=>{
+    const q=IDEAL.quests.questionnaires[+b.dataset.iqcopy]; if(!q) return;
+    let t=q.cible+'\n'+(q.intro||'')+'\n\n';
+    (q.questions||[]).forEach((qq,i)=>{ t+=(i+1)+'. '+qq.texte+' ['+(((qq.type||'').toLowerCase().startsWith('ferm'))?'fermée':'ouverte')+']\n'; (qq.options||[]).forEach(o=>t+='   - '+o+'\n'); });
+    copy(t);
+  }));
+}
+
+async function idealAnalyze(){
+  const a = IDEAL.screen;
+  if(!(a.univers && a.univers.length)){ toast("Choisis au moins un univers qui t'attire."); return; }
+  const res=$('#ideal-result'); if(res) res.innerHTML = loadingBox('On cherche les secteurs qui te correspondent…');
+  const sys = VOIX + "\nTu aides une community manager freelance à identifier les SECTEURS de clients qui lui correspondent le mieux, selon ses goûts et ses contraintes. Tu es concrète et ancrée dans la réalité du terrain.";
+  const j=v=>Array.isArray(v)?(v.join(', ')||'non précisé'):(v||'non précisé');
+  const prompt = `Préférences de l'élève :
+- Lieu de travail : ${j(a.lieu)}
+- Créer du contenu photo/vidéo : ${j(a.contenu)}
+- Public : ${j(a.public)}
+- Univers qui l'attirent : ${j(a.univers)}
+- Ce qui compte pour elle : ${j(a.valeurs)}
+- Secteurs / clients dont elle rêve : ${(Array.isArray(a.reve)&&a.reve.length)?a.reve.join(' ; '):'—'}
+
+Propose EXACTEMENT 3 grands secteurs d'activité clients qui lui correspondraient le mieux, en tenant compte à la fois de ses goûts ET de ses contraintes (lieu, aisance avec le contenu, public).
+Pour chaque secteur : "pourquoi" = 2 phrases expliquant en quoi il colle à SES réponses ; "clients" = 5 à 7 types de clients concrets et précis de ce secteur (des métiers / activités, jamais des noms de marque).
+Réponds UNIQUEMENT en JSON strict, sans texte autour :
+{"secteurs":[{"nom":"","pourquoi":"","clients":["",""]}]}`;
+  try{
+    const d = extractJson(await ask(prompt, {system:sys, max_tokens:2200}));
+    if(!d || !Array.isArray(d.secteurs) || !d.secteurs.length) throw new Error('vide');
+    IDEAL.result = d; idealSave(); drawIdeal();
+    const r=$('#ideal-result'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
+  }catch(e){ if(res) res.innerHTML = errorBox("L'analyse n'a pas abouti. Réessaie dans un instant."); }
+}
+async function idealGen(){
+  if(!IDEAL.cibles.length){ toast('Ajoute au moins une cible.'); return; }
+  const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(IDEAL.cibles.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
+  const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer à sa cible pour comprendre ses problèmes réels, ses mots exacts, ses habitudes et ses budgets.";
+  const mk = (cible)=>`Cible : ${cible}
+Crée UN questionnaire de besoins de 10 questions maximum, adapté précisément à cette cible.
+Mélange environ 6 questions FERMÉES (chacune avec 3 à 5 options de réponse, pour des données chiffrées : budget, fréquence, canaux, priorités…) et environ 4 questions OUVERTES (sans options, pour recueillir le verbatim : problèmes, frustrations, mots exacts, envies).
+Formule des questions simples et directes, adressées à la cible. "intro" = une phrase d'introduction chaleureuse.
+Réponds UNIQUEMENT en JSON strict, sans texte autour :
+{"cible":"","intro":"","questions":[{"type":"fermee","texte":"","options":["",""]},{"type":"ouverte","texte":""}]}`;
+  try{
+    const results=[];
+    for(const cible of IDEAL.cibles){
+      const d = extractJson(await ask(mk(cible), {system:sys, max_tokens:2600}));
+      if(d && Array.isArray(d.questions) && d.questions.length) results.push({cible:d.cible||cible, intro:d.intro||'', questions:d.questions});
+    }
+    if(!results.length) throw new Error('vide');
+    IDEAL.quests = {questionnaires:results}; idealSave(); drawIdeal();
+    const q=$('#ideal-quests'); if(q) window.scrollTo({top: q.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
+  }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
 }
 </script>
 <script>
