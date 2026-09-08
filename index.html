@@ -786,6 +786,8 @@ p{margin:0 0 12px;}
 .is-pl li::before{content:'';position:absolute;left:3px;top:7px;width:5px;height:5px;border-radius:50%;}
 .is-pl.ok li::before{background:#4CAF50;}
 .is-pl.warn li::before{background:var(--sun);}
+.isect .is-save{white-space:nowrap;}
+.isect .is-save.on{background:rgba(76,175,80,.12);border-color:rgba(76,175,80,.5);color:#14532D;}
 .isect .is-cl-lab{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:2px 0 7px;}
 .isect .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
 .isect .is-cl span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
@@ -1375,7 +1377,16 @@ p{margin:0 0 12px;}
       <li>tu changes de navigateur ou d'appareil (tes données ne te suivent pas)&nbsp;;</li>
       <li>sur iPhone (Safari), si tu n'ouvres pas l'app pendant ~7 jours&nbsp;— sauf si tu l'ajoutes à ton écran d'accueil.</li>
     </ul>
-    <p style="margin:0 0 18px;">💡 Le réflexe malin&nbsp;: <b>télécharge tes documents importants</b> (planning Luna en PDF, idées, projections) au fur et à mesure, et sur iPhone, <b>ajoute l'app à ton écran d'accueil</b>.</p>
+    <p style="margin:0 0 14px;">💡 Le réflexe malin&nbsp;: <b>télécharge tes documents importants</b> (planning Luna en PDF, idées, projections) au fur et à mesure, et sur iPhone, <b>ajoute l'app à ton écran d'accueil</b>.</p>
+    <div style="background:var(--paper-2);border-radius:12px;padding:13px 14px;margin:0 0 18px;">
+      <p style="font-weight:700;margin:0 0 4px;">🛟 Sauvegarde &amp; restauration</p>
+      <p style="font-size:13px;color:var(--ink-2);line-height:1.5;margin:0 0 11px;">Exporte un fichier de sauvegarde à conserver précieusement. Tu pourras le <b>réimporter à tout moment</b> — sur un autre ordinateur ou navigateur — pour tout retrouver.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn sm" id="data-export">⬇️ Exporter mes données</button>
+        <button class="btn ghost sm" id="data-import-btn">⬆️ Importer une sauvegarde</button>
+      </div>
+      <input type="file" id="data-import-file" accept="application/json,.json" style="display:none;">
+    </div>
     <div class="modal-actions"><button class="btn" id="datamodal-ok">J'ai compris</button></div>
   </div>
 </div>
@@ -1418,6 +1429,16 @@ p{margin:0 0 12px;}
     async set(key, value){
       const os = await store('readwrite');
       return new Promise((res, rej)=>{ const r = os.put(value, key); r.onsuccess = ()=>res(true); r.onerror = ()=>rej(r.error); });
+    },
+    async all(){
+      try{
+        const os = await store('readonly');
+        return await new Promise((res, rej)=>{
+          const out = {}; const rq = os.openCursor();
+          rq.onsuccess = ()=>{ const c = rq.result; if(c){ out[c.key] = c.value; c.continue(); } else res(out); };
+          rq.onerror = ()=> rej(rq.error);
+        });
+      }catch(e){ return {}; }
     }
   };
 })();
@@ -2202,6 +2223,36 @@ $('#scrim').addEventListener('click', closeSide);
 $('#data-btn').addEventListener('click', ()=> $('#datamodal').classList.add('on'));
 $('#datamodal-ok').addEventListener('click', ()=> $('#datamodal').classList.remove('on'));
 $('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $('#datamodal').classList.remove('on'); });
+/* --- Sauvegarde / restauration de toutes les données --- */
+async function dataExport(){
+  let data = {};
+  try{ data = (window.storage && window.storage.all) ? await window.storage.all() : Object.assign({}, mem); }catch(e){ data = Object.assign({}, mem); }
+  if(!data || !Object.keys(data).length){ toast("Rien à sauvegarder pour l'instant."); return; }
+  const payload = { app:'CM Program App', version:1, exportedAt:new Date().toISOString(), data };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = el('a'); a.href = url; a.download = 'cm-program-sauvegarde-' + todayStr() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  toast('Sauvegarde téléchargée ✅');
+}
+async function dataImport(file){
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const data = (parsed && parsed.data && typeof parsed.data==='object') ? parsed.data : parsed;
+    if(!data || typeof data!=='object' || Array.isArray(data)) throw new Error('format');
+    const keys = Object.keys(data);
+    if(!keys.length) throw new Error('vide');
+    if(!await confirmer("Importer cette sauvegarde va remplacer les données actuelles de cet appareil. On continue ?", 'Importer')) return;
+    for(const k of keys){ await sset(k, data[k]); }
+    toast('Sauvegarde importée ✨ Rechargement…');
+    setTimeout(()=>location.reload(), 900);
+  }catch(e){ toast("Fichier invalide — utilise un fichier de sauvegarde CM Program (.json)."); }
+}
+$('#data-export').addEventListener('click', dataExport);
+$('#data-import-btn').addEventListener('click', ()=> $('#data-import-file').click());
+$('#data-import-file').addEventListener('change', e=>{ const f = e.target.files && e.target.files[0]; if(f) dataImport(f); e.target.value=''; });
 $('#btn-profil').addEventListener('click', ()=>go('profil'));
 buildNav();
 
@@ -6766,13 +6817,17 @@ const IDEAL_Q = [
   {k:'valeurs', t:"Ce qui compte pour toi chez un client", multi:true, opts:["Valeurs écolo / durables","Créativité & esthétique","Chaleur & lien humain","Univers premium","Impact social","Innovation","Peu importe"]},
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
-let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, cibles:[], quests:null, _loaded:false };
-function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, cibles:IDEAL.cibles, quests:IDEAL.quests}); }catch(e){} }
+const IDEAL_MAX_SEARCH = 3;
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests}); }catch(e){} }
 
 async function renderIdeal(){
   if(!IDEAL._loaded){
     const sv = await getJSON('cmp:ideal', null);
     if(sv && typeof sv==='object') IDEAL = Object.assign(IDEAL, sv);
+    if(!Array.isArray(IDEAL.savedSectors)) IDEAL.savedSectors = [];
+    if(!Array.isArray(IDEAL.selSectors)) IDEAL.selSectors = [];
+    if(typeof IDEAL.searchCount !== 'number') IDEAL.searchCount = 0;
     IDEAL._loaded = true;
   }
   drawIdeal();
@@ -6811,16 +6866,23 @@ function idealWizardHTML(){
 function idealResultHTML(){
   if(!IDEAL.result || !Array.isArray(IDEAL.result.secteurs)) return '';
   const plist=(cls,h,arr)=> (arr&&arr.length)?`<div class="is-pl ${cls}"><div class="is-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
-  const cards = IDEAL.result.secteurs.map((sec,i)=>`<div class="isect">
-      <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span></div>
+  const cards = IDEAL.result.secteurs.map((sec,i)=>{
+    const saved = IDEAL.savedSectors.includes(sec.nom);
+    return `<div class="isect">
+      <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span>
+        <button class="btn ghost xs is-save${saved?' on':''}" data-savesec="${esc(sec.nom||'')}" style="margin-left:auto;flex:none;">${saved?'✓ Enregistré':'Enregistrer'}</button></div>
       <p class="is-why">${esc(sec.pourquoi||'')}</p>
       ${plist('ok','✓ Avantages pour toi', sec.avantages)}
       ${plist('warn','⚠ Points de vigilance', sec.inconvenients)}
       <div class="is-cl-lab">Clients à aller chercher</div>
       <div class="is-cl">${(sec.clients||[]).map(c=>`<span>${esc(c)}</span>`).join('')}</div>
-    </div>`).join('');
-  return `<div style="display:flex;align-items:center;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">Tes 3 secteurs & leurs clients</p>
-      <button class="btn ghost sm" id="ideal-new" style="margin-left:auto;">Nouvelle recherche</button></div>${cards}`;
+    </div>`;
+  }).join('');
+  const left = Math.max(0, IDEAL_MAX_SEARCH - (IDEAL.searchCount||0));
+  const newBtn = left>0
+    ? `<button class="btn ghost sm" id="ideal-new" style="margin-left:auto;flex:none;">Nouvelle recherche (${left})</button>`
+    : `<span style="margin-left:auto;font-size:11px;color:var(--ink-3);font-weight:600;text-align:right;">Limite de ${IDEAL_MAX_SEARCH} recherches atteinte</span>`;
+  return `<div style="display:flex;align-items:center;gap:10px;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">Tes 3 secteurs & leurs clients</p>${newBtn}</div>${cards}`;
 }
 function idealQuestHTML(){
   if(!IDEAL.quests || !Array.isArray(IDEAL.quests.questionnaires)) return '';
@@ -6838,9 +6900,12 @@ function idealQuestHTML(){
   return `<p class="sec-t" style="margin:20px 0 10px;">Tes questionnaires de besoins</p>${blocks}
     <div class="hint" style="margin-top:6px;">💡 Recrée chaque questionnaire sur un outil gratuit comme <b>Tally</b>, puis envoie-le à ta cible. Analyse ensuite les réponses&nbsp;: les mots qui reviennent, les problématiques communes, les budgets.</div>`;
 }
-function idealCiblesHTML(){
-  if(!IDEAL.cibles.length) return `<span class="hint">Aucune cible pour l'instant.</span>`;
-  return IDEAL.cibles.map((c,i)=>`<span class="icible">${esc(c)}<button data-icibledel="${i}" aria-label="Retirer">×</button></span>`).join('');
+function idealSelSectorsHTML(){
+  if(!IDEAL.savedSectors.length) return `<div class="hint">Va d'abord dans l'onglet « Trouver mon secteur », lance une recherche, puis clique sur <b>Enregistrer</b> sous les secteurs qui t'intéressent — ils apparaîtront ici.</div>`;
+  return `<div class="ichips">`+IDEAL.savedSectors.map(sname=>{
+    const on = IDEAL.selSectors.includes(sname);
+    return `<button class="ichip${on?' on':''}" data-selsec="${esc(sname)}">${esc(sname)}</button>`;
+  }).join('')+`</div>`;
 }
 
 function drawIdeal(){
@@ -6860,17 +6925,12 @@ function drawIdeal(){
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
       <div class="card pad-l" style="margin-bottom:14px;border-color:#F3DEBF;background:var(--sun-pale);">
         <p class="sec-t">Comment ça marche</p>
-        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Indique qui tu veux cibler (une ou plusieurs cibles). Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par cible</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.</p>
+        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Choisis un ou deux secteurs parmi ceux que tu as enregistrés dans l'exercice 1. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par secteur</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.</p>
       </div>
       <div class="card pad-l">
-        <div class="field"><label for="ideal-cible-in">Qui veux-tu cibler&nbsp;?</label>
-          <div style="display:flex;gap:8px;align-items:stretch;">
-            <input id="ideal-cible-in" type="text" placeholder="Ex : naturopathes, coachs sportifs…" style="flex:1;">
-            <button class="btn sm" id="ideal-cible-add" style="flex:none;">Ajouter</button>
-          </div>
-        </div>
-        <div id="ideal-cibles" style="margin:12px 0 6px;">${idealCiblesHTML()}</div>
-        <button class="btn full" id="ideal-gen"${IDEAL.cibles.length?'':' disabled'}>Générer les questionnaires</button>
+        <div class="iq-l" style="margin-bottom:10px;">Quel(s) secteur(s) veux-tu cibler&nbsp;?<span class="opt-hint">— 2 maximum</span></div>
+        <div id="ideal-sel">${idealSelSectorsHTML()}</div>
+        <button class="btn full" id="ideal-gen" style="margin-top:16px;"${IDEAL.selSectors.length?'':' disabled'}>Générer ${IDEAL.selSectors.length>1?'les questionnaires':'le questionnaire'}</button>
       </div>
       <div id="ideal-quests">${idealQuestHTML()}</div>
     </div>`;
@@ -6894,12 +6954,20 @@ function drawIdeal(){
   box.querySelectorAll('[data-revedel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.screen.reve.splice(+b.dataset.revedel,1); idealSave(); drawIdeal(); }));
   const an=$('#ideal-analyze'); if(an) an.addEventListener('click', idealAnalyze);
   const nw=$('#ideal-new'); if(nw) nw.addEventListener('click', ()=>{ IDEAL.result=null; IDEAL.qstep=0; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
-  // cibles
-  const add=()=>{ const inp=$('#ideal-cible-in'); if(!inp) return; const v=inp.value.trim(); if(!v) return;
-    if(!IDEAL.cibles.includes(v)) IDEAL.cibles.push(v); inp.value=''; idealSave(); drawIdeal(); const n=$('#ideal-cible-in'); if(n) n.focus(); };
-  const ab=$('#ideal-cible-add'); if(ab) ab.addEventListener('click', add);
-  const ci=$('#ideal-cible-in'); if(ci) ci.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); add(); } });
-  box.querySelectorAll('[data-icibledel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.cibles.splice(+b.dataset.icibledel,1); idealSave(); drawIdeal(); }));
+  // enregistrer un secteur
+  box.querySelectorAll('[data-savesec]').forEach(b=> b.addEventListener('click', ()=>{
+    const nom=b.dataset.savesec; const i=IDEAL.savedSectors.indexOf(nom);
+    if(i>=0){ IDEAL.savedSectors.splice(i,1); const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1); }
+    else { IDEAL.savedSectors.push(nom); toast('Secteur enregistré'); }
+    idealSave(); drawIdeal();
+  }));
+  // sélection des secteurs (onglet 2, max 2)
+  box.querySelectorAll('[data-selsec]').forEach(b=> b.addEventListener('click', ()=>{
+    const nom=b.dataset.selsec; const i=IDEAL.selSectors.indexOf(nom);
+    if(i>=0) IDEAL.selSectors.splice(i,1);
+    else { if(IDEAL.selSectors.length>=2){ toast('2 secteurs maximum.'); return; } IDEAL.selSectors.push(nom); }
+    idealSave(); drawIdeal();
+  }));
   const gn=$('#ideal-gen'); if(gn) gn.addEventListener('click', idealGen);
   box.querySelectorAll('[data-iqcopy]').forEach(b=> b.addEventListener('click', ()=>{
     const q=IDEAL.quests.questionnaires[+b.dataset.iqcopy]; if(!q) return;
@@ -6910,6 +6978,7 @@ function drawIdeal(){
 }
 
 async function idealAnalyze(){
+  if((IDEAL.searchCount||0) >= IDEAL_MAX_SEARCH){ toast(`Tu as atteint la limite de ${IDEAL_MAX_SEARCH} recherches.`); return; }
   const a = IDEAL.screen;
   if(!(a.univers && a.univers.length)){ toast("Choisis au moins un univers qui t'attire."); return; }
   const res=$('#ideal-result'); if(res) res.innerHTML = loadingBox('Merci ! Laisse-moi réfléchir quelques minutes pour analyser tout ça…');
@@ -6940,25 +7009,25 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
   try{
     const d = extractJson(await ask(prompt, {system:sys, max_tokens:3200}));
     if(!d || !Array.isArray(d.secteurs) || !d.secteurs.length) throw new Error('vide');
-    IDEAL.result = d; idealSave(); drawIdeal();
+    IDEAL.result = d; IDEAL.searchCount = (IDEAL.searchCount||0)+1; idealSave(); drawIdeal();
     const r=$('#ideal-result'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(res) res.innerHTML = errorBox("L'analyse n'a pas abouti. Réessaie dans un instant."); }
 }
 async function idealGen(){
-  if(!IDEAL.cibles.length){ toast('Ajoute au moins une cible.'); return; }
-  const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(IDEAL.cibles.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
-  const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer à sa cible pour comprendre ses problèmes réels, ses mots exacts, ses habitudes et ses budgets.";
-  const mk = (cible)=>`Cible : ${cible}
-Crée UN questionnaire de besoins de 10 questions maximum, adapté précisément à cette cible.
+  if(!IDEAL.selSectors.length){ toast('Choisis au moins un secteur.'); return; }
+  const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(IDEAL.selSectors.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
+  const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer aux professionnels d'un secteur pour comprendre leurs problèmes réels, leurs mots exacts, leurs habitudes et leurs budgets.";
+  const mk = (secteur)=>`Secteur ciblé : ${secteur}
+Crée UN questionnaire de besoins de 10 questions maximum, adapté aux professionnels / entreprises de ce secteur.
 Mélange environ 6 questions FERMÉES (chacune avec 3 à 5 options de réponse, pour des données chiffrées : budget, fréquence, canaux, priorités…) et environ 4 questions OUVERTES (sans options, pour recueillir le verbatim : problèmes, frustrations, mots exacts, envies).
-Formule des questions simples et directes, adressées à la cible. "intro" = une phrase d'introduction chaleureuse.
+Formule des questions simples et directes, adressées à la cible. "cible" = le nom du secteur. "intro" = une phrase d'introduction chaleureuse.
 Réponds UNIQUEMENT en JSON strict, sans texte autour :
 {"cible":"","intro":"","questions":[{"type":"fermee","texte":"","options":["",""]},{"type":"ouverte","texte":""}]}`;
   try{
     const results=[];
-    for(const cible of IDEAL.cibles){
-      const d = extractJson(await ask(mk(cible), {system:sys, max_tokens:2600}));
-      if(d && Array.isArray(d.questions) && d.questions.length) results.push({cible:d.cible||cible, intro:d.intro||'', questions:d.questions});
+    for(const secteur of IDEAL.selSectors){
+      const d = extractJson(await ask(mk(secteur), {system:sys, max_tokens:2600}));
+      if(d && Array.isArray(d.questions) && d.questions.length) results.push({cible:d.cible||secteur, intro:d.intro||'', questions:d.questions});
     }
     if(!results.length) throw new Error('vide');
     IDEAL.quests = {questionnaires:results}; idealSave(); drawIdeal();
