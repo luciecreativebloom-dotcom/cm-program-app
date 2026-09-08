@@ -793,6 +793,7 @@ p{margin:0 0 12px;}
 /* banderole nouvelle fonctionnalité */
 .promo-banner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:130;width:calc(100% - 32px);max-width:520px;
   display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,var(--bloom),#a8335a);color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 16px 38px rgba(59,14,31,.34);animation:pbUp .38s cubic-bezier(.2,.7,.2,1);}
+.promo-banner[hidden]{display:none !important;}
 @keyframes pbUp{from{opacity:0;transform:translateX(-50%) translateY(18px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 .promo-banner .pb-ic{flex:0 0 auto;line-height:1;display:flex;}
 .promo-banner .pb-ic svg{width:19px;height:19px;display:block;}
