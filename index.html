@@ -867,6 +867,20 @@ p{margin:0 0 12px;}
 .iqbadge.o{background:var(--sun-pale);color:#8A4B00;}
 .iqopts{margin:6px 0 0;padding-left:16px;}
 .iqopts li{font-size:12px;color:var(--ink-2);line-height:1.5;list-style:disc;}
+.ian-sec{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 12px;}
+.ian-q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-bottom:13px;}
+.ian-qt{font-family:var(--display);font-weight:700;font-size:14.5px;color:var(--bloom);line-height:1.4;margin-bottom:11px;}
+.ian-row{display:flex;align-items:center;gap:10px;margin:7px 0;}
+.ian-lab{flex:0 0 40%;font-size:12.5px;color:var(--ink);line-height:1.35;}
+.ian-track{flex:1;height:9px;background:var(--line-2);border-radius:99px;overflow:hidden;}
+.ian-track i{display:block;height:100%;background:var(--sun);border-radius:99px;}
+.ian-pct{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--ink);min-width:56px;text-align:right;}
+.ian-pct span{font-weight:500;color:var(--ink-3);}
+.ian-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 12px;}
+.ian-kw span{font-size:11.5px;font-weight:700;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:5px 11px;}
+.ian-verb{margin:0 0 11px;}
+.ian-verb p{font-size:13px;font-style:italic;color:var(--ink-2);line-height:1.5;border-left:3px solid var(--sun);padding:2px 0 2px 12px;margin:0 0 7px;}
+.ian-syn{font-size:13.5px;line-height:1.55;color:var(--ink);margin:0;background:var(--bloom-pale);border-radius:10px;padding:11px 13px;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -6937,8 +6951,8 @@ const IDEAL_Q = [
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
 const IDEAL_MAX_SEARCH = 2;
-let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, _loaded:false };
-function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests}); }catch(e){} }
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse}); }catch(e){} }
 
 async function renderIdeal(){
   if(!IDEAL._loaded){
@@ -7052,32 +7066,132 @@ function idealCarnetHTML(){
     </div>`;
 }
 
+/* ---- Analyse des réponses (import CSV Tally) ---- */
+function idealParseCSV(text){
+  text = text.replace(/\r\n?/g,'\n');
+  const nl = text.indexOf('\n'); const head = nl<0?text:text.slice(0,nl);
+  const delim = (head.split(';').length > head.split(',').length) ? ';' : ',';
+  const rows=[]; let row=[]; let field=''; let inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){ if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i++; } else inQ=false; } else field+=c; }
+    else{
+      if(c==='"') inQ=true;
+      else if(c===delim){ row.push(field); field=''; }
+      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else field+=c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r=> r.some(x=> x && x.trim()));
+}
+const IDEAL_META_RE = /submitted|submission|respondent|^id$|token|created|updated|start|complete|utm_|network|^date|heure|^name$|nom complet|e-?mail|adresse mail|t[eé]l[eé]phone|phone/i;
+function idealClassify(rows){
+  const headers = rows[0].map(h=>(h||'').trim());
+  const data = rows.slice(1);
+  return headers.map((h,ci)=>{
+    const vals = data.map(r=>(r[ci]||'').trim()).filter(Boolean);
+    const distinct = [...new Set(vals)];
+    const maxLen = distinct.reduce((m,v)=>Math.max(m,v.length),0);
+    let type='ignore';
+    if(!IDEAL_META_RE.test(h) && vals.length){
+      type = (distinct.length>=1 && distinct.length<=10 && maxLen<=55 && distinct.length < vals.length) ? 'fermee' : 'ouverte';
+    }
+    return {header:h, ci, vals, distinct, type};
+  });
+}
+function idealClosedStats(col){
+  const counts={}; col.vals.forEach(v=>{ counts[v]=(counts[v]||0)+1; });
+  const total=col.vals.length;
+  const options=Object.keys(counts).map(v=>({val:v, count:counts[v], pct:Math.round(counts[v]/total*100)})).sort((a,b)=>b.count-a.count);
+  return {question:col.header, total, options};
+}
+async function idealRunCSV(){
+  const text = IDEAL._csvText;
+  if(!text){ toast("Choisis d'abord ton fichier CSV."); return; }
+  const out=$('#ideal-analyse-out'); if(out) out.innerHTML = loadingBox("Merci ! J'analyse tes réponses…");
+  let rows;
+  try{ rows = idealParseCSV(text); }catch(e){ if(out) out.innerHTML=errorBox("Impossible de lire ce fichier CSV."); return; }
+  if(!rows || rows.length<2){ if(out) out.innerHTML=errorBox("Ce fichier ne contient pas de réponses lisibles."); return; }
+  const cols = idealClassify(rows);
+  const nb = rows.length-1;
+  const fermees = cols.filter(c=>c.type==='fermee').map(idealClosedStats);
+  const openCols = cols.filter(c=>c.type==='ouverte');
+  let ouvertes=[];
+  if(openCols.length){
+    const blocks = openCols.map(c=>{
+      const answers = c.vals.slice(0,50).map(a=> a.length>300 ? a.slice(0,300)+'…' : a);
+      return `Question ouverte : ${c.header}\nRéponses :\n- ${answers.join('\n- ')}`;
+    }).join('\n\n');
+    const sys = VOIX + "\nTu analyses les réponses d'un questionnaire de besoins pour aider une community manager à comprendre sa cible.";
+    const prompt = `Voici des questions OUVERTES et leurs réponses (verbatim de la cible) :\n\n${blocks}\n\nPour CHAQUE question ouverte, repère : 5 à 8 mots-clés / thèmes qui reviennent le plus souvent, 2 ou 3 verbatims courts et représentatifs (repris tels quels), et une synthèse en 1 à 2 phrases qui parle DIRECTEMENT à la community manager en la TUTOYANT.\nRéponds UNIQUEMENT en JSON strict, sans texte autour :\n{"ouvertes":[{"question":"","mots_cles":["",""],"verbatims":["",""],"synthese":""}]}`;
+    try{
+      const d = extractJson(await ask(prompt, {system:sys, max_tokens:3200}));
+      if(d && Array.isArray(d.ouvertes)) ouvertes = d.ouvertes;
+    }catch(e){ /* on garde au moins les stats */ }
+  }
+  if(!fermees.length && !ouvertes.length){ if(out) out.innerHTML=errorBox("Je n'ai pas réussi à identifier de questions dans ce fichier. Vérifie que c'est bien l'export CSV de Tally."); return; }
+  IDEAL.analyse = { nb, fermees, ouvertes };
+  idealSave(); drawIdeal();
+  const o2=$('#ideal-analyse-out'); if(o2) window.scrollTo({top:o2.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
+}
+function idealAnalyseResultHTML(){
+  const a = IDEAL.analyse; if(!a) return '';
+  const bars = (f)=> f.options.map(o=>`<div class="ian-row"><div class="ian-lab">${esc(o.val)}</div><div class="ian-track"><i style="width:${o.pct}%"></i></div><div class="ian-pct">${o.pct}% <span>(${o.count})</span></div></div>`).join('');
+  const fermeesHTML = (a.fermees||[]).map(f=>`<div class="ian-q"><div class="ian-qt">${esc(f.question)}</div>${bars(f)}</div>`).join('');
+  const ouvertesHTML = (a.ouvertes||[]).map(o=>`<div class="ian-q">
+      <div class="ian-qt">${esc(o.question||'')}</div>
+      ${(o.mots_cles&&o.mots_cles.length)?`<div class="ian-kw">${o.mots_cles.map(k=>`<span>${esc(k)}</span>`).join('')}</div>`:''}
+      ${(o.verbatims&&o.verbatims.length)?`<div class="ian-verb">${o.verbatims.map(v=>`<p>« ${esc(v)} »</p>`).join('')}</div>`:''}
+      ${o.synthese?`<p class="ian-syn">${esc(o.synthese)}</p>`:''}
+    </div>`).join('');
+  const nf=(a.fermees||[]).length, no=(a.ouvertes||[]).length;
+  return `<div style="display:flex;align-items:center;gap:10px;margin:22px 0 4px;"><p class="sec-t" style="margin:0;">Analyse de tes réponses</p><button class="btn ghost sm" id="ideal-analyse-clear" style="margin-left:auto;flex:none;">Nouvelle analyse</button></div>
+    <p class="hint" style="margin:0 0 14px;">${a.nb} répondant${a.nb>1?'s':''} · ${nf} question${nf>1?'s':''} fermée${nf>1?'s':''}, ${no} ouverte${no>1?'s':''}.</p>
+    ${fermeesHTML?`<div class="ian-sec">📊 Questions fermées — statistiques</div>${fermeesHTML}`:''}
+    ${ouvertesHTML?`<div class="ian-sec">💬 Questions ouvertes — verbatim & mots-clés</div>${ouvertesHTML}`:''}`;
+}
 function drawIdeal(){
   const box = $('#ideal-body'); if(!box) return;
-  box.innerHTML = `<div class="sph-nav" id="ideal-tabs">
+  const howtoTxt = IDEAL.tab==='analyse'
+    ? `Une fois ton questionnaire rempli par ta cible, exporte les réponses en <strong style="color:var(--ink);">CSV depuis Tally</strong>, puis importe le fichier ici. J'analyse tout pour toi : des <strong style="color:var(--ink);">statistiques</strong> pour les questions fermées, et pour les questions ouvertes je repère les <strong style="color:var(--ink);">mots-clés qui reviennent</strong> et le verbatim marquant.`
+    : IDEAL.tab==='quest'
+    ? `Choisis un ou deux secteurs parmi ceux que tu as enregistrés dans l'exercice 1. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par secteur</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.`
+    : `Le client idéal, c'est avec qui tu vas travailler, et ça ne se décide pas à l'aveuglette. On va réaliser une vraie <strong style="color:var(--ink);">étude des besoins</strong> pour comprendre avec qui tu peux envisager de travailler, et ce que tu peux lui proposer. Réponds à ces quelques questions, et je te propose <strong style="color:var(--ink);">3 grands secteurs</strong> qui te correspondent, avec tous les types de clients à aller y chercher.`;
+  box.innerHTML = `<div class="card pad-l" style="margin-bottom:14px;border-color:rgba(255,208,214,0.5);background:rgba(255,208,214,0.3);">
+      <div class="howto-h"><span class="howto-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span><p class="sec-t" style="margin:0;">Mode d'emploi</p></div>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">${howtoTxt}</p>
+    </div>
+    <div class="sph-nav" id="ideal-tabs">
       <button class="sph-tab${IDEAL.tab==='secteur'?' on':''}" data-itab="secteur">1 · Trouver mon secteur</button>
       <button class="sph-tab${IDEAL.tab==='quest'?' on':''}" data-itab="quest">2 · Créer mon questionnaire</button>
+      <button class="sph-tab${IDEAL.tab==='analyse'?' on':''}" data-itab="analyse">3 · Analyser les réponses</button>
     </div>
     <div id="ideal-pane-secteur"${IDEAL.tab==='secteur'?'':' style="display:none;"'}>
       <div id="ideal-carnet">${idealCarnetHTML()}</div>
-      <div class="card pad-l" style="margin-bottom:14px;border-color:rgba(255,208,214,0.5);background:rgba(255,208,214,0.3);">
-        <div class="howto-h"><span class="howto-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span><p class="sec-t" style="margin:0;">Mode d'emploi</p></div>
-        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Le client idéal, c'est avec qui tu vas travailler, et ça ne se décide pas à l'aveuglette. On va réaliser une vraie <strong style="color:var(--ink);">étude des besoins</strong> pour comprendre avec qui tu peux envisager de travailler, et ce que tu peux lui proposer. Réponds à ces quelques questions, et je te propose <strong style="color:var(--ink);">3 grands secteurs</strong> qui te correspondent, avec tous les types de clients à aller y chercher.</p>
-      </div>
       ${IDEAL.result ? '' : idealWizardHTML()}
       <div id="ideal-result">${idealResultHTML()}</div>
     </div>
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
-      <div class="card pad-l" style="margin-bottom:14px;border-color:rgba(255,208,214,0.5);background:rgba(255,208,214,0.3);">
-        <div class="howto-h"><span class="howto-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span><p class="sec-t" style="margin:0;">Mode d'emploi</p></div>
-        <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Choisis un ou deux secteurs parmi ceux que tu as enregistrés dans l'exercice 1. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par secteur</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.</p>
-      </div>
       <div class="card pad-l">
         <div class="iq-l" style="margin-bottom:10px;">Quel(s) secteur(s) veux-tu cibler&nbsp;?<span class="opt-hint">— 2 maximum</span></div>
         <div id="ideal-sel">${idealSelSectorsHTML()}</div>
         <button class="btn full" id="ideal-gen" style="margin-top:16px;"${IDEAL.selSectors.length?'':' disabled'}>Générer ${IDEAL.selSectors.length>1?'les questionnaires':'le questionnaire'}</button>
       </div>
       <div id="ideal-quests">${idealQuestHTML()}</div>
+    </div>
+    <div id="ideal-pane-analyse"${IDEAL.tab==='analyse'?'':' style="display:none;"'}>
+      <div class="card pad-l">
+        <div class="iq-l" style="margin-bottom:4px;">Importe le CSV de tes réponses</div>
+        <p class="hint" style="margin:0 0 12px;">Depuis Tally&nbsp;: onglet <b>Submissions</b> → <b>Export</b> → <b>CSV</b>. Puis dépose le fichier ici.</p>
+        <input type="file" id="ideal-csv" accept=".csv,text/csv" style="display:none;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="btn ghost sm" id="ideal-csv-btn">📄 Choisir un fichier CSV</button>
+          <span class="hint" id="ideal-csv-name" style="margin:0;">${IDEAL.csvName?esc(IDEAL.csvName):'Aucun fichier sélectionné.'}</span>
+        </div>
+        <button class="btn full" id="ideal-analyse-run" style="margin-top:16px;" disabled>Analyser les réponses</button>
+      </div>
+      <div id="ideal-analyse-out">${idealAnalyseResultHTML()}</div>
     </div>`;
 
   // tabs
@@ -7132,6 +7246,18 @@ function drawIdeal(){
     (q.questions||[]).forEach((qq,i)=>{ t+=(i+1)+'. '+qq.texte+' ['+(((qq.type||'').toLowerCase().startsWith('ferm'))?'fermée':'ouverte')+']\n'; (qq.options||[]).forEach(o=>t+='   - '+o+'\n'); });
     copy(t);
   }));
+  const csvInput=box.querySelector('#ideal-csv'), csvBtn=box.querySelector('#ideal-csv-btn'), csvName=box.querySelector('#ideal-csv-name'), csvRun=box.querySelector('#ideal-analyse-run');
+  if(csvBtn && csvInput) csvBtn.addEventListener('click', ()=> csvInput.click());
+  if(csvInput) csvInput.addEventListener('change', ()=>{
+    const f=csvInput.files && csvInput.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{ IDEAL._csvText=String(rd.result||''); IDEAL.csvName=f.name; if(csvName) csvName.textContent=f.name; if(csvRun) csvRun.disabled=false; };
+    rd.onerror=()=> toast("Impossible de lire ce fichier.");
+    rd.readAsText(f);
+  });
+  if(csvRun) csvRun.addEventListener('click', idealRunCSV);
+  const csvClear=box.querySelector('#ideal-analyse-clear');
+  if(csvClear) csvClear.addEventListener('click', ()=>{ IDEAL.analyse=null; IDEAL._csvText=''; IDEAL.csvName=''; idealSave(); drawIdeal(); });
 }
 
 async function idealAnalyze(){
