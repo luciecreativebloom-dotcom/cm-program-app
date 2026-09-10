@@ -807,6 +807,19 @@ p{margin:0 0 12px;}
 .isect .is-save.on{background:rgba(76,175,80,.12);border-color:rgba(76,175,80,.5);color:#14532D;}
 .isect .is-cl-lab{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:2px 0 7px;}
 .isect .is-cl{display:flex;flex-wrap:wrap;gap:6px;}
+/* Encart message de Lucie (accueil) */
+.lucie-msg{position:relative;display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid rgba(255,208,214,0.7);border-radius:16px;padding:14px 34px 14px 16px;margin-bottom:16px;
+  box-shadow:var(--shadow-s);transition:border-color .15s,box-shadow .15s,transform .15s;}
+.lucie-msg:hover{border-color:var(--bloom);box-shadow:0 8px 22px rgba(140,27,68,.10);transform:translateY(-1px);}
+.lucie-msg[hidden]{display:none !important;}
+.lucie-msg .lm-close{position:absolute;top:7px;right:8px;background:none;border:none;color:var(--ink-3);font-size:16px;line-height:1;cursor:pointer;padding:4px;border-radius:50%;}
+.lucie-msg .lm-close:hover{color:var(--bloom);background:rgba(140,27,68,.08);}
+.lucie-msg .lm-av{flex:0 0 auto;width:44px;height:44px;border-radius:50%;overflow:hidden;background:conic-gradient(from 210deg,var(--sun),#f2c48a,var(--sun));}
+.lucie-msg .lm-av img{width:100%;height:100%;object-fit:cover;object-position:70% 20%;display:block;}
+.lucie-msg .lm-txt{flex:1;min-width:0;font-size:14px;line-height:1.5;color:var(--ink-2);}
+.lucie-msg .lm-txt b{color:var(--bloom);font-weight:700;text-decoration:underline;}
+.lucie-msg .lm-arrow{flex:0 0 auto;color:var(--bloom);font-size:18px;}
 /* En-tête "Mode d'emploi" avec la photo de Lucie */
 .howto-h{display:flex;align-items:center;gap:11px;margin-bottom:6px;}
 .howto-av{flex:0 0 auto;width:36px;height:36px;border-radius:50%;overflow:hidden;background:conic-gradient(from 210deg,var(--sun),#f2c48a,var(--sun));box-shadow:0 2px 7px rgba(59,14,31,.14);}
@@ -964,6 +977,12 @@ p{margin:0 0 12px;}
           </svg>
           <div class="moon-pct"><em id="moon-num" style="font-style:normal">0%</em><span>parcouru</span></div>
         </div>
+      </div>
+
+      <div class="lucie-msg" id="present-video" role="button" tabindex="0">
+        <span class="lm-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span>
+        <span class="lm-txt">Besoin d'un tour d'horizon de la plateforme&nbsp;? <b>Clique ici</b> pour visionner la vidéo de présentation.</span>
+        <button class="lm-close" id="present-close" aria-label="Masquer ce message">×</button>
       </div>
 
       <div class="card pad-l" id="taches" style="margin-bottom:16px;">
@@ -1530,6 +1549,9 @@ const PASSWORD = "CMPCBloom2026";
    Sans proxy valide, les fonctions IA sont désactivées avec un message clair. */
 const CMP_API_PROXY = "/api/claude";
 
+/* Lien de la vidéo de présentation (encart d'accueil). Colle ici l'URL (YouTube, Vimeo, Loom…). */
+const PRESENT_VIDEO_URL = "";
+
 /* ---------------- Stockage ---------------- */
 const mem = {};
 async function sget(k){
@@ -1847,6 +1869,7 @@ async function enterApp(){
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
   renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal();
   try{ const seenPromo = await sget('cmp:seen-ideal-banner'); const pb=$('#promo-banner'); if(pb && !seenPromo) pb.hidden=false; }catch(e){}
+  try{ const seenPres = await sget('cmp:seen-present'); const pv=$('#present-video'); if(pv && seenPres) pv.hidden=true; }catch(e){}
   paintQuotas();
 }
 async function doLogin(){
@@ -2309,6 +2332,16 @@ $('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $
 function dismissPromo(){ const pb=$('#promo-banner'); if(pb) pb.hidden=true; sset('cmp:seen-ideal-banner','1'); }
 const pcta=$('#promo-cta'); if(pcta) pcta.addEventListener('click', ()=>{ dismissPromo(); go('ideal'); window.scrollTo({top:0,behavior:'smooth'}); });
 const pcl=$('#promo-close'); if(pcl) pcl.addEventListener('click', dismissPromo);
+/* --- Encart vidéo de présentation (accueil), fermable --- */
+function openPresentVideo(){
+  if(PRESENT_VIDEO_URL) window.open(PRESENT_VIDEO_URL,'_blank','noopener');
+  else toast('La vidéo de présentation arrive très bientôt 💛');
+}
+const pvBtn=$('#present-video'); if(pvBtn){
+  pvBtn.addEventListener('click', (e)=>{ if(e.target.closest('#present-close')) return; openPresentVideo(); });
+  pvBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPresentVideo(); } });
+}
+const pvClose=$('#present-close'); if(pvClose) pvClose.addEventListener('click', (e)=>{ e.stopPropagation(); const c=$('#present-video'); if(c) c.hidden=true; sset('cmp:seen-present','1'); });
 /* --- Sauvegarde / restauration de toutes les données --- */
 async function dataExport(){
   let data = {};
