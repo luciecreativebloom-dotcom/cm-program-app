@@ -881,6 +881,30 @@ p{margin:0 0 12px;}
 .ian-verb{margin:0 0 11px;}
 .ian-verb p{font-size:13px;font-style:italic;color:var(--ink-2);line-height:1.5;border-left:3px solid var(--sun);padding:2px 0 2px 12px;margin:0 0 7px;}
 .ian-syn{font-size:13.5px;line-height:1.55;color:var(--ink);margin:0;background:var(--bloom-pale);border-radius:10px;padding:11px 13px;}
+/* --- Mes offres --- */
+.off-l{display:block;font-weight:600;font-size:13px;color:var(--ink);margin:13px 0 6px;}
+.off-l:first-of-type{margin-top:0;}
+.off-l .opt-hint{font-weight:400;font-size:12px;color:var(--ink-3);margin-left:4px;}
+.off-in{width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:var(--body);color:var(--ink);background:var(--card);}
+.off-in:focus{outline:none;border-color:var(--sun);}
+textarea.off-in{resize:vertical;line-height:1.5;}
+select.off-in{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.6'/></svg>");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;}
+.off-draft{margin-top:14px;border-color:var(--sun);}
+.off-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.off-name{font-family:var(--display);font-weight:700;font-size:18px;color:var(--bloom);line-height:1.25;}
+.off-badge{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:4px 10px;}
+.off-prom{font-size:14px;line-height:1.55;color:var(--ink);margin:0 0 12px;}
+.off-meta{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px;}
+.off-meta span{font-size:11.5px;font-weight:600;color:var(--ink-2);background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;}
+.off-pl{margin:0 0 11px;}
+.off-pl-h{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:0 0 6px;}
+.off-pl ul{margin:0;padding-left:18px;}
+.off-pl li{font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:3px;}
+.off-prix{font-size:14px;font-weight:700;color:#14532D;margin:0;}
+.off-arg{font-size:13px;line-height:1.55;color:var(--ink-2);margin:0;font-style:italic;}
+.off-warn{margin:6px 0 0;}
+.off-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px;}
+.off-edit .off-l:first-of-type{margin-top:4px;}
 .exo-kw{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 4px;}
 .exo-kw span{font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:5px 11px;border-radius:999px;
   background:var(--sun-pale);color:#8A4B00;}
@@ -1439,6 +1463,15 @@ p{margin:0 0 12px;}
       <div id="ideal-body"></div>
     </section>
 
+    <!-- ---------- MES OFFRES ---------- -->
+    <section class="view" id="v-offres">
+      <div class="view-head">
+        <p class="eyebrow sun">Mon business</p>
+        <h1>Mes offres</h1>
+      </div>
+      <div id="offres-body"></div>
+    </section>
+
   </main>
 </div>
 <div class="modal" id="dlmodal" role="dialog" aria-modal="true">
@@ -1881,7 +1914,7 @@ async function enterApp(){
   renderTiles(); renderProgress(); renderRdv(); renderProfil(); drawProfilTache(); drawHomeProfil(); drawMtasks();
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
-  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal();
+  renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal(); renderOffres();
   try{ const seenPromo = await sget('cmp:seen-ideal-banner'); const pb=$('#promo-banner'); if(pb && !seenPromo) pb.hidden=false; }catch(e){}
   try{ const seenPres = await sget('cmp:seen-present'); const pv=$('#present-video'); if(pv && seenPres) pv.hidden=true; }catch(e){}
   paintQuotas();
@@ -2252,8 +2285,9 @@ const NAV = [
   { type:'item', id:'progress', ic:'🌙', name:'Ma progression' },
   { type:'item', id:'rdv',      ic:'📅', name:'Mes rendez-vous' },
   { type:'group', name:'Mon business', open:true, items:[
-    { id:'ideal',      ic:'🎯', name:'Client idéal', nouveau:true },
+    { id:'ideal',      ic:'🎯', name:'Client idéal' },
     { id:'calc',       ic:'🧮', name:'Ma rentabilité' },
+    { id:'offres',     ic:'🏷️', name:'Mes offres', nouveau:true },
     { id:'mission',    ic:'🗂', name:'Mon CRM' },
   ]},
   { type:'group', name:'Mes trainings', open:true, items:[
@@ -2285,6 +2319,7 @@ const NAV_ICONS = {
   insta:     SVG('<path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18 15l.6 1.6 1.7.6-1.7.6L18 19.4l-.6-1.6-1.7-.6 1.7-.6z"/>'),
   calc:      SVG('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/>'),
   mission:   SVG('<circle cx="9" cy="9" r="3"/><path d="M4 20c0-3 2.3-5 5-5s5 2 5 5"/><path d="M16 6.4a3 3 0 0 1 0 5.6"/><path d="M15.5 15.2c2.3.3 3.9 2.1 3.9 4.8"/>'),
+  offres:    SVG('<path d="M3.5 12.5 11 5a2 2 0 0 1 1.4-.6H19a1.5 1.5 0 0 1 1.5 1.5v6.6a2 2 0 0 1-.6 1.4l-7.5 7.5a1.5 1.5 0 0 1-2.1 0l-6.8-6.8a1.5 1.5 0 0 1 0-2.1z"/><circle cx="16" cy="8" r="1.3" fill="currentColor" stroke="none"/>'),
   ideal:     SVG('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>'),
   alfie:     SVG('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>'),
   luna:      SVG('<path d="M21 12.8A8 8 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/>')
@@ -2402,6 +2437,7 @@ const TILES_A = [
 const TILES_O = [
   { id:'ideal', ic:'🎯', n:'Client idéal', d:"Trouve les secteurs qui te correspondent, puis crée ton questionnaire de besoins." },
   { id:'calc', ic:'🧮', n:'Ma rentabilité', d:"Le CA à faire et le taux horaire plancher, à partir de la vie que tu veux." },
+  { id:'offres', ic:'🏷️', n:'Mes offres', d:"Construis tes offres packagées avec l'IA et garde-les dans ton carnet d'offres." },
   { id:'mission', ic:'🗂', n:'Mon CRM', d:"Tes clients et tes prospects : fiches, débriefs stratégiques et suivi." },
 ];
 const TILES_OU = [
@@ -7315,6 +7351,210 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
     if(!results.length) throw new Error('vide');
     IDEAL.quests = {questionnaires:results}; idealSave(); drawIdeal();
     const q=$('#ideal-quests'); if(q) window.scrollTo({top: q.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
+  }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
+}
+</script>
+<script>
+/* ================================================================
+   MES OFFRES — générateur IA d'offres packagées + carnet d'offres
+   ================================================================ */
+const OFF_FORMATS = ["Accompagnement mensuel","Pack ponctuel","Prestation à la carte","Audit / diagnostic","Formation / coaching"];
+let OFFRES = { tab:'gen', form:{}, usePro:false, draft:null, list:[], open:null, editing:null, _loaded:false };
+function offresSave(){ try{ setJSON('cmp:offres', {form:OFFRES.form, usePro:OFFRES.usePro, draft:OFFRES.draft, list:OFFRES.list}); }catch(e){} }
+async function renderOffres(){
+  if(!OFFRES._loaded){
+    const sv = await getJSON('cmp:offres', null);
+    if(sv && typeof sv==='object') OFFRES = Object.assign(OFFRES, sv);
+    if(!Array.isArray(OFFRES.list)) OFFRES.list = [];
+    if(!OFFRES.form || typeof OFFRES.form!=='object') OFFRES.form = {};
+    OFFRES._loaded = true;
+  }
+  drawOffres();
+}
+function offBadge(f){ return `<span class="off-badge">${esc(f||'Offre')}</span>`; }
+function offDetailHTML(o){
+  const pl=(h,arr)=> (arr&&arr.length)?`<div class="off-pl"><div class="off-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+  return `${o.promesse?`<p class="off-prom">${esc(o.promesse)}</p>`:''}
+    <div class="off-meta">
+      ${o.format?`<span>🏷️ ${esc(o.format)}</span>`:''}
+      ${o.pour_qui?`<span>👤 ${esc(o.pour_qui)}</span>`:''}
+      ${o.engagement?`<span>⏳ ${esc(o.engagement)}</span>`:''}
+    </div>
+    ${pl('✓ Ce qui est inclus', o.livrables)}
+    ${o.prix?`<div class="off-pl"><div class="off-pl-h">Prix suggéré</div><p class="off-prix">${esc(o.prix)}</p></div>`:''}
+    ${o.argumentaire?`<div class="off-pl"><div class="off-pl-h">Pourquoi ça vaut le coup</div><p class="off-arg">${esc(o.argumentaire)}</p></div>`:''}`;
+}
+function offText(o){
+  let t = (o.nom||'Offre').toUpperCase()+'\n';
+  if(o.promesse) t+=o.promesse+'\n';
+  t+='\n';
+  if(o.format) t+='Format : '+o.format+'\n';
+  if(o.pour_qui) t+='Pour qui : '+o.pour_qui+'\n';
+  if(o.engagement) t+='Engagement : '+o.engagement+'\n';
+  if(o.livrables&&o.livrables.length){ t+='\nInclus :\n'; o.livrables.forEach(l=>t+=' - '+l+'\n'); }
+  if(o.prix) t+='\nPrix suggéré : '+o.prix+'\n';
+  if(o.argumentaire) t+='\n'+o.argumentaire+'\n';
+  return t;
+}
+function offDraftHTML(){
+  const o = OFFRES.draft; if(!o) return '';
+  return `<div class="card pad-l off-draft" id="off-draft">
+      <div class="off-head"><span class="off-name">${esc(o.nom||'Ton offre')}</span>${offBadge(o.format)}</div>
+      ${offDetailHTML(o)}
+      <p class="hint off-warn">💡 Le prix est une suggestion de départ, à ajuster selon ton expérience, ta charge de travail et ton marché. Recoupe-le avec ta <a href="#" data-goto="calc">rentabilité</a>.</p>
+      <div class="off-actions">
+        <button class="btn" id="off-save">Enregistrer dans mon carnet</button>
+        <button class="btn ghost" id="off-copy">Copier</button>
+        <button class="btn ghost" id="off-regen">Nouvelle proposition</button>
+      </div>
+    </div>`;
+}
+function offFormHTML(){
+  const f = OFFRES.form;
+  const proBtn = profilRempli()
+    ? `<button class="btn ghost sm${OFFRES.usePro?' on':''}" id="off-pro">${OFFRES.usePro?'✓ Profil business appliqué':'Appliquer mon profil business'}</button>`
+    : '';
+  const opts = OFF_FORMATS.map(x=>`<option value="${esc(x)}"${f.format===x?' selected':''}>${esc(x)}</option>`).join('');
+  return `<div class="card pad-l">
+      <div class="iq-l" style="margin-bottom:4px;">Construisons une offre ensemble</div>
+      <p class="hint" style="margin:0 0 14px;">Donne-moi quelques infos, je te propose une offre packagée claire, prête à présenter. ${profilRempli()?'Tu peux aussi appliquer ton profil business pour que je colle à ton univers.':''}</p>
+      ${proBtn?`<div style="margin-bottom:14px;">${proBtn}</div>`:''}
+      <label class="off-l">Quelle prestation veux-tu vendre&nbsp;?</label>
+      <input class="off-in" id="off-type" type="text" placeholder="Ex : gestion de mon compte Instagram, création de contenu, community management complet…" value="${esc(f.type||'')}">
+      <label class="off-l">Pour quelle cible&nbsp;?<span class="opt-hint">— facultatif</span></label>
+      <input class="off-in" id="off-cible" type="text" placeholder="Ex : coachs sportifs, restaurants, marques de cosmétique…" value="${esc(f.cible||'')}">
+      <label class="off-l">L'objectif principal du client&nbsp;?<span class="opt-hint">— facultatif</span></label>
+      <input class="off-in" id="off-obj" type="text" placeholder="Ex : gagner en visibilité, vendre plus, déléguer ses réseaux…" value="${esc(f.objectif||'')}">
+      <label class="off-l">Format souhaité</label>
+      <select class="off-in" id="off-format">${opts}</select>
+      <label class="off-l">Des choses à inclure absolument&nbsp;?<span class="opt-hint">— facultatif</span></label>
+      <textarea class="off-in" id="off-inclus" rows="2" placeholder="Ex : 12 posts / mois, 1 reel par semaine, reporting mensuel…">${esc(f.inclus||'')}</textarea>
+      <button class="btn full" id="off-gen" style="margin-top:16px;">Générer mon offre</button>
+    </div>`;
+}
+function offCarnetHTML(){
+  if(!OFFRES.list.length) return `<div class="card pad-l" style="text-align:center;"><p class="hint" style="margin:0;">Ton carnet d'offres est vide pour l'instant. Génère une offre et enregistre-la ici&nbsp;: tu pourras la retrouver, la modifier et la copier quand tu veux.</p></div>`;
+  const items = OFFRES.list.map((o,i)=>{
+    const open = OFFRES.open === o.id;
+    const editing = OFFRES.editing === o.id;
+    let body = '';
+    if(editing){
+      body = `<div class="cn-body off-edit" data-editid="${o.id}">
+          <label class="off-l">Nom de l'offre</label>
+          <input class="off-in" data-ef="nom" type="text" value="${esc(o.nom||'')}">
+          <label class="off-l">Promesse</label>
+          <textarea class="off-in" data-ef="promesse" rows="2">${esc(o.promesse||'')}</textarea>
+          <label class="off-l">Format</label>
+          <input class="off-in" data-ef="format" type="text" value="${esc(o.format||'')}">
+          <label class="off-l">Pour qui</label>
+          <input class="off-in" data-ef="pour_qui" type="text" value="${esc(o.pour_qui||'')}">
+          <label class="off-l">Engagement / durée</label>
+          <input class="off-in" data-ef="engagement" type="text" value="${esc(o.engagement||'')}">
+          <label class="off-l">Ce qui est inclus<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-ef="livrables" rows="4">${esc((o.livrables||[]).join('\n'))}</textarea>
+          <label class="off-l">Prix suggéré</label>
+          <input class="off-in" data-ef="prix" type="text" value="${esc(o.prix||'')}">
+          <label class="off-l">Pourquoi ça vaut le coup</label>
+          <textarea class="off-in" data-ef="argumentaire" rows="3">${esc(o.argumentaire||'')}</textarea>
+          <div class="off-actions">
+            <button class="btn sm" data-offsavedit="${o.id}">Enregistrer les modifications</button>
+            <button class="btn ghost sm" data-offcanceledit="${o.id}">Annuler</button>
+          </div>
+        </div>`;
+    } else if(open){
+      body = `<div class="cn-body">
+          ${offDetailHTML(o)}
+          <div class="off-actions">
+            <button class="btn ghost sm" data-offcopy="${o.id}">Copier</button>
+            <button class="btn ghost sm" data-offedit="${o.id}">Modifier</button>
+          </div>
+        </div>`;
+    }
+    return `<div class="cn-item${(open||editing)?' open':''}">
+        <div class="cn-head">
+          <button class="cn-toggle" data-offopen="${o.id}"><span class="cn-ar">▸</span><span>${esc(o.nom||'Offre')}</span></button>
+          <button class="cn-del" data-offdel="${o.id}" aria-label="Supprimer">×</button>
+        </div>${body}
+      </div>`;
+  }).join('');
+  return `<div class="card pad-l">
+      <p class="sec-t" style="margin:0 0 4px;">🏷️ Mon carnet d'offres</p>
+      <p class="hint" style="margin:0 0 12px;">Tes offres enregistrées s'accumulent ici. Clique sur une offre pour la revoir, la modifier ou la copier.</p>
+      ${items}
+    </div>`;
+}
+function drawOffres(){
+  const box = $('#offres-body'); if(!box) return;
+  box.innerHTML = `<div class="card pad-l" style="margin-bottom:14px;border-color:rgba(255,208,214,0.5);background:rgba(255,208,214,0.3);">
+      <div class="howto-h"><span class="howto-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span><p class="sec-t" style="margin:0;">Mode d'emploi</p></div>
+      <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin:2px 0 0;">Une offre claire, c'est ce qui transforme un prospect en client. Dis-moi ce que tu veux vendre et à qui&nbsp;: je te construis une <strong style="color:var(--ink);">offre packagée</strong> (nom, promesse, livrables, format et fourchette de prix) que tu n'as plus qu'à présenter. Enregistre celles qui te plaisent dans ton <strong style="color:var(--ink);">carnet d'offres</strong> pour les réutiliser et les affiner.</p>
+    </div>
+    <div class="sph-nav" id="off-tabs">
+      <button class="sph-tab${OFFRES.tab==='gen'?' on':''}" data-offtab="gen">Créer une offre</button>
+      <button class="sph-tab${OFFRES.tab==='carnet'?' on':''}" data-offtab="carnet">Mon carnet${OFFRES.list.length?` (${OFFRES.list.length})`:''}</button>
+    </div>
+    <div id="off-pane-gen"${OFFRES.tab==='gen'?'':' style="display:none;"'}>
+      ${offFormHTML()}
+      <div id="off-draft-out">${offDraftHTML()}</div>
+    </div>
+    <div id="off-pane-carnet"${OFFRES.tab==='carnet'?'':' style="display:none;"'}>
+      ${offCarnetHTML()}
+    </div>`;
+
+  $$('#off-tabs .sph-tab').forEach(b=> b.addEventListener('click', ()=>{ OFFRES.tab=b.dataset.offtab; offresSave(); drawOffres(); window.scrollTo({top:0,behavior:'smooth'}); }));
+  const pro=box.querySelector('#off-pro'); if(pro) pro.addEventListener('click', ()=>{ OFFRES.usePro=!OFFRES.usePro; offresSave(); drawOffres(); });
+  const captureForm=()=>{
+    const g=id=>{ const e=box.querySelector(id); return e?e.value:''; };
+    OFFRES.form = { type:g('#off-type').trim(), cible:g('#off-cible').trim(), objectif:g('#off-obj').trim(), format:g('#off-format'), inclus:g('#off-inclus').trim() };
+  };
+  const gen=box.querySelector('#off-gen'); if(gen) gen.addEventListener('click', ()=>{ captureForm(); offresGen(); });
+  const dsave=box.querySelector('#off-save'); if(dsave) dsave.addEventListener('click', ()=>{
+    if(!OFFRES.draft) return;
+    const o = Object.assign({id:'o'+Date.now().toString(36)}, OFFRES.draft);
+    OFFRES.list.unshift(o); OFFRES.draft=null; OFFRES.tab='carnet'; OFFRES.open=o.id; offresSave(); drawOffres(); toast('Offre enregistrée dans ton carnet ✓'); window.scrollTo({top:0,behavior:'smooth'});
+  });
+  const dcopy=box.querySelector('#off-copy'); if(dcopy) dcopy.addEventListener('click', ()=>{ if(OFFRES.draft) copy(offText(OFFRES.draft)); });
+  const dregen=box.querySelector('#off-regen'); if(dregen) dregen.addEventListener('click', ()=>{ captureForm(); offresGen(); });
+  box.querySelectorAll('[data-goto]').forEach(a=> a.addEventListener('click', (e)=>{ e.preventDefault(); go(a.dataset.goto); }));
+  // carnet
+  box.querySelectorAll('[data-offopen]').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.offopen; OFFRES.open=(OFFRES.open===id?null:id); if(OFFRES.editing!==id) OFFRES.editing=null; drawOffres(); }));
+  box.querySelectorAll('[data-offdel]').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.offdel; OFFRES.list=OFFRES.list.filter(o=>o.id!==id); offresSave(); drawOffres(); }));
+  box.querySelectorAll('[data-offcopy]').forEach(b=> b.addEventListener('click', ()=>{ const o=OFFRES.list.find(x=>x.id===b.dataset.offcopy); if(o) copy(offText(o)); }));
+  box.querySelectorAll('[data-offedit]').forEach(b=> b.addEventListener('click', ()=>{ OFFRES.editing=b.dataset.offedit; OFFRES.open=b.dataset.offedit; drawOffres(); }));
+  box.querySelectorAll('[data-offcanceledit]').forEach(b=> b.addEventListener('click', ()=>{ OFFRES.editing=null; drawOffres(); }));
+  box.querySelectorAll('[data-offsavedit]').forEach(b=> b.addEventListener('click', ()=>{
+    const id=b.dataset.offsavedit; const o=OFFRES.list.find(x=>x.id===id); if(!o) return;
+    const wrap=box.querySelector(`.off-edit[data-editid="${id}"]`); if(!wrap) return;
+    const gf=f=>{ const e=wrap.querySelector(`[data-ef="${f}"]`); return e?e.value:''; };
+    o.nom=gf('nom').trim(); o.promesse=gf('promesse').trim(); o.format=gf('format').trim(); o.pour_qui=gf('pour_qui').trim();
+    o.engagement=gf('engagement').trim(); o.livrables=gf('livrables').split('\n').map(s=>s.trim()).filter(Boolean);
+    o.prix=gf('prix').trim(); o.argumentaire=gf('argumentaire').trim();
+    OFFRES.editing=null; offresSave(); drawOffres(); toast('Modifications enregistrées ✓');
+  }));
+}
+async function offresGen(){
+  const f = OFFRES.form || {};
+  if(!(f.type||'').trim()){ toast('Dis-moi au moins quelle prestation tu veux vendre.'); return; }
+  const out=$('#off-draft-out'); if(out) out.innerHTML = loadingBox("Je construis ton offre…");
+  const sys = VOIX + "\nTu aides une community manager freelance à packager une offre de services claire, honnête et vendable, qu'elle pourra présenter à un prospect. Tu es concrète, ancrée dans la réalité du métier, et tu ne survends jamais."
+    + (OFFRES.usePro ? profilBlock() : '');
+  const prompt = `Construis UNE offre de services packagée pour une community manager freelance, à partir de ces éléments :
+- Prestation à vendre : ${f.type}
+- Cible visée : ${f.cible||'non précisée (propose une cible pertinente)'}
+- Objectif principal du client : ${f.objectif||'non précisé'}
+- Format souhaité : ${f.format||'à toi de choisir le plus adapté'}
+- Éléments à inclure si possible : ${f.inclus||'—'}
+
+Donne une offre réaliste pour une freelance (pas un pack d'agence hors de prix). Le "nom" doit être simple et parlant. La "promesse" = 1 phrase orientée bénéfice client. "livrables" = 4 à 7 éléments concrets et mesurables (nombre de posts, reels, reporting, échanges…). "prix" = une fourchette en euros cohérente avec le marché français pour une freelance, avec une courte justification (ex : « 600–900 €/mois, selon le volume de contenu »). "engagement" = durée ou récurrence (ex : « engagement 3 mois minimum », « prestation ponctuelle sur 2 semaines »). "argumentaire" = 2 phrases qui aident à défendre la valeur de l'offre face au client.
+Rédige l'offre de façon à ce qu'elle puisse être présentée à un client (clair, professionnel), mais garde le ton de voix décrit.
+Réponds UNIQUEMENT en JSON strict, sans texte autour :
+{"nom":"","promesse":"","pour_qui":"","format":"","engagement":"","livrables":["",""],"prix":"","argumentaire":""}`;
+  try{
+    const d = extractJson(await ask(prompt, {system:sys, max_tokens:1800}));
+    if(!d || !d.nom) throw new Error('vide');
+    if(!Array.isArray(d.livrables)) d.livrables = d.livrables ? [String(d.livrables)] : [];
+    OFFRES.draft = d; offresSave(); drawOffres();
+    const r=$('#off-draft'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
 }
 </script>
