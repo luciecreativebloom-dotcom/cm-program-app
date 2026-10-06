@@ -881,6 +881,21 @@ p{margin:0 0 12px;}
 .ian-verb{margin:0 0 11px;}
 .ian-verb p{font-size:13px;font-style:italic;color:var(--ink-2);line-height:1.5;border-left:3px solid var(--sun);padding:2px 0 2px 12px;margin:0 0 7px;}
 .ian-syn{font-size:13.5px;line-height:1.55;color:var(--ink);margin:0;background:var(--bloom-pale);border-radius:10px;padding:11px 13px;}
+/* --- Persona (étape 4) --- */
+.pp-card{border-color:var(--bloom);}
+.pp-head{display:flex;align-items:center;gap:13px;margin-bottom:12px;}
+.pp-av{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:var(--bloom);color:#fff;font-family:var(--display);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;}
+.pp-name{font-family:var(--display);font-weight:700;font-size:19px;color:var(--bloom);line-height:1.2;}
+.pp-sub{font-size:12.5px;color:var(--ink-2);margin-top:2px;}
+.pp-quote{font-size:14.5px;font-style:italic;line-height:1.55;color:var(--ink);background:var(--bloom-pale);border-radius:10px;padding:11px 13px;margin:0 0 13px;}
+.pp-sit{font-size:13.5px;line-height:1.6;color:var(--ink-2);margin:0 0 15px;}
+.pp-b{margin:0 0 13px;}
+.pp-b:last-child{margin-bottom:0;}
+.pp-bh{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:0 0 7px;}
+.pp-b ul{margin:0;padding-left:18px;}
+.pp-b li{font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:4px;}
+.pp-chips{display:flex;flex-wrap:wrap;gap:7px;}
+.pp-chips span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:5px 11px;}
 /* --- Mes offres --- */
 .off-l{display:block;font-weight:600;font-size:13px;color:var(--ink);margin:13px 0 6px;}
 .off-l:first-of-type{margin-top:0;}
@@ -1498,7 +1513,7 @@ select.off-in{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg
 <div class="working" id="working" aria-live="polite"><span class="spin-sm"></span><span id="working-txt">L'outil travaille…</span></div>
 <div class="promo-banner" id="promo-banner" hidden>
   <span class="pb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
-  <span class="pb-txt"><b>Nouvelle fonctionnalité :</b> Client idéal</span>
+  <span class="pb-txt"><b>Nouvelle fonctionnalité :</b> Mes offres</span>
   <button class="pb-cta" id="promo-cta">Découvrir</button>
   <button class="pb-close" id="promo-close" aria-label="Fermer">×</button>
 </div>
@@ -1915,7 +1930,7 @@ async function enterApp(){
   if(profilRempli() && !PROFIL.debrief) genProfilDebrief();
   renderSimSetup(); renderSosModes(); renderAlfieKinds();
   renderDossiers(); renderProspects(); renderCalcForm(); renderCroissance(); renderIdeas(); renderInsta(); renderLuna(); renderExos(); renderIdeal(); renderOffres();
-  try{ const seenPromo = await sget('cmp:seen-ideal-banner'); const pb=$('#promo-banner'); if(pb && !seenPromo) pb.hidden=false; }catch(e){}
+  try{ const seenPromo = await sget('cmp:seen-offres-banner'); const pb=$('#promo-banner'); if(pb && !seenPromo) pb.hidden=false; }catch(e){}
   try{ const seenPres = await sget('cmp:seen-present'); const pv=$('#present-video'); if(pv && seenPres) pv.hidden=true; }catch(e){}
   paintQuotas();
 }
@@ -2377,9 +2392,9 @@ $('#scrim').addEventListener('click', closeSide);
 $('#data-btn').addEventListener('click', ()=> $('#datamodal').classList.add('on'));
 $('#datamodal-ok').addEventListener('click', ()=> $('#datamodal').classList.remove('on'));
 $('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $('#datamodal').classList.remove('on'); });
-/* --- Banderole « Nouvelle fonctionnalité : Client idéal » (une seule fois) --- */
-function dismissPromo(){ const pb=$('#promo-banner'); if(pb) pb.hidden=true; sset('cmp:seen-ideal-banner','1'); }
-const pcta=$('#promo-cta'); if(pcta) pcta.addEventListener('click', ()=>{ dismissPromo(); go('ideal'); window.scrollTo({top:0,behavior:'smooth'}); });
+/* --- Banderole « Nouvelle fonctionnalité : Mes offres » (une seule fois) --- */
+function dismissPromo(){ const pb=$('#promo-banner'); if(pb) pb.hidden=true; sset('cmp:seen-offres-banner','1'); }
+const pcta=$('#promo-cta'); if(pcta) pcta.addEventListener('click', ()=>{ dismissPromo(); go('offres'); window.scrollTo({top:0,behavior:'smooth'}); });
 const pcl=$('#promo-close'); if(pcl) pcl.addEventListener('click', dismissPromo);
 /* --- Encart vidéo de présentation (accueil), fermable --- */
 function openPresentVideo(){
@@ -6987,8 +7002,8 @@ const IDEAL_Q = [
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
 const IDEAL_MAX_SEARCH = 2;
-let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, _loaded:false };
-function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse}); }catch(e){} }
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, persona:null, personaSector:null, personaNote:'', _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse, persona:IDEAL.persona, personaSector:IDEAL.personaSector, personaNote:IDEAL.personaNote}); }catch(e){} }
 
 async function renderIdeal(){
   if(!IDEAL._loaded){
@@ -7187,9 +7202,46 @@ function idealAnalyseResultHTML(){
     ${fermeesHTML?`<div class="ian-sec">📊 Questions fermées — statistiques</div>${fermeesHTML}`:''}
     ${ouvertesHTML?`<div class="ian-sec">💬 Questions ouvertes — verbatim & mots-clés</div>${ouvertesHTML}`:''}`;
 }
+/* ---- Persona (étape 4) ---- */
+function idealPersonaSelHTML(){
+  if(!IDEAL.savedSectors.length) return `<div class="hint">Astuce&nbsp;: enregistre d'abord un secteur dans l'étape 1 pour ancrer ton persona. Tu peux aussi le créer directement en précisant ta cible ci-dessous.</div>`;
+  return `<div class="ichips">`+IDEAL.savedSectors.map(sec=>{
+    const on = IDEAL.personaSector===sec.nom;
+    return `<button class="ichip${on?' on':''}" data-personasec="${esc(sec.nom)}">${esc(sec.nom)}</button>`;
+  }).join('')+`</div>`;
+}
+function idealPersonaResultHTML(){
+  const p = IDEAL.persona; if(!p) return '';
+  const chips=(arr)=> (arr&&arr.length)?`<div class="pp-chips">${arr.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:'';
+  const block=(ic,h,arr)=> (arr&&arr.length)?`<div class="pp-b"><div class="pp-bh">${ic} ${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+  const initials = (p.prenom||'?').trim().charAt(0).toUpperCase();
+  const sub = [p.age?esc(p.age)+' ans':'', esc(p.metier||'')].filter(Boolean).join(' · ');
+  return `<div style="display:flex;align-items:center;gap:10px;margin:22px 0 10px;"><p class="sec-t" style="margin:0;">Ton persona</p><button class="btn ghost sm" id="ideal-persona-copy" style="margin-left:auto;flex:none;">Copier</button><button class="btn ghost sm" id="ideal-persona-clear" style="flex:none;">Nouveau</button></div>
+    <div class="card pad-l pp-card">
+      <div class="pp-head"><span class="pp-av">${esc(initials)}</span><div><div class="pp-name">${esc(p.prenom||'Persona')}</div>${sub?`<div class="pp-sub">${sub}</div>`:''}</div></div>
+      ${p.citation?`<p class="pp-quote">« ${esc(p.citation)} »</p>`:''}
+      ${p.situation?`<p class="pp-sit">${esc(p.situation)}</p>`:''}
+      ${block('🎯','Ses objectifs', p.objectifs)}
+      ${block('😣','Ses défis / points de douleur', p.defis)}
+      ${block('💡','Ses motivations', p.motivations)}
+      ${block('🚧','Ses freins à déléguer', p.objections)}
+      ${(p.canaux&&p.canaux.length)?`<div class="pp-b"><div class="pp-bh">📍 Où le trouver</div>${chips(p.canaux)}</div>`:''}
+    </div>`;
+}
+function idealPersonaText(p){
+  let t=(p.prenom||'Persona')+(p.age?`, ${p.age} ans`:'')+(p.metier?` — ${p.metier}`:'')+'\n';
+  if(p.citation) t+=`« ${p.citation} »\n`;
+  if(p.situation) t+='\n'+p.situation+'\n';
+  const sec=(h,arr)=>{ if(arr&&arr.length){ t+='\n'+h+'\n'; arr.forEach(x=>t+=' - '+x+'\n'); } };
+  sec('Objectifs',p.objectifs); sec('Défis / points de douleur',p.defis); sec('Motivations',p.motivations);
+  sec('Freins à déléguer',p.objections); sec('Où le trouver',p.canaux);
+  return t;
+}
 function drawIdeal(){
   const box = $('#ideal-body'); if(!box) return;
-  const howtoTxt = IDEAL.tab==='analyse'
+  const howtoTxt = IDEAL.tab==='persona'
+    ? `Dernière étape&nbsp;: on donne un visage à ta cible. Choisis un secteur et je te crée un <strong style="color:var(--ink);">persona</strong> — un portrait-type de ton client idéal (prénom, situation, objectifs, points de douleur, freins, et où le trouver). ${IDEAL.analyse?'J\'utilise aussi <strong style="color:var(--ink);">les réponses que tu as analysées</strong> à l\'étape 3 pour le rendre plus juste. ':''}C'est ta boussole pour créer du contenu qui lui parle vraiment.`
+    : IDEAL.tab==='analyse'
     ? `Une fois ton questionnaire rempli par ta cible, exporte les réponses en <strong style="color:var(--ink);">CSV depuis Tally</strong>, puis importe le fichier ici. J'analyse tout pour toi : des <strong style="color:var(--ink);">statistiques</strong> pour les questions fermées, et pour les questions ouvertes je repère les <strong style="color:var(--ink);">mots-clés qui reviennent</strong> et le verbatim marquant.`
     : IDEAL.tab==='quest'
     ? `Choisis un ou deux secteurs parmi ceux que tu as enregistrés dans l'exercice 1. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par secteur</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.`
@@ -7202,6 +7254,7 @@ function drawIdeal(){
       <button class="sph-tab${IDEAL.tab==='secteur'?' on':''}" data-itab="secteur">1 · Trouver mon secteur</button>
       <button class="sph-tab${IDEAL.tab==='quest'?' on':''}" data-itab="quest">2 · Créer mon questionnaire</button>
       <button class="sph-tab${IDEAL.tab==='analyse'?' on':''}" data-itab="analyse">3 · Analyser les réponses</button>
+      <button class="sph-tab${IDEAL.tab==='persona'?' on':''}" data-itab="persona">4 · Créer mon persona</button>
     </div>
     <div id="ideal-pane-secteur"${IDEAL.tab==='secteur'?'':' style="display:none;"'}>
       <div id="ideal-carnet">${idealCarnetHTML()}</div>
@@ -7228,6 +7281,17 @@ function drawIdeal(){
         <button class="btn full" id="ideal-analyse-run" style="margin-top:16px;" disabled>Analyser les réponses</button>
       </div>
       <div id="ideal-analyse-out">${idealAnalyseResultHTML()}</div>
+    </div>
+    <div id="ideal-pane-persona"${IDEAL.tab==='persona'?'':' style="display:none;"'}>
+      <div class="card pad-l">
+        <div class="iq-l" style="margin-bottom:10px;">Sur quel secteur veux-tu créer ton persona&nbsp;?<span class="opt-hint">— 1 au choix</span></div>
+        <div id="ideal-persona-sel">${idealPersonaSelHTML()}</div>
+        <label class="off-l" style="margin-top:14px;">Précisions sur ta cible<span class="opt-hint">— facultatif</span></label>
+        <textarea class="off-in" id="ideal-persona-note" rows="2" placeholder="Ex : plutôt des indépendantes, bio/éco, qui débutent sur Instagram…">${esc(IDEAL.personaNote||'')}</textarea>
+        ${IDEAL.analyse?`<p class="hint" style="margin:12px 0 0;">✓ J'utiliserai aussi les réponses analysées à l'étape 3 pour affiner le persona.</p>`:''}
+        <button class="btn full" id="ideal-persona-gen" style="margin-top:16px;">Générer mon persona</button>
+      </div>
+      <div id="ideal-persona-out">${idealPersonaResultHTML()}</div>
     </div>`;
 
   // tabs
@@ -7294,6 +7358,14 @@ function drawIdeal(){
   if(csvRun) csvRun.addEventListener('click', idealRunCSV);
   const csvClear=box.querySelector('#ideal-analyse-clear');
   if(csvClear) csvClear.addEventListener('click', ()=>{ IDEAL.analyse=null; IDEAL._csvText=''; IDEAL.csvName=''; idealSave(); drawIdeal(); });
+  // persona (étape 4)
+  box.querySelectorAll('[data-personasec]').forEach(b=> b.addEventListener('click', ()=>{
+    const nom=b.dataset.personasec; IDEAL.personaSector=(IDEAL.personaSector===nom?null:nom); idealSave(); drawIdeal();
+  }));
+  const pnote=box.querySelector('#ideal-persona-note'); if(pnote) pnote.addEventListener('input', ()=>{ IDEAL.personaNote=pnote.value; });
+  const pgen=box.querySelector('#ideal-persona-gen'); if(pgen) pgen.addEventListener('click', ()=>{ if(pnote) IDEAL.personaNote=pnote.value; idealPersona(); });
+  const pcopy=box.querySelector('#ideal-persona-copy'); if(pcopy) pcopy.addEventListener('click', ()=>{ if(IDEAL.persona) copy(idealPersonaText(IDEAL.persona)); });
+  const pclear=box.querySelector('#ideal-persona-clear'); if(pclear) pclear.addEventListener('click', ()=>{ IDEAL.persona=null; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
 }
 
 async function idealAnalyze(){
@@ -7351,6 +7423,55 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
     if(!results.length) throw new Error('vide');
     IDEAL.quests = {questionnaires:results}; idealSave(); drawIdeal();
     const q=$('#ideal-quests'); if(q) window.scrollTo({top: q.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
+  }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
+}
+async function idealPersona(){
+  const secteur = IDEAL.personaSector || '';
+  const note = (IDEAL.personaNote||'').trim();
+  if(!secteur && !note){ toast('Choisis un secteur ou précise ta cible.'); return; }
+  const out=$('#ideal-persona-out'); if(out) out.innerHTML = loadingBox('Je donne vie à ton persona…');
+  // contexte secteur enregistré (avantages, clients…)
+  let secCtx='';
+  const sec = IDEAL.savedSectors.find(s=> s.nom===secteur);
+  if(sec){
+    secCtx = `\nContexte du secteur « ${sec.nom} » :`
+      + (sec.pourquoi?`\n- Pourquoi il te correspond : ${sec.pourquoi}`:'')
+      + (sec.clients&&sec.clients.length?`\n- Types de clients : ${sec.clients.join(', ')}`:'')
+      + (sec.inconvenients&&sec.inconvenients.length?`\n- Points de vigilance : ${sec.inconvenients.join(' ; ')}`:'');
+  }
+  // contexte analyse des réponses (étape 3)
+  let anaCtx='';
+  const a=IDEAL.analyse;
+  if(a){
+    const fl=(a.fermees||[]).slice(0,6).map(f=>{ const top=(f.options||[]).slice(0,3).map(o=>`${o.val} (${o.pct}%)`).join(', '); return `- ${f.question} : ${top}`; }).join('\n');
+    const ol=(a.ouvertes||[]).slice(0,6).map(o=>{ const kw=(o.mots_cles||[]).slice(0,6).join(', '); return `- ${o.question} → mots-clés : ${kw}${o.synthese?` | synthèse : ${o.synthese}`:''}`; }).join('\n');
+    anaCtx = `\n\nDONNÉES RÉELLES issues des réponses de la cible (utilise-les en priorité pour ancrer le persona dans la réalité) :\n${fl}${fl&&ol?'\n':''}${ol}`;
+  }
+  const sys = VOIX + "\nTu aides une community manager freelance à créer le PERSONA de son client idéal : un portrait-type incarné et crédible, qui servira de boussole pour créer du contenu. Tu décris le persona à la 3e personne (c'est un personnage fictif mais réaliste), sans caricature.";
+  const prompt = `Crée UN persona de client idéal pour une community manager freelance.
+Secteur / cible : ${secteur||'(à déduire des précisions)'}${note?`\nPrécisions de la CM sur sa cible : ${note}`:''}${secCtx}${anaCtx}
+
+Le persona est un CLIENT type de la CM (le professionnel / la structure qu'elle démarchera), pas un consommateur final. Rends-le incarné et crédible.
+Donne :
+- "prenom" = un prénom réaliste (+ éventuellement un nom d'activité) ;
+- "age" = un âge (nombre) ;
+- "metier" = son métier / son activité précise ;
+- "situation" = 2-3 phrases de contexte (son quotidien pro, sa structure, son rapport à la communication) ;
+- "objectifs" = 3 objectifs concrets qu'il/elle cherche à atteindre ;
+- "defis" = 3 problèmes / points de douleur réels (ses galères avec la com / les réseaux) ;
+- "motivations" = 2-3 leviers qui le/la pousseraient à déléguer sa com à une freelance ;
+- "objections" = 2-3 freins / peurs qui le/la retiennent de déléguer (budget, perte de contrôle, peur de l'inconnu…) ;
+- "canaux" = 3-5 endroits concrets où le/la trouver (réseaux précis, groupes, salons, lieux pro…) ;
+- "citation" = une phrase à la 1re personne, typique de ce qu'il/elle dirait sur sa com.
+Décris tout à la 3e personne (il/elle), de façon réaliste et nuancée.
+Réponds UNIQUEMENT en JSON strict, sans texte autour :
+{"prenom":"","age":"","metier":"","situation":"","objectifs":["",""],"defis":["",""],"motivations":["",""],"objections":["",""],"canaux":["",""],"citation":""}`;
+  try{
+    const d = extractJson(await ask(prompt, {system:sys, max_tokens:2200}));
+    if(!d || !d.prenom) throw new Error('vide');
+    ['objectifs','defis','motivations','objections','canaux'].forEach(k=>{ if(!Array.isArray(d[k])) d[k] = d[k]?[String(d[k])]:[]; });
+    IDEAL.persona = d; idealSave(); drawIdeal();
+    const r=$('#ideal-persona-out'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
 }
 </script>
