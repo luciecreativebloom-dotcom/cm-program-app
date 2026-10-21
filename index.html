@@ -894,6 +894,16 @@ p{margin:0 0 12px;}
 .pp-bh{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-3);margin:0 0 7px;}
 .pp-b ul{margin:0;padding-left:18px;}
 .pp-b li{font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:4px;}
+.pp-txt{font-size:13px;color:var(--ink);line-height:1.6;margin:0;}
+.cn-sub{font-weight:400;font-size:12px;color:var(--ink-3);}
+.seg{display:flex;gap:6px;background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:4px;}
+.seg-b{flex:1;border:none;background:none;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:all .12s;font-family:var(--body);}
+.seg-b.on{background:var(--card);color:var(--bloom);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.seg-chk{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink);cursor:pointer;font-family:var(--body);transition:all .12s;}
+.seg-chk:hover{border-color:var(--sun);}
+.seg-chk.on{border-color:var(--sun);background:var(--sun-pale);}
+.seg-chk .sc-box{flex:0 0 auto;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#8A4B00;background:var(--card);}
+.seg-chk.on .sc-box{border-color:var(--sun);background:var(--sun);color:#fff;}
 .pp-chips{display:flex;flex-wrap:wrap;gap:7px;}
 .pp-chips span{font-size:11.5px;font-weight:600;background:var(--sun-pale);color:#8A4B00;border-radius:999px;padding:5px 11px;}
 /* --- Mes offres --- */
@@ -7001,9 +7011,9 @@ const IDEAL_Q = [
   {k:'valeurs', t:"Ce qui compte pour toi chez un client", multi:true, opts:["Valeurs écolo / durables","Créativité & esthétique","Chaleur & lien humain","Univers premium","Impact social","Innovation","Peu importe"]},
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
-const IDEAL_MAX_SEARCH = 2;
-let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, persona:null, personaSector:null, personaNote:'', _loaded:false };
-function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse, persona:IDEAL.persona, personaSector:IDEAL.personaSector, personaNote:IDEAL.personaNote}); }catch(e){} }
+const IDEAL_MAX_SEARCH = 4;
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, persona:null, personaSector:null, personaNote:'', personas:[], personaOpen:null, personaEditing:null, questMode:'saved', customSector:{}, personaMode:'ia', personaUseAnalyse:true, personaForm:{}, _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse, persona:IDEAL.persona, personaSector:IDEAL.personaSector, personaNote:IDEAL.personaNote, personas:IDEAL.personas, questMode:IDEAL.questMode, customSector:IDEAL.customSector, personaMode:IDEAL.personaMode, personaUseAnalyse:IDEAL.personaUseAnalyse, personaForm:IDEAL.personaForm}); }catch(e){} }
 
 async function renderIdeal(){
   if(!IDEAL._loaded){
@@ -7012,6 +7022,12 @@ async function renderIdeal(){
     if(!Array.isArray(IDEAL.savedSectors)) IDEAL.savedSectors = [];
     IDEAL.savedSectors = IDEAL.savedSectors.map(s=> typeof s==='string' ? {nom:s} : s).filter(s=> s && s.nom);
     if(!Array.isArray(IDEAL.selSectors)) IDEAL.selSectors = [];
+    if(!Array.isArray(IDEAL.personas)) IDEAL.personas = [];
+    if(!IDEAL.customSector || typeof IDEAL.customSector!=='object') IDEAL.customSector = {};
+    if(!IDEAL.personaForm || typeof IDEAL.personaForm!=='object') IDEAL.personaForm = {};
+    if(IDEAL.questMode!=='custom') IDEAL.questMode='saved';
+    if(IDEAL.personaMode!=='manuel') IDEAL.personaMode='ia';
+    if(typeof IDEAL.personaUseAnalyse!=='boolean') IDEAL.personaUseAnalyse=true;
     if(typeof IDEAL.searchCount !== 'number') IDEAL.searchCount = 0;
     IDEAL._loaded = true;
   }
@@ -7210,41 +7226,149 @@ function idealPersonaSelHTML(){
     return `<button class="ichip${on?' on':''}" data-personasec="${esc(sec.nom)}">${esc(sec.nom)}</button>`;
   }).join('')+`</div>`;
 }
-function idealPersonaResultHTML(){
-  const p = IDEAL.persona; if(!p) return '';
+const PERSONA_FIELDS = [
+  {k:'prenom', l:"Un prénom pour l'incarner", t:'input', ph:"Ex : Camille"},
+  {k:'age', l:"Son âge", t:'input', ph:"Ex : 34 ans"},
+  {k:'metier', l:"Son métier / son activité", t:'input', ph:"Ex : coach sportive indépendante"},
+  {k:'situation', l:"Sa situation en quelques mots", t:'area', ph:"Son quotidien, sa structure, son parcours…"},
+  {k:'style_vie', l:"Son style de vie / sa personnalité", t:'area', ph:"Son rythme, ses valeurs, ce qui compte pour elle…"},
+  {k:'objectifs', l:"Ses objectifs", t:'list', ph:"Un objectif par ligne"},
+  {k:'problematiques', l:"Ses problématiques / points de douleur", t:'list', ph:"Un problème par ligne"},
+  {k:'recherche', l:"Ce qu'elle recherche", t:'list', ph:"Une attente par ligne"},
+  {k:'avant', l:"Ce qu'elle faisait avant et a arrêté", t:'list', ph:"Une chose par ligne"},
+  {k:'erreurs', l:"Ses erreurs fréquentes", t:'list', ph:"Une erreur par ligne"},
+  {k:'objections', l:"Ses objections courantes", t:'list', ph:"Une objection par ligne"},
+  {k:'reseaux_actuels', l:"Son usage actuel des réseaux sociaux", t:'area', ph:"Sur quels réseaux, à quelle fréquence, son ressenti…"},
+  {k:'plateformes', l:"Les plateformes qu'elle fréquente le plus", t:'list', ph:"Une plateforme par ligne (Instagram, TikTok…)"},
+  {k:'contenus', l:"Le contenu qu'elle aime (lire / voir / écouter)", t:'list', ph:"Un type de contenu par ligne"},
+  {k:'citation', l:"Une phrase qu'elle pourrait dire", t:'area', ph:"« … »"},
+];
+function idealPersonaManualFieldsHTML(){
+  const f = IDEAL.personaForm||{};
+  return PERSONA_FIELDS.map(fd=>{
+    const v = esc(f[fd.k]||'');
+    const hint = fd.t==='list' ? `<span class="opt-hint">— une ligne par élément</span>` : (['prenom','age','metier','objectifs'].includes(fd.k)?'':'<span class="opt-hint">— facultatif</span>');
+    const ctrl = fd.t==='input'
+      ? `<input class="off-in" data-pm="${fd.k}" type="text" placeholder="${esc(fd.ph)}" value="${v}">`
+      : `<textarea class="off-in" data-pm="${fd.k}" rows="${fd.t==='list'?3:2}" placeholder="${esc(fd.ph)}">${v}</textarea>`;
+    return `<label class="off-l">${fd.l}${hint}</label>${ctrl}`;
+  }).join('');
+}
+function idealPersonaCardInner(p){
   const chips=(arr)=> (arr&&arr.length)?`<div class="pp-chips">${arr.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:'';
   const block=(ic,h,arr)=> (arr&&arr.length)?`<div class="pp-b"><div class="pp-bh">${ic} ${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
+  const txt=(ic,h,v)=> v?`<div class="pp-b"><div class="pp-bh">${ic} ${h}</div><p class="pp-txt">${esc(v)}</p></div>`:'';
+  const chipb=(ic,h,arr)=> (arr&&arr.length)?`<div class="pp-b"><div class="pp-bh">${ic} ${h}</div>${chips(arr)}</div>`:'';
   const initials = (p.prenom||'?').trim().charAt(0).toUpperCase();
-  const sub = [p.age?esc(p.age)+' ans':'', esc(p.metier||'')].filter(Boolean).join(' · ');
-  return `<div style="display:flex;align-items:center;gap:10px;margin:22px 0 10px;"><p class="sec-t" style="margin:0;">Ton persona</p><button class="btn ghost sm" id="ideal-persona-copy" style="margin-left:auto;flex:none;">Copier</button><button class="btn ghost sm" id="ideal-persona-clear" style="flex:none;">Nouveau</button></div>
-    <div class="card pad-l pp-card">
-      <div class="pp-head"><span class="pp-av">${esc(initials)}</span><div><div class="pp-name">${esc(p.prenom||'Persona')}</div>${sub?`<div class="pp-sub">${sub}</div>`:''}</div></div>
+  const ageTxt = p.age ? (/an/i.test(String(p.age)) ? esc(String(p.age)) : esc(String(p.age))+' ans') : '';
+  const sub = [ageTxt, esc(p.metier||'')].filter(Boolean).join(' · ');
+  return `<div class="pp-head"><span class="pp-av">${esc(initials)}</span><div><div class="pp-name">${esc(p.prenom||'Persona')}</div>${sub?`<div class="pp-sub">${sub}</div>`:''}</div></div>
       ${p.citation?`<p class="pp-quote">« ${esc(p.citation)} »</p>`:''}
       ${p.situation?`<p class="pp-sit">${esc(p.situation)}</p>`:''}
+      ${txt('🌿','Son style de vie', p.style_vie)}
       ${block('🎯','Ses objectifs', p.objectifs)}
-      ${block('😣','Ses défis / points de douleur', p.defis)}
-      ${block('💡','Ses motivations', p.motivations)}
-      ${block('🚧','Ses freins à déléguer', p.objections)}
-      ${(p.canaux&&p.canaux.length)?`<div class="pp-b"><div class="pp-bh">📍 Où le trouver</div>${chips(p.canaux)}</div>`:''}
+      ${block('😣','Ses problématiques', p.problematiques)}
+      ${block('🔎','Ce qu\'elle recherche', p.recherche)}
+      ${block('🔙','Ce qu\'elle faisait avant (et a arrêté)', p.avant)}
+      ${block('⚠️','Ses erreurs fréquentes', p.erreurs)}
+      ${block('🚧','Ses objections courantes', p.objections)}
+      ${txt('📱','Ses réseaux sociaux aujourd\'hui', p.reseaux_actuels)}
+      ${chipb('📍','Les plateformes qu\'elle côtoie le plus', p.plateformes)}
+      ${chipb('💬','Le contenu qu\'elle aime (lire / voir / écouter)', p.contenus)}`;
+}
+function idealPersonaResultHTML(){
+  const p = IDEAL.persona; if(!p) return '';
+  const saved = !!(p.id && IDEAL.personas.some(x=> x.id===p.id));
+  return `<div style="display:flex;align-items:center;gap:8px;margin:22px 0 10px;flex-wrap:wrap;"><p class="sec-t" style="margin:0;">Ton persona</p>
+      <button class="btn sm${saved?' ghost':''}" id="ideal-persona-save" style="margin-left:auto;flex:none;"${saved?' disabled':''}>${saved?'✓ Enregistré':'Enregistrer'}</button>
+      <button class="btn ghost sm" id="ideal-persona-copy" style="flex:none;">Copier</button>
+      <button class="btn ghost sm" id="ideal-persona-clear" style="flex:none;">Nouveau</button></div>
+    <div class="card pad-l pp-card">${idealPersonaCardInner(p)}</div>`;
+}
+function idealPersonaCarnetHTML(){
+  if(!IDEAL.personas.length) return '';
+  const al=(arr)=> (arr||[]).join('\n');
+  const items = IDEAL.personas.map((p,i)=>{
+    const open = IDEAL.personaOpen === p.id;
+    const editing = IDEAL.personaEditing === p.id;
+    let body='';
+    if(editing){
+      body = `<div class="cn-body off-edit" data-personaedit-form="${p.id}">
+          <label class="off-l">Prénom</label>
+          <input class="off-in" data-pf="prenom" type="text" value="${esc(p.prenom||'')}">
+          <label class="off-l">Âge</label>
+          <input class="off-in" data-pf="age" type="text" value="${esc(p.age||'')}">
+          <label class="off-l">Métier / activité</label>
+          <input class="off-in" data-pf="metier" type="text" value="${esc(p.metier||'')}">
+          <label class="off-l">Citation</label>
+          <textarea class="off-in" data-pf="citation" rows="2">${esc(p.citation||'')}</textarea>
+          <label class="off-l">Situation</label>
+          <textarea class="off-in" data-pf="situation" rows="3">${esc(p.situation||'')}</textarea>
+          <label class="off-l">Son style de vie</label>
+          <textarea class="off-in" data-pf="style_vie" rows="3">${esc(p.style_vie||'')}</textarea>
+          <label class="off-l">Ses objectifs<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="objectifs" rows="4">${esc(al(p.objectifs))}</textarea>
+          <label class="off-l">Ses problématiques<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="problematiques" rows="4">${esc(al(p.problematiques))}</textarea>
+          <label class="off-l">Ce qu'elle recherche<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="recherche" rows="3">${esc(al(p.recherche))}</textarea>
+          <label class="off-l">Ce qu'elle faisait avant (et a arrêté)<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="avant" rows="3">${esc(al(p.avant))}</textarea>
+          <label class="off-l">Ses erreurs fréquentes<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="erreurs" rows="3">${esc(al(p.erreurs))}</textarea>
+          <label class="off-l">Ses objections courantes<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="objections" rows="3">${esc(al(p.objections))}</textarea>
+          <label class="off-l">Ses réseaux sociaux aujourd'hui</label>
+          <textarea class="off-in" data-pf="reseaux_actuels" rows="3">${esc(p.reseaux_actuels||'')}</textarea>
+          <label class="off-l">Les plateformes qu'elle côtoie le plus<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="plateformes" rows="3">${esc(al(p.plateformes))}</textarea>
+          <label class="off-l">Le contenu qu'elle aime<span class="opt-hint">— une ligne par élément</span></label>
+          <textarea class="off-in" data-pf="contenus" rows="4">${esc(al(p.contenus))}</textarea>
+          <div class="off-actions">
+            <button class="btn sm" data-personasavedit="${p.id}">Enregistrer les modifications</button>
+            <button class="btn ghost sm" data-personacanceledit="${p.id}">Annuler</button>
+          </div>
+        </div>`;
+    } else if(open){
+      body = `<div class="cn-body">${idealPersonaCardInner(p)}
+        <div class="off-actions"><button class="btn ghost sm" data-personacopy="${p.id}">Copier</button><button class="btn ghost sm" data-personaedit="${p.id}">Modifier</button></div>
+      </div>`;
+    }
+    const sub = [p.age?(/an/i.test(String(p.age))?esc(String(p.age)):esc(String(p.age))+' ans'):'', esc(p.metier||'')].filter(Boolean).join(' · ');
+    return `<div class="cn-item${(open||editing)?' open':''}">
+        <div class="cn-head">
+          <button class="cn-toggle" data-personaopen="${p.id}"><span class="cn-ar">▸</span><span>${esc(p.prenom||'Persona')}${sub?` <span class="cn-sub">— ${sub}</span>`:''}</span></button>
+          <button class="cn-del" data-personadel="${p.id}" aria-label="Supprimer">×</button>
+        </div>${body}
+      </div>`;
+  }).join('');
+  return `<div class="card pad-l" style="margin-bottom:16px;">
+      <p class="sec-t" style="margin:0 0 4px;">👥 Mon carnet de personas</p>
+      <p class="hint" style="margin:0 0 12px;">Tes personas enregistrés s'accumulent ici. Clique sur un persona pour revoir tout le détail ou le copier.</p>
+      ${items}
     </div>`;
 }
 function idealPersonaText(p){
   let t=(p.prenom||'Persona')+(p.age?`, ${p.age} ans`:'')+(p.metier?` — ${p.metier}`:'')+'\n';
   if(p.citation) t+=`« ${p.citation} »\n`;
   if(p.situation) t+='\n'+p.situation+'\n';
+  const line=(h,v)=>{ if(v){ t+='\n'+h+'\n'+v+'\n'; } };
   const sec=(h,arr)=>{ if(arr&&arr.length){ t+='\n'+h+'\n'; arr.forEach(x=>t+=' - '+x+'\n'); } };
-  sec('Objectifs',p.objectifs); sec('Défis / points de douleur',p.defis); sec('Motivations',p.motivations);
-  sec('Freins à déléguer',p.objections); sec('Où le trouver',p.canaux);
+  line('Style de vie',p.style_vie);
+  sec('Objectifs',p.objectifs); sec('Problématiques',p.problematiques); sec('Ce qu\'elle recherche',p.recherche);
+  sec('Ce qu\'elle faisait avant (et a arrêté)',p.avant); sec('Erreurs fréquentes',p.erreurs); sec('Objections courantes',p.objections);
+  line('Réseaux sociaux aujourd\'hui',p.reseaux_actuels);
+  sec('Plateformes les plus fréquentées',p.plateformes); sec('Contenu qu\'elle aime',p.contenus);
   return t;
 }
 function drawIdeal(){
   const box = $('#ideal-body'); if(!box) return;
   const howtoTxt = IDEAL.tab==='persona'
-    ? `Dernière étape&nbsp;: on donne un visage à ta cible. Choisis un secteur et je te crée un <strong style="color:var(--ink);">persona</strong> — un portrait-type de ton client idéal (prénom, situation, objectifs, points de douleur, freins, et où le trouver). ${IDEAL.analyse?'J\'utilise aussi <strong style="color:var(--ink);">les réponses que tu as analysées</strong> à l\'étape 3 pour le rendre plus juste. ':''}C'est ta boussole pour créer du contenu qui lui parle vraiment.`
+    ? `Dernière étape&nbsp;: on donne un visage à ta cible. Deux options&nbsp;: je crée un <strong style="color:var(--ink);">persona</strong> complet avec l'IA (en m'appuyant sur un secteur et, si tu veux, sur ton analyse de l'étape 3), ou tu le <strong style="color:var(--ink);">remplis toi-même</strong> en répondant à quelques questions. Style de vie, objectifs, problématiques, erreurs, objections, usage des réseaux, plateformes et contenus qu'elle aime… C'est ta boussole pour créer du contenu qui lui parle vraiment.`
     : IDEAL.tab==='analyse'
     ? `Une fois ton questionnaire rempli par ta cible, exporte les réponses en <strong style="color:var(--ink);">CSV depuis Tally</strong>, puis importe le fichier ici. J'analyse tout pour toi : des <strong style="color:var(--ink);">statistiques</strong> pour les questions fermées, et pour les questions ouvertes je repère les <strong style="color:var(--ink);">mots-clés qui reviennent</strong> et le verbatim marquant.`
     : IDEAL.tab==='quest'
-    ? `Choisis un ou deux secteurs parmi ceux que tu as enregistrés dans l'exercice 1. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions par secteur</strong>, mêlant questions fermées (pour des données chiffrées) et ouvertes (pour recueillir leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.`
+    ? `Deux options&nbsp;: choisis un ou deux secteurs <strong style="color:var(--ink);">déjà enregistrés</strong> à l'étape 1, ou <strong style="color:var(--ink);">crée ton propre secteur</strong> en le décrivant en quelques questions. Je génère un <strong style="color:var(--ink);">questionnaire de besoins d'environ 10 questions</strong>, mêlant questions fermées (données chiffrées) et ouvertes (leurs mots exacts). Tu n'auras plus qu'à le recréer sur Tally et l'envoyer.`
     : `Le client idéal, c'est avec qui tu vas travailler, et ça ne se décide pas à l'aveuglette. On va réaliser une vraie <strong style="color:var(--ink);">étude des besoins</strong> pour comprendre avec qui tu peux envisager de travailler, et ce que tu peux lui proposer. Réponds à ces quelques questions, et je te propose <strong style="color:var(--ink);">3 grands secteurs</strong> qui te correspondent, avec tous les types de clients à aller y chercher.`;
   box.innerHTML = `<div class="card pad-l" style="margin-bottom:14px;border-color:rgba(255,208,214,0.5);background:rgba(255,208,214,0.3);">
       <div class="howto-h"><span class="howto-av"><img src="photo-lucie.jpg?v=1" alt="Lucie" onerror="this.style.display='none'"></span><p class="sec-t" style="margin:0;">Mode d'emploi</p></div>
@@ -7263,9 +7387,29 @@ function drawIdeal(){
     </div>
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
       <div class="card pad-l">
-        <div class="iq-l" style="margin-bottom:10px;">Quel(s) secteur(s) veux-tu cibler&nbsp;?<span class="opt-hint">— 2 maximum</span></div>
-        <div id="ideal-sel">${idealSelSectorsHTML()}</div>
-        <button class="btn full" id="ideal-gen" style="margin-top:16px;"${IDEAL.selSectors.length?'':' disabled'}>Générer ${IDEAL.selSectors.length>1?'les questionnaires':'le questionnaire'}</button>
+        <div class="seg" id="ideal-qmode">
+          <button class="seg-b${IDEAL.questMode==='saved'?' on':''}" data-qmode="saved">Un secteur enregistré</button>
+          <button class="seg-b${IDEAL.questMode==='custom'?' on':''}" data-qmode="custom">Créer mon propre secteur</button>
+        </div>
+        ${IDEAL.questMode==='saved' ? `
+          <div class="iq-l" style="margin:16px 0 10px;">Quel(s) secteur(s) veux-tu cibler&nbsp;?<span class="opt-hint">— 2 maximum</span></div>
+          <div id="ideal-sel">${idealSelSectorsHTML()}</div>
+          <button class="btn full" id="ideal-gen" style="margin-top:16px;"${IDEAL.selSectors.length?'':' disabled'}>Générer ${IDEAL.selSectors.length>1?'les questionnaires':'le questionnaire'}</button>
+        ` : `
+          <div class="iq-l" style="margin:16px 0 10px;">Décris le secteur que tu veux cibler</div>
+          <p class="hint" style="margin:0 0 14px;">Réponds à ces quelques questions, je crée le questionnaire de besoins adapté.</p>
+          <label class="off-l">Nom du secteur / type de clients</label>
+          <input class="off-in" id="ideal-cs-nom" type="text" placeholder="Ex : fleuristes, agences immobilières, naturopathes…" value="${esc(IDEAL.customSector.nom||'')}">
+          <label class="off-l">Que font-ils / que vendent-ils&nbsp;?<span class="opt-hint">— facultatif</span></label>
+          <input class="off-in" id="ideal-cs-activite" type="text" placeholder="Ex : vente de fleurs et compositions, en boutique et en ligne" value="${esc(IDEAL.customSector.activite||'')}">
+          <label class="off-l">Leur public principal&nbsp;?</label>
+          <select class="off-in" id="ideal-cs-public">
+            ${['','Plutôt des particuliers (B2C)','Plutôt des entreprises (B2B)','Les deux'].map(o=>`<option value="${esc(o)}"${(IDEAL.customSector.public||'')===o?' selected':''}>${o?esc(o):'— au choix —'}</option>`).join('')}
+          </select>
+          <label class="off-l">Ce que tu aimerais comprendre d'eux&nbsp;?<span class="opt-hint">— facultatif</span></label>
+          <input class="off-in" id="ideal-cs-note" type="text" placeholder="Ex : leur budget com, ce qui les freine à déléguer…" value="${esc(IDEAL.customSector.note||'')}">
+          <button class="btn full" id="ideal-gen-custom" style="margin-top:16px;"${(IDEAL.customSector.nom||'').trim()?'':' disabled'}>Générer le questionnaire</button>
+        `}
       </div>
       <div id="ideal-quests">${idealQuestHTML()}</div>
     </div>
@@ -7283,13 +7427,25 @@ function drawIdeal(){
       <div id="ideal-analyse-out">${idealAnalyseResultHTML()}</div>
     </div>
     <div id="ideal-pane-persona"${IDEAL.tab==='persona'?'':' style="display:none;"'}>
+      <div id="ideal-persona-carnet">${idealPersonaCarnetHTML()}</div>
       <div class="card pad-l">
-        <div class="iq-l" style="margin-bottom:10px;">Sur quel secteur veux-tu créer ton persona&nbsp;?<span class="opt-hint">— 1 au choix</span></div>
-        <div id="ideal-persona-sel">${idealPersonaSelHTML()}</div>
-        <label class="off-l" style="margin-top:14px;">Précisions sur ta cible<span class="opt-hint">— facultatif</span></label>
-        <textarea class="off-in" id="ideal-persona-note" rows="2" placeholder="Ex : plutôt des indépendantes, bio/éco, qui débutent sur Instagram…">${esc(IDEAL.personaNote||'')}</textarea>
-        ${IDEAL.analyse?`<p class="hint" style="margin:12px 0 0;">✓ J'utiliserai aussi les réponses analysées à l'étape 3 pour affiner le persona.</p>`:''}
-        <button class="btn full" id="ideal-persona-gen" style="margin-top:16px;">Générer mon persona</button>
+        <div class="seg" id="ideal-pmode">
+          <button class="seg-b${IDEAL.personaMode==='ia'?' on':''}" data-pmode="ia">Générer avec l'IA</button>
+          <button class="seg-b${IDEAL.personaMode==='manuel'?' on':''}" data-pmode="manuel">Le remplir moi-même</button>
+        </div>
+        ${IDEAL.personaMode==='ia' ? `
+          <div class="iq-l" style="margin:16px 0 10px;">Sur quel secteur veux-tu créer ton persona&nbsp;?<span class="opt-hint">— 1 au choix</span></div>
+          <div id="ideal-persona-sel">${idealPersonaSelHTML()}</div>
+          <label class="off-l" style="margin-top:14px;">Précisions sur ta cible<span class="opt-hint">— facultatif</span></label>
+          <textarea class="off-in" id="ideal-persona-note" rows="2" placeholder="Ex : plutôt des indépendantes, bio/éco, qui débutent sur Instagram…">${esc(IDEAL.personaNote||'')}</textarea>
+          ${IDEAL.analyse?`<button class="seg-chk${IDEAL.personaUseAnalyse?' on':''}" id="ideal-persona-useana" style="margin-top:14px;"><span class="sc-box">${IDEAL.personaUseAnalyse?'✓':''}</span>Utiliser l'analyse de l'étape 3 pour affiner le persona</button>`:`<p class="hint" style="margin:12px 0 0;">💡 Analyse tes réponses à l'étape 3 pour un persona encore plus juste (facultatif).</p>`}
+          <button class="btn full" id="ideal-persona-gen" style="margin-top:16px;">Générer mon persona</button>
+        ` : `
+          <div class="iq-l" style="margin:16px 0 8px;">Décris toi-même ton client idéal</div>
+          <p class="hint" style="margin:0 0 14px;">Réponds à ces questions (celles que tu veux). Je construis ta fiche persona avec tes réponses. ${IDEAL.analyse?'Tu peux t\'appuyer sur ton analyse de l\'étape 3.':''}</p>
+          ${idealPersonaManualFieldsHTML()}
+          <button class="btn full" id="ideal-persona-build" style="margin-top:16px;">Créer mon persona</button>
+        `}
       </div>
       <div id="ideal-persona-out">${idealPersonaResultHTML()}</div>
     </div>`;
@@ -7340,6 +7496,14 @@ function drawIdeal(){
     idealSave(); drawIdeal();
   }));
   const gn=$('#ideal-gen'); if(gn) gn.addEventListener('click', idealGen);
+  // onglet 2 : bascule secteur enregistré / secteur personnalisé
+  box.querySelectorAll('[data-qmode]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.questMode=b.dataset.qmode; idealSave(); drawIdeal(); }));
+  const csNom=box.querySelector('#ideal-cs-nom'), csAct=box.querySelector('#ideal-cs-activite'), csPub=box.querySelector('#ideal-cs-public'), csNote=box.querySelector('#ideal-cs-note');
+  if(csNom) csNom.addEventListener('input', ()=>{ IDEAL.customSector.nom=csNom.value; const gc=box.querySelector('#ideal-gen-custom'); if(gc) gc.disabled=!csNom.value.trim(); });
+  if(csAct) csAct.addEventListener('input', ()=>{ IDEAL.customSector.activite=csAct.value; });
+  if(csPub) csPub.addEventListener('change', ()=>{ IDEAL.customSector.public=csPub.value; });
+  if(csNote) csNote.addEventListener('input', ()=>{ IDEAL.customSector.note=csNote.value; });
+  const gnc=box.querySelector('#ideal-gen-custom'); if(gnc) gnc.addEventListener('click', ()=>{ idealSave(); idealGenCustom(); });
   box.querySelectorAll('[data-iqcopy]').forEach(b=> b.addEventListener('click', ()=>{
     const q=IDEAL.quests.questionnaires[+b.dataset.iqcopy]; if(!q) return;
     let t=q.cible+'\n'+(q.intro||'')+'\n\n';
@@ -7362,10 +7526,46 @@ function drawIdeal(){
   box.querySelectorAll('[data-personasec]').forEach(b=> b.addEventListener('click', ()=>{
     const nom=b.dataset.personasec; IDEAL.personaSector=(IDEAL.personaSector===nom?null:nom); idealSave(); drawIdeal();
   }));
+  // onglet 4 : bascule IA / manuel
+  box.querySelectorAll('[data-pmode]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.personaMode=b.dataset.pmode; idealSave(); drawIdeal(); }));
+  const puse=box.querySelector('#ideal-persona-useana'); if(puse) puse.addEventListener('click', ()=>{ IDEAL.personaUseAnalyse=!IDEAL.personaUseAnalyse; idealSave(); drawIdeal(); });
   const pnote=box.querySelector('#ideal-persona-note'); if(pnote) pnote.addEventListener('input', ()=>{ IDEAL.personaNote=pnote.value; });
   const pgen=box.querySelector('#ideal-persona-gen'); if(pgen) pgen.addEventListener('click', ()=>{ if(pnote) IDEAL.personaNote=pnote.value; idealPersona(); });
+  // champs du persona manuel
+  box.querySelectorAll('[data-pm]').forEach(e=> e.addEventListener('input', ()=>{ IDEAL.personaForm[e.dataset.pm]=e.value; }));
+  const pbuild=box.querySelector('#ideal-persona-build'); if(pbuild) pbuild.addEventListener('click', ()=>{
+    box.querySelectorAll('[data-pm]').forEach(e=>{ IDEAL.personaForm[e.dataset.pm]=e.value; });
+    idealPersonaBuildManual();
+  });
   const pcopy=box.querySelector('#ideal-persona-copy'); if(pcopy) pcopy.addEventListener('click', ()=>{ if(IDEAL.persona) copy(idealPersonaText(IDEAL.persona)); });
   const pclear=box.querySelector('#ideal-persona-clear'); if(pclear) pclear.addEventListener('click', ()=>{ IDEAL.persona=null; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
+  const psave=box.querySelector('#ideal-persona-save'); if(psave) psave.addEventListener('click', ()=>{
+    if(!IDEAL.persona) return;
+    if(IDEAL.persona.id && IDEAL.personas.some(x=>x.id===IDEAL.persona.id)) return;
+    const o = Object.assign({id:'p'+Date.now().toString(36)}, IDEAL.persona);
+    IDEAL.personas.unshift(o); IDEAL.persona = o; IDEAL.personaOpen = null;
+    idealSave(); drawIdeal(); toast('Persona enregistré dans ton carnet ✓');
+  });
+  box.querySelectorAll('[data-personaopen]').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.personaopen; IDEAL.personaOpen=(IDEAL.personaOpen===id?null:id); if(IDEAL.personaEditing!==id) IDEAL.personaEditing=null; drawIdeal(); }));
+  box.querySelectorAll('[data-personadel]').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.personadel; IDEAL.personas=IDEAL.personas.filter(x=>x.id!==id); if(IDEAL.personaEditing===id) IDEAL.personaEditing=null; idealSave(); drawIdeal(); }));
+  box.querySelectorAll('[data-personacopy]').forEach(b=> b.addEventListener('click', ()=>{ const p=IDEAL.personas.find(x=>x.id===b.dataset.personacopy); if(p) copy(idealPersonaText(p)); }));
+  box.querySelectorAll('[data-personaedit]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.personaEditing=b.dataset.personaedit; IDEAL.personaOpen=b.dataset.personaedit; drawIdeal(); }));
+  box.querySelectorAll('[data-personacanceledit]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.personaEditing=null; drawIdeal(); }));
+  box.querySelectorAll('[data-personasavedit]').forEach(b=> b.addEventListener('click', ()=>{
+    const id=b.dataset.personasavedit; const p=IDEAL.personas.find(x=>x.id===id); if(!p) return;
+    const wrap=box.querySelector(`.off-edit[data-personaedit-form="${id}"]`); if(!wrap) return;
+    const gf=f=>{ const e=wrap.querySelector(`[data-pf="${f}"]`); return e?e.value:''; };
+    const gl=f=> gf(f).split('\n').map(s=>s.trim()).filter(Boolean);
+    p.prenom=gf('prenom').trim(); p.age=gf('age').trim(); p.metier=gf('metier').trim();
+    p.citation=gf('citation').trim(); p.situation=gf('situation').trim(); p.style_vie=gf('style_vie').trim();
+    p.reseaux_actuels=gf('reseaux_actuels').trim();
+    p.objectifs=gl('objectifs'); p.problematiques=gl('problematiques'); p.recherche=gl('recherche');
+    p.avant=gl('avant'); p.erreurs=gl('erreurs'); p.objections=gl('objections');
+    p.plateformes=gl('plateformes'); p.contenus=gl('contenus');
+    // si le persona en cours d'affichage est celui modifié, le synchroniser
+    if(IDEAL.persona && IDEAL.persona.id===id) IDEAL.persona=Object.assign({}, p);
+    IDEAL.personaEditing=null; idealSave(); drawIdeal(); toast('Modifications enregistrées ✓');
+  }));
 }
 
 async function idealAnalyze(){
@@ -7404,11 +7604,10 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
     const r=$('#ideal-result'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(res) res.innerHTML = errorBox("L'analyse n'a pas abouti. Réessaie dans un instant."); }
 }
-async function idealGen(){
-  if(!IDEAL.selSectors.length){ toast('Choisis au moins un secteur.'); return; }
-  const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(IDEAL.selSectors.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
+async function idealGenRun(targets, loadingMsg){
+  const out=$('#ideal-quests'); if(out) out.innerHTML = loadingBox(loadingMsg);
   const sys = VOIX + "\nTu crées des questionnaires de besoins (mini-études de marché) qu'une community manager va envoyer aux professionnels d'un secteur pour comprendre leurs problèmes réels, leurs mots exacts, leurs habitudes et leurs budgets. IMPORTANT : le questionnaire s'adresse à des professionnels qu'on ne connaît pas — rédige-le entièrement en VOUVOIEMENT (« vous »), sur un ton professionnel et poli.";
-  const mk = (secteur)=>`Secteur ciblé : ${secteur}
+  const mk = (label, ctx)=>`Secteur ciblé : ${label}${ctx?`\n${ctx}`:''}
 Crée UN questionnaire de besoins de 10 questions maximum, adapté aux professionnels / entreprises de ce secteur.
 Mélange environ 6 questions FERMÉES (chacune avec 3 à 5 options de réponse, pour des données chiffrées : budget, fréquence, canaux, priorités…) et environ 4 questions OUVERTES (sans options, pour recueillir le verbatim : problèmes, frustrations, mots exacts, envies).
 Rédige toutes les questions ET l'intro en VOUVOIEMENT (« vous »), sur un ton professionnel et poli — jamais de tutoiement. "cible" = le nom du secteur. "intro" = une phrase d'introduction professionnelle et courtoise.
@@ -7416,14 +7615,33 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
 {"cible":"","intro":"","questions":[{"type":"fermee","texte":"","options":["",""]},{"type":"ouverte","texte":""}]}`;
   try{
     const results=[];
-    for(const secteur of IDEAL.selSectors){
-      const d = extractJson(await ask(mk(secteur), {system:sys, max_tokens:2600}));
-      if(d && Array.isArray(d.questions) && d.questions.length) results.push({cible:d.cible||secteur, intro:d.intro||'', questions:d.questions});
+    for(const tg of targets){
+      const d = extractJson(await ask(mk(tg.label, tg.context), {system:sys, max_tokens:2600}));
+      if(d && Array.isArray(d.questions) && d.questions.length) results.push({cible:d.cible||tg.label, intro:d.intro||'', questions:d.questions});
     }
     if(!results.length) throw new Error('vide');
     IDEAL.quests = {questionnaires:results}; idealSave(); drawIdeal();
     const q=$('#ideal-quests'); if(q) window.scrollTo({top: q.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
-  }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
+  }catch(e){ const o=$('#ideal-quests'); if(o) o.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
+}
+async function idealGen(){
+  if(!IDEAL.selSectors.length){ toast('Choisis au moins un secteur.'); return; }
+  const targets = IDEAL.selSectors.map(nom=>{
+    const sec = IDEAL.savedSectors.find(s=> s.nom===nom);
+    const ctx = sec && sec.clients && sec.clients.length ? `Types de clients de ce secteur : ${sec.clients.join(', ')}.` : '';
+    return {label:nom, context:ctx};
+  });
+  idealGenRun(targets, IDEAL.selSectors.length>1?'On crée tes questionnaires de besoins…':'On crée ton questionnaire de besoins…');
+}
+async function idealGenCustom(){
+  const cs = IDEAL.customSector||{};
+  const nom = (cs.nom||'').trim();
+  if(!nom){ toast('Donne au moins un nom de secteur.'); return; }
+  const ctxParts=[];
+  if((cs.activite||'').trim()) ctxParts.push(`Ce qu'ils font / vendent : ${cs.activite.trim()}.`);
+  if((cs.public||'').trim()) ctxParts.push(`Leur public : ${cs.public.trim()}.`);
+  if((cs.note||'').trim()) ctxParts.push(`La CM aimerait surtout comprendre : ${cs.note.trim()}.`);
+  idealGenRun([{label:nom, context:ctxParts.join(' ')}], 'On crée ton questionnaire de besoins…');
 }
 async function idealPersona(){
   const secteur = IDEAL.personaSector || '';
@@ -7439,9 +7657,9 @@ async function idealPersona(){
       + (sec.clients&&sec.clients.length?`\n- Types de clients : ${sec.clients.join(', ')}`:'')
       + (sec.inconvenients&&sec.inconvenients.length?`\n- Points de vigilance : ${sec.inconvenients.join(' ; ')}`:'');
   }
-  // contexte analyse des réponses (étape 3)
+  // contexte analyse des réponses (étape 3) — seulement si la CM le demande
   let anaCtx='';
-  const a=IDEAL.analyse;
+  const a=(IDEAL.personaUseAnalyse!==false)?IDEAL.analyse:null;
   if(a){
     const fl=(a.fermees||[]).slice(0,6).map(f=>{ const top=(f.options||[]).slice(0,3).map(o=>`${o.val} (${o.pct}%)`).join(', '); return `- ${f.question} : ${top}`; }).join('\n');
     const ol=(a.ouvertes||[]).slice(0,6).map(o=>{ const kw=(o.mots_cles||[]).slice(0,6).join(', '); return `- ${o.question} → mots-clés : ${kw}${o.synthese?` | synthèse : ${o.synthese}`:''}`; }).join('\n');
@@ -7451,28 +7669,46 @@ async function idealPersona(){
   const prompt = `Crée UN persona de client idéal pour une community manager freelance.
 Secteur / cible : ${secteur||'(à déduire des précisions)'}${note?`\nPrécisions de la CM sur sa cible : ${note}`:''}${secCtx}${anaCtx}
 
-Le persona est un CLIENT type de la CM (le professionnel / la structure qu'elle démarchera), pas un consommateur final. Rends-le incarné et crédible.
-Donne :
+Le persona est un CLIENT type de la CM (le professionnel / la structure qu'elle démarchera), pas un consommateur final. Rends-le incarné et crédible, riche en détails concrets.
+Donne TOUS les champs suivants :
 - "prenom" = un prénom réaliste (+ éventuellement un nom d'activité) ;
 - "age" = un âge (nombre) ;
 - "metier" = son métier / son activité précise ;
-- "situation" = 2-3 phrases de contexte (son quotidien pro, sa structure, son rapport à la communication) ;
-- "objectifs" = 3 objectifs concrets qu'il/elle cherche à atteindre ;
-- "defis" = 3 problèmes / points de douleur réels (ses galères avec la com / les réseaux) ;
-- "motivations" = 2-3 leviers qui le/la pousseraient à déléguer sa com à une freelance ;
-- "objections" = 2-3 freins / peurs qui le/la retiennent de déléguer (budget, perte de contrôle, peur de l'inconnu…) ;
-- "canaux" = 3-5 endroits concrets où le/la trouver (réseaux précis, groupes, salons, lieux pro…) ;
+- "situation" = 2-3 phrases de contexte (son quotidien pro, sa structure, son parcours) ;
+- "style_vie" = 2-3 phrases sur son style de vie et sa personnalité (rythme, valeurs, rapport au travail, ce qui compte pour elle au quotidien) ;
+- "objectifs" = 3-4 objectifs concrets qu'il/elle cherche à atteindre ;
+- "problematiques" = 3-4 problèmes / points de douleur réels (ses galères, notamment avec la com et les réseaux) ;
+- "recherche" = 3-4 choses précises qu'il/elle recherche (chez un prestataire, une solution, un accompagnement) ;
+- "avant" = 2-3 choses qu'il/elle faisait avant pour sa com et a arrêté de faire (et pourquoi) ;
+- "erreurs" = 2-4 erreurs fréquentes qu'il/elle commet (sur sa com / ses réseaux) ;
+- "objections" = 2-4 objections / freins courants (budget, perte de contrôle, peur de déléguer, « je peux le faire moi-même »…) ;
+- "reseaux_actuels" = 2-3 phrases sur son utilisation ACTUELLE des réseaux sociaux (fréquence, régularité, ce qui marche ou pas, son ressenti) ;
+- "plateformes" = 3-5 plateformes / réseaux qu'il/elle fréquente le plus (ex : Instagram, TikTok, LinkedIn, Pinterest, YouTube, Facebook…) ;
+- "contenus" = 4-6 types de contenus qu'il/elle aime consommer (lire / voir / écouter : formats, thèmes, comptes, podcasts, newsletters…) ;
 - "citation" = une phrase à la 1re personne, typique de ce qu'il/elle dirait sur sa com.
-Décris tout à la 3e personne (il/elle), de façon réaliste et nuancée.
+Décris tout à la 3e personne (il/elle), de façon réaliste et nuancée. Sois concret et spécifique, évite les généralités.
 Réponds UNIQUEMENT en JSON strict, sans texte autour :
-{"prenom":"","age":"","metier":"","situation":"","objectifs":["",""],"defis":["",""],"motivations":["",""],"objections":["",""],"canaux":["",""],"citation":""}`;
+{"prenom":"","age":"","metier":"","situation":"","style_vie":"","objectifs":["",""],"problematiques":["",""],"recherche":["",""],"avant":["",""],"erreurs":["",""],"objections":["",""],"reseaux_actuels":"","plateformes":["",""],"contenus":["",""],"citation":""}`;
   try{
-    const d = extractJson(await ask(prompt, {system:sys, max_tokens:2200}));
+    const d = extractJson(await ask(prompt, {system:sys, max_tokens:3200}));
     if(!d || !d.prenom) throw new Error('vide');
-    ['objectifs','defis','motivations','objections','canaux'].forEach(k=>{ if(!Array.isArray(d[k])) d[k] = d[k]?[String(d[k])]:[]; });
+    ['objectifs','problematiques','recherche','avant','erreurs','objections','plateformes','contenus'].forEach(k=>{ if(!Array.isArray(d[k])) d[k] = d[k]?[String(d[k])]:[]; });
     IDEAL.persona = d; idealSave(); drawIdeal();
     const r=$('#ideal-persona-out'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(out) out.innerHTML = errorBox("La génération n'a pas abouti. Réessaie dans un instant."); }
+}
+function idealPersonaBuildManual(){
+  const f = IDEAL.personaForm||{};
+  const listKeys=['objectifs','problematiques','recherche','avant','erreurs','objections','plateformes','contenus'];
+  const textKeys=['prenom','age','metier','situation','style_vie','reseaux_actuels','citation'];
+  const filled = textKeys.some(k=>(f[k]||'').trim()) || listKeys.some(k=>(f[k]||'').trim());
+  if(!filled){ toast('Remplis au moins quelques champs pour créer ton persona.'); return; }
+  const p={};
+  textKeys.forEach(k=> p[k]=(f[k]||'').trim());
+  listKeys.forEach(k=> p[k]=(f[k]||'').split('\n').map(s=>s.trim()).filter(Boolean));
+  if(!p.prenom) p.prenom='Mon persona';
+  IDEAL.persona = p; idealSave(); drawIdeal();
+  const r=$('#ideal-persona-out'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
 }
 </script>
 <script>
