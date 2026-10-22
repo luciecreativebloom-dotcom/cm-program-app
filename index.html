@@ -7012,8 +7012,8 @@ const IDEAL_Q = [
   {k:'reve',    t:"Des secteurs ou types de clients dont tu rêves ?", list:true, ph:"Ex : cosmétique naturelle (facultatif, plusieurs possibles)"},
 ];
 const IDEAL_MAX_SEARCH = 4;
-let IDEAL = { tab:'secteur', qstep:0, screen:{}, result:null, searchCount:0, savedSectors:[], selSectors:[], quests:null, analyse:null, persona:null, personaSector:null, personaNote:'', personas:[], personaOpen:null, personaEditing:null, questMode:'saved', customSector:{}, personaMode:'ia', personaUseAnalyse:true, personaForm:{}, _loaded:false };
-function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, result:IDEAL.result, searchCount:IDEAL.searchCount, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse, persona:IDEAL.persona, personaSector:IDEAL.personaSector, personaNote:IDEAL.personaNote, personas:IDEAL.personas, questMode:IDEAL.questMode, customSector:IDEAL.customSector, personaMode:IDEAL.personaMode, personaUseAnalyse:IDEAL.personaUseAnalyse, personaForm:IDEAL.personaForm}); }catch(e){} }
+let IDEAL = { tab:'secteur', qstep:0, screen:{}, searches:[], searchView:'new', savedSectors:[], selSectors:[], quests:null, analyse:null, persona:null, personaSector:null, personaNote:'', personas:[], personaOpen:null, personaEditing:null, questMode:'saved', customSector:{}, personaMode:'ia', personaUseAnalyse:true, personaForm:{}, _loaded:false };
+function idealSave(){ try{ setJSON('cmp:ideal', {tab:IDEAL.tab, qstep:IDEAL.qstep, screen:IDEAL.screen, searches:IDEAL.searches, searchView:IDEAL.searchView, savedSectors:IDEAL.savedSectors, selSectors:IDEAL.selSectors, quests:IDEAL.quests, analyse:IDEAL.analyse, persona:IDEAL.persona, personaSector:IDEAL.personaSector, personaNote:IDEAL.personaNote, personas:IDEAL.personas, questMode:IDEAL.questMode, customSector:IDEAL.customSector, personaMode:IDEAL.personaMode, personaUseAnalyse:IDEAL.personaUseAnalyse, personaForm:IDEAL.personaForm}); }catch(e){} }
 
 async function renderIdeal(){
   if(!IDEAL._loaded){
@@ -7028,7 +7028,13 @@ async function renderIdeal(){
     if(IDEAL.questMode!=='custom') IDEAL.questMode='saved';
     if(IDEAL.personaMode!=='manuel') IDEAL.personaMode='ia';
     if(typeof IDEAL.personaUseAnalyse!=='boolean') IDEAL.personaUseAnalyse=true;
-    if(typeof IDEAL.searchCount !== 'number') IDEAL.searchCount = 0;
+    if(!Array.isArray(IDEAL.searches)) IDEAL.searches = [];
+    // migration depuis l'ancien format (result unique) :
+    if(!IDEAL.searches.length && IDEAL.result && Array.isArray(IDEAL.result.secteurs)) IDEAL.searches = [IDEAL.result];
+    IDEAL.result = null;
+    if(IDEAL.searchView!=='new' && !(Number.isInteger(IDEAL.searchView) && IDEAL.searchView>=0 && IDEAL.searchView<IDEAL.searches.length)){
+      IDEAL.searchView = IDEAL.searches.length ? IDEAL.searches.length-1 : 'new';
+    }
     IDEAL._loaded = true;
   }
   drawIdeal();
@@ -7065,9 +7071,14 @@ function idealWizardHTML(){
     </div>`;
 }
 function idealResultHTML(){
-  if(!IDEAL.result || !Array.isArray(IDEAL.result.secteurs)) return '';
+  const n = IDEAL.searches.length;
+  if(!n) return '';
+  let vi = Number.isInteger(IDEAL.searchView) ? IDEAL.searchView : n-1;
+  if(vi<0||vi>=n) vi=n-1;
+  const cur = IDEAL.searches[vi];
+  if(!cur || !Array.isArray(cur.secteurs)) return '';
   const plist=(cls,h,arr)=> (arr&&arr.length)?`<div class="is-pl ${cls}"><div class="is-pl-h">${h}</div><ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:'';
-  const cards = IDEAL.result.secteurs.map((sec,i)=>{
+  const cards = cur.secteurs.map((sec,i)=>{
     const saved = IDEAL.savedSectors.some(s=> s.nom===sec.nom);
     return `<div class="isect">
       <div class="is-h"><span class="is-num">${i+1}</span><span class="is-n">${esc(sec.nom||'')}</span>
@@ -7079,11 +7090,14 @@ function idealResultHTML(){
       <div class="is-cl">${(sec.clients||[]).map(c=>`<span>${esc(c)}</span>`).join('')}</div>
     </div>`;
   }).join('');
-  const left = Math.max(0, IDEAL_MAX_SEARCH - (IDEAL.searchCount||0));
+  const left = Math.max(0, IDEAL_MAX_SEARCH - n);
   const newBtn = left>0
     ? `<button class="btn ghost sm" id="ideal-new" style="margin-left:auto;flex:none;">Nouvelle recherche (${left})</button>`
     : `<span style="margin-left:auto;font-size:11px;color:var(--ink-3);font-weight:600;text-align:right;">Limite de ${IDEAL_MAX_SEARCH} recherches atteinte</span>`;
-  return `<div style="display:flex;align-items:center;gap:10px;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">Tes 3 secteurs & leurs clients</p>${newBtn}</div>${cards}`;
+  // sélecteur d'historique (si plusieurs recherches)
+  const pager = n>1 ? `<div class="ichips" style="margin-bottom:14px;">${IDEAL.searches.map((s,ix)=>`<button class="ichip${ix===vi?' on':''}" data-searchview="${ix}">Recherche ${ix+1}</button>`).join('')}</div>` : '';
+  const title = n>1 ? `Recherche ${vi+1} · tes 3 secteurs` : `Tes 3 secteurs & leurs clients`;
+  return `<div style="display:flex;align-items:center;gap:10px;margin:20px 0 10px;"><p class="sec-t" style="margin:0;">${title}</p>${newBtn}</div>${pager}${cards}`;
 }
 function idealQuestHTML(){
   if(!IDEAL.quests || !Array.isArray(IDEAL.quests.questionnaires)) return '';
@@ -7382,8 +7396,10 @@ function drawIdeal(){
     </div>
     <div id="ideal-pane-secteur"${IDEAL.tab==='secteur'?'':' style="display:none;"'}>
       <div id="ideal-carnet">${idealCarnetHTML()}</div>
-      ${IDEAL.result ? '' : idealWizardHTML()}
-      <div id="ideal-result">${idealResultHTML()}</div>
+      ${(IDEAL.searchView==='new' || !IDEAL.searches.length)
+        ? `${IDEAL.searches.length?`<button class="btn ghost sm" id="ideal-back" style="margin-bottom:12px;">← Revenir à mes résultats</button>`:''}${idealWizardHTML()}`
+        : ''}
+      <div id="ideal-result">${(IDEAL.searchView==='new' || !IDEAL.searches.length) ? '' : idealResultHTML()}</div>
     </div>
     <div id="ideal-pane-quest"${IDEAL.tab==='quest'?'':' style="display:none;"'}>
       <div class="card pad-l">
@@ -7468,12 +7484,17 @@ function drawIdeal(){
   const rin=$('#ideal-reve-in'); if(rin) rin.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); raddF(); } });
   box.querySelectorAll('[data-revedel]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.screen.reve.splice(+b.dataset.revedel,1); idealSave(); drawIdeal(); }));
   const an=$('#ideal-analyze'); if(an) an.addEventListener('click', idealAnalyze);
-  const nw=$('#ideal-new'); if(nw) nw.addEventListener('click', ()=>{ IDEAL.result=null; IDEAL.qstep=0; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
-  // enregistrer un secteur
+  // « Nouvelle recherche » : montre l'assistant SANS effacer les recherches déjà faites
+  const nw=$('#ideal-new'); if(nw) nw.addEventListener('click', ()=>{ IDEAL.searchView='new'; IDEAL.qstep=0; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
+  // « Revenir à mes résultats » : annule la nouvelle recherche en cours
+  const bk=$('#ideal-back'); if(bk) bk.addEventListener('click', ()=>{ IDEAL.searchView=IDEAL.searches.length-1; idealSave(); drawIdeal(); window.scrollTo({top:0,behavior:'smooth'}); });
+  // sélecteur d'historique des recherches
+  box.querySelectorAll('[data-searchview]').forEach(b=> b.addEventListener('click', ()=>{ IDEAL.searchView=+b.dataset.searchview; idealSave(); drawIdeal(); }));
+  // enregistrer un secteur (depuis la recherche actuellement affichée)
   box.querySelectorAll('[data-savesec]').forEach(b=> b.addEventListener('click', ()=>{
     const nom=b.dataset.savesec; const idx=IDEAL.savedSectors.findIndex(s=> s.nom===nom);
     if(idx>=0){ IDEAL.savedSectors.splice(idx,1); const j=IDEAL.selSectors.indexOf(nom); if(j>=0) IDEAL.selSectors.splice(j,1); }
-    else { const sec=((IDEAL.result&&IDEAL.result.secteurs)||[]).find(s=> s.nom===nom);
+    else { const all=[].concat(...IDEAL.searches.map(s=>(s&&s.secteurs)||[])); const sec=all.find(s=> s.nom===nom);
       if(sec){ IDEAL.savedSectors.push({nom:sec.nom, pourquoi:sec.pourquoi||'', avantages:sec.avantages||[], inconvenients:sec.inconvenients||[], clients:sec.clients||[]}); toast('Secteur ajouté à ton carnet'); } }
     idealSave(); drawIdeal();
   }));
@@ -7569,7 +7590,7 @@ function drawIdeal(){
 }
 
 async function idealAnalyze(){
-  if((IDEAL.searchCount||0) >= IDEAL_MAX_SEARCH){ toast(`Tu as atteint la limite de ${IDEAL_MAX_SEARCH} recherches.`); return; }
+  if(IDEAL.searches.length >= IDEAL_MAX_SEARCH){ toast(`Tu as atteint la limite de ${IDEAL_MAX_SEARCH} recherches.`); return; }
   const a = IDEAL.screen;
   if(!(a.univers && a.univers.length)){ toast("Choisis au moins un univers qui t'attire."); return; }
   const res=$('#ideal-result'); if(res) res.innerHTML = loadingBox('Merci ! Laisse-moi réfléchir quelques minutes pour analyser tout ça…');
@@ -7600,7 +7621,7 @@ Réponds UNIQUEMENT en JSON strict, sans texte autour :
   try{
     const d = extractJson(await ask(prompt, {system:sys, max_tokens:3200}));
     if(!d || !Array.isArray(d.secteurs) || !d.secteurs.length) throw new Error('vide');
-    IDEAL.result = d; IDEAL.searchCount = (IDEAL.searchCount||0)+1; idealSave(); drawIdeal();
+    IDEAL.searches.push(d); IDEAL.searchView = IDEAL.searches.length-1; idealSave(); drawIdeal();
     const r=$('#ideal-result'); if(r) window.scrollTo({top: r.getBoundingClientRect().top+window.scrollY-70, behavior:'smooth'});
   }catch(e){ if(res) res.innerHTML = errorBox("L'analyse n'a pas abouti. Réessaie dans un instant."); }
 }
