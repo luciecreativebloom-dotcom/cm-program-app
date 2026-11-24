@@ -834,6 +834,13 @@ p{margin:0 0 12px;}
 .howto-av{flex:0 0 auto;width:36px;height:36px;border-radius:50%;overflow:hidden;background:conic-gradient(from 210deg,var(--sun),#f2c48a,var(--sun));box-shadow:0 2px 7px rgba(42,16,48,.14);}
 .howto-av img{width:100%;height:100%;object-fit:cover;object-position:70% 20%;display:block;}
 /* banderole nouvelle fonctionnalité */
+/* Bandeau d'information en haut de l'app */
+.infobar{display:flex;align-items:center;gap:14px;background:linear-gradient(100deg,var(--gold-pale),#FEF6E2);border:1px solid #F3D48A;border-radius:14px;padding:12px 13px 12px 18px;margin-bottom:22px;box-shadow:var(--shadow-s);}
+.infobar .ib-txt{flex:1;min-width:0;margin:0;font-size:14px;line-height:1.45;color:var(--ink);}
+.infobar .ib-txt b{color:var(--bloom);font-weight:800;}
+.infobar .ib-go{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:none;background:var(--sun);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .12s;box-shadow:0 2px 6px rgba(226,88,32,.3);}
+.infobar .ib-go svg{width:19px;height:19px;display:block;}
+.infobar .ib-go:hover{background:var(--sun-2);transform:translateX(2px);}
 .promo-banner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:130;width:calc(100% - 32px);max-width:520px;
   display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,var(--bloom),#a8335a);color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 16px 38px rgba(42,16,48,.34);animation:pbUp .38s cubic-bezier(.2,.7,.2,1);}
 .promo-banner[hidden]{display:none !important;}
@@ -1023,6 +1030,14 @@ select.off-in{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg
   </aside>
 
   <main class="main" id="main">
+
+    <!-- ---------- BANDEAU D'INFO (maintenance / rebrand) ---------- -->
+    <div class="infobar" id="infobar">
+      <p class="ib-txt"><b>L'app se refait une beauté 🪄</b> Quelques changements vont opérer par ici… Pensez à sauvegarder vos données&nbsp;!</p>
+      <button class="ib-go" id="infobar-go" aria-label="Sauvegarder mes données">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
 
     <!-- ---------- ACCUEIL ---------- -->
     <section class="view on" id="v-home">
@@ -2409,6 +2424,7 @@ const closeSide = ()=>{ $('#side').classList.remove('open'); $('#scrim').classLi
 $('#burger').addEventListener('click', openSide);
 $('#scrim').addEventListener('click', closeSide);
 $('#data-btn').addEventListener('click', ()=> $('#datamodal').classList.add('on'));
+{ const ibg=$('#infobar-go'); if(ibg) ibg.addEventListener('click', ()=> $('#datamodal').classList.add('on')); }
 $('#datamodal-ok').addEventListener('click', ()=> $('#datamodal').classList.remove('on'));
 $('#datamodal').addEventListener('click', e=>{ if(e.target.id === 'datamodal') $('#datamodal').classList.remove('on'); });
 /* --- Banderole « Nouvelle fonctionnalité : Mes offres » (une seule fois) --- */
